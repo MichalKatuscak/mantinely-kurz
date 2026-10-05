@@ -1,0 +1,269 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Ordering\Domain;
+
+use App\Ordering\Domain\Event\OrderCancelled;
+use App\Ordering\Domain\Event\OrderConfirmed;
+use App\Ordering\Domain\Event\OrderItemAdded;
+use App\Ordering\Domain\Event\OrderPaid;
+use App\Ordering\Domain\Event\OrderPlaced;
+use App\Ordering\Domain\Exception\CurrencyMismatchException;
+use App\Ordering\Domain\Exception\EmptyOrderException;
+use App\Ordering\Domain\Exception\InvalidOrderStateTransitionException;
+use App\Ordering\Domain\Model\Order;
+use App\Ordering\Domain\ValueObject\CustomerId;
+use App\Ordering\Domain\ValueObject\OrderId;
+use App\Ordering\Domain\ValueObject\OrderStatus;
+use App\Ordering\Domain\ValueObject\ProductId;
+use App\SharedKernel\Domain\Currency;
+use App\SharedKernel\Domain\Money;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+
+#[CoversClass(Order::class)]
+final class OrderTest extends TestCase
+{
+    #[Test]
+    public function placedOrderIsDraftAndRecordsOrderPlaced(): void
+    {
+        $order = Order::place(OrderId::generate(), CustomerId::generate());
+
+        self::assertSame(OrderStatus::Draft, $order->status);
+        $events = $order->releaseEvents();
+        self::assertCount(1, $events);
+        self::assertInstanceOf(OrderPlaced::class, $events[0]);
+    }
+
+    #[Test]
+    public function sameProductIsAddedToExistingItem(): void
+    {
+        $order = $this->draftOrder();
+        $order->releaseEvents();
+        $productId = ProductId::generate();
+
+        $order->addItem($productId, 1, $this->czk(500_00));
+        $order->addItem($productId, 2, $this->czk(500_00));
+
+        self::assertCount(1, $order->items);
+        self::assertSame(3, $order->items[0]->quantity);
+        self::assertContainsOnlyInstancesOf(OrderItemAdded::class, $order->releaseEvents());
+    }
+
+    #[Test]
+    public function itemCannotBeAddedToConfirmedOrder(): void
+    {
+        $order = $this->confirmedOrder();
+
+        $this->expectException(InvalidOrderStateTransitionException::class);
+        $order->addItem(ProductId::generate(), 1, $this->czk(100_00));
+    }
+
+    #[Test]
+    public function itemInOtherCurrencyIsRejected(): void
+    {
+        $order = $this->draftOrder();
+
+        $this->expectException(CurrencyMismatchException::class);
+        $order->addItem(ProductId::generate(), 1, new Money(100_00, Currency::EUR));
+    }
+
+    #[Test]
+    public function emptyOrderCannotBeConfirmed(): void
+    {
+        $order = $this->draftOrder();
+
+        $this->expectException(EmptyOrderException::class);
+        $order->confirm();
+    }
+
+    #[Test]
+    public function confirmedOrderRecordsOrderConfirmed(): void
+    {
+        $order = $this->draftOrder();
+        $order->addItem(ProductId::generate(), 1, $this->czk(100_00));
+        $order->releaseEvents();
+
+        $order->confirm(new \DateTimeImmutable('2026-03-10 10:00'));
+
+        self::assertSame(OrderStatus::Confirmed, $order->status);
+        self::assertEquals(new \DateTimeImmutable('2026-03-10 10:00'), $order->placedAt);
+        $events = $order->releaseEvents();
+        self::assertCount(1, $events);
+        self::assertInstanceOf(OrderConfirmed::class, $events[0]);
+    }
+
+    #[Test]
+    public function draftOrderCannotBePaid(): void
+    {
+        $order = $this->draftOrder();
+
+        $this->expectException(InvalidOrderStateTransitionException::class);
+        $order->markPaid();
+    }
+
+    #[Test]
+    public function secondPaymentRecordsNothing(): void
+    {
+        $order = $this->paidOrder();
+        $order->releaseEvents();
+
+        $order->markPaid();
+
+        self::assertSame(OrderStatus::Paid, $order->status);
+        self::assertSame([], $order->releaseEvents());
+    }
+
+    #[Test]
+    public function paidOrderRecordsOrderPaid(): void
+    {
+        $order = $this->confirmedOrder();
+        $order->releaseEvents();
+
+        $order->markPaid();
+
+        $events = $order->releaseEvents();
+        self::assertCount(1, $events);
+        self::assertInstanceOf(OrderPaid::class, $events[0]);
+    }
+
+    #[Test]
+    public function confirmedOrderCannotBeShipped(): void
+    {
+        $order = $this->confirmedOrder();
+
+        $this->expectException(InvalidOrderStateTransitionException::class);
+        $order->ship();
+    }
+
+    #[Test]
+    public function shippedOrderCanBeDelivered(): void
+    {
+        $order = $this->shippedOrder();
+
+        $order->deliver();
+
+        self::assertSame(OrderStatus::Delivered, $order->status);
+    }
+
+    #[Test]
+    public function paidOrderCanBeCancelled(): void
+    {
+        $order = $this->paidOrder();
+        $order->releaseEvents();
+
+        $order->cancel('customer request', new \DateTimeImmutable());
+
+        self::assertSame(OrderStatus::Cancelled, $order->status);
+        $events = $order->releaseEvents();
+        self::assertCount(1, $events);
+        self::assertInstanceOf(OrderCancelled::class, $events[0]);
+    }
+
+    #[Test]
+    public function draftOrderCanBeCancelled(): void
+    {
+        $order = $this->draftOrder();
+
+        $order->cancel('customer request', new \DateTimeImmutable());
+
+        self::assertSame(OrderStatus::Cancelled, $order->status);
+    }
+
+    #[Test]
+    public function shippedOrderCannotBeCancelled(): void
+    {
+        $order = $this->shippedOrder();
+        $order->releaseEvents();
+
+        try {
+            $order->cancel('customer request', new \DateTimeImmutable());
+            self::fail('Expected InvalidOrderStateTransitionException');
+        } catch (InvalidOrderStateTransitionException) {
+        }
+        self::assertSame(OrderStatus::Shipped, $order->status);
+        self::assertSame([], $order->releaseEvents());
+    }
+
+    #[Test]
+    public function secondCancelRecordsNothing(): void
+    {
+        $order = $this->paidOrder();
+        $order->cancel('customer request', new \DateTimeImmutable());
+        $order->releaseEvents();
+
+        $order->cancel('customer request', new \DateTimeImmutable());
+
+        self::assertSame(OrderStatus::Cancelled, $order->status);
+        self::assertSame([], $order->releaseEvents());
+    }
+
+    #[Test]
+    public function paidAmountIsItemsTotalAfterDiscount(): void
+    {
+        $order = $this->draftOrder();
+        $order->addItem(ProductId::generate(), 2, $this->czk(300_00));
+        $order->addItem(ProductId::generate(), 1, $this->czk(400_00));
+
+        $order->applyDiscount($this->czk(100_00));
+
+        self::assertSame(1000_00, $order->totalAmount()->amountInCents);
+        self::assertSame(900_00, $order->paidAmount()->amountInCents);
+    }
+
+    #[Test]
+    public function discountCannotChangeAfterConfirmation(): void
+    {
+        $order = $this->confirmedOrder();
+
+        $this->expectException(InvalidOrderStateTransitionException::class);
+        $order->applyDiscount($this->czk(100_00));
+    }
+
+    #[Test]
+    public function orderIsOwnedByCustomerWhoPlacedIt(): void
+    {
+        $customerId = CustomerId::generate();
+        $order = Order::place(OrderId::generate(), $customerId);
+
+        self::assertTrue($order->isOwnedBy($customerId));
+        self::assertFalse($order->isOwnedBy(CustomerId::generate()));
+    }
+
+    private function draftOrder(): Order
+    {
+        return Order::place(OrderId::generate(), CustomerId::generate());
+    }
+
+    private function confirmedOrder(): Order
+    {
+        $order = $this->draftOrder();
+        $order->addItem(ProductId::generate(), 2, $this->czk(500_00));
+        $order->confirm();
+
+        return $order;
+    }
+
+    private function paidOrder(): Order
+    {
+        $order = $this->confirmedOrder();
+        $order->markPaid();
+
+        return $order;
+    }
+
+    private function shippedOrder(): Order
+    {
+        $order = $this->paidOrder();
+        $order->ship();
+
+        return $order;
+    }
+
+    private function czk(int $amountInCents): Money
+    {
+        return new Money($amountInCents, Currency::CZK);
+    }
+}

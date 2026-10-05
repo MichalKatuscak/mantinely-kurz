@@ -1,0 +1,115 @@
+<?php
+/**
+ * Objednavky – seznam a detail.
+ *
+ * Editace stavu a slevy je v order_edit.php, hromadne storno v orders.php
+ * (stare stranky, nikdo je neprepsal).
+ */
+
+namespace App\Legacy\Admin;
+
+class OrderController extends BaseController
+{
+    protected $title = 'Objednávky';
+
+    public function listAction()
+    {
+        global $db;
+        legacy_db();
+
+        $status = get_param('status');
+        $q = get_param('q');
+        $from = get_param('from');
+        $to = get_param('to');
+        list($offset, $limit, $page) = paginate(get_param('page', 1));
+
+        $where = " WHERE 1=1";
+        if ($status != '') {
+            $where .= " AND o.status = '" . $status . "'";
+        }
+        if ($q != '') {
+            $where .= " AND (o.id LIKE '%" . $q . "%' OR c.email LIKE '%" . $q . "%' OR c.name LIKE '%" . $q . "%')";
+        }
+        if ($from != '') {
+            $where .= " AND o.placed_at >= '" . $from . "'";
+        }
+        if ($to != '') {
+            $where .= " AND o.placed_at <= '" . $to . " 23:59:59'";
+        }
+
+        $total = (int) $db->value("SELECT COUNT(*) FROM orders o LEFT JOIN customers c ON c.id = o.customer_id" . $where);
+
+        $orders = $db->query("SELECT o.*, c.name AS customer_name, c.email AS customer_email,"
+            . " (SELECT SUM(quantity * unit_price_amount_in_cents) FROM order_items WHERE order_id = o.id) AS total,"
+            . " (SELECT COUNT(*) FROM order_notes WHERE order_id = o.id) AS notes"
+            . " FROM orders o LEFT JOIN customers c ON c.id = o.customer_id"
+            . $where
+            . " ORDER BY o.placed_at DESC"
+            . " LIMIT " . (int) $limit . " OFFSET " . (int) $offset);
+
+        return $this->renderLayout('orders/list', array(
+            'orders' => $orders,
+            'status' => $status,
+            'q'      => $q,
+            'from'   => $from,
+            'to'     => $to,
+            'pager'  => pager_html($page, $total, $limit, admin_url('orders', array('status' => $status, 'q' => $q))),
+            'total'  => $total,
+            'states' => $GLOBALS['ORDER_STATES'],
+        ));
+    }
+
+    public function detailAction()
+    {
+        global $db;
+        legacy_db();
+
+        $id = get_param('id');
+        $order = $db->one("SELECT * FROM orders WHERE id = '" . $id . "'");
+        if ($order === null) {
+            return $this->notFound('Objednávka ' . $id . ' neexistuje');
+        }
+
+        $items = $db->query("SELECT i.*, p.name, p.sku FROM order_items i LEFT JOIN products p ON p.id = i.product_id WHERE i.order_id = '" . $id . "' ORDER BY i.id");
+        $customer = $db->one("SELECT * FROM customers WHERE id = '" . $order['customer_id'] . "'");
+        $notes = $db->query("SELECT * FROM order_notes WHERE order_id = '" . $id . "' ORDER BY created_at DESC");
+        $invoice = $db->one("SELECT * FROM invoices WHERE order_id = '" . $id . "'");
+        $history = $db->query("SELECT * FROM audit_log WHERE entity = 'order' AND entity_id = '" . $id . "' ORDER BY created_at DESC LIMIT 50");
+
+        $sum = 0;
+        foreach ($items as $it) {
+            $sum += $it['quantity'] * $it['unit_price_amount_in_cents'];
+        }
+
+        return $this->renderLayout('orders/detail', array(
+            'order'    => $order,
+            'items'    => $items,
+            'customer' => $customer,
+            'notes'    => $notes,
+            'invoice'  => $invoice,
+            'history'  => $history,
+            'sum'      => $sum,
+            'toPay'    => max(0, $sum - (int) $order['discount_amount_in_cents']),
+        ), 'Objednávka ' . $id);
+    }
+
+    /**
+     * Objednavky zakaznika (volano z detailu zakaznika pres AJAX, 2016).
+     */
+    public function byCustomerAction()
+    {
+        global $db;
+        legacy_db();
+        $cid = get_param('customer');
+        $orders = $db->query("SELECT o.id, o.status, o.placed_at, o.currency FROM orders o WHERE o.customer_id = '" . $cid . "' ORDER BY o.placed_at DESC");
+        $html = '<ul>';
+        foreach ($orders as $o) {
+            $html .= '<li><a href="' . h(admin_url('order', array('id' => $o['id']))) . '">' . h($o['id']) . '</a> – '
+                . h(order_state_label($o['status'])) . ', ' . format_date($o['placed_at']) . ', '
+                . format_price(order_total($o['id']), $o['currency']) . '</li>';
+        }
+        $html .= '</ul>';
+
+        return $html;
+    }
+}

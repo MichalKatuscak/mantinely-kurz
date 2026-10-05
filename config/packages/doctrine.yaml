@@ -1,0 +1,49 @@
+doctrine:
+    dbal:
+        url: '%env(resolve:DATABASE_URL)%'
+        profiling_collect_backtrace: '%kernel.debug%'
+        # Doctrine spravuje jen tabulky nového kódu. Tabulky staré administrace
+        # (src/Legacy) zakládají vlastní migrace a diff na ně nesahá.
+        schema_filter: ~^(orders|order_items|stock_items)$~
+        types:
+            order_id: App\Ordering\Infrastructure\Doctrine\Type\OrderIdType
+            customer_id: App\Ordering\Infrastructure\Doctrine\Type\CustomerIdType
+            product_id: App\Ordering\Infrastructure\Doctrine\Type\ProductIdType
+    orm:
+        validate_xml_mapping: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_mapping: false
+        mappings:
+            Ordering:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Ordering/Domain/Model'
+                prefix: 'App\Ordering\Domain\Model'
+            Inventory:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Inventory/Domain/Model'
+                prefix: 'App\Inventory\Domain\Model'
+            SharedKernel:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/SharedKernel/Domain'
+                prefix: 'App\SharedKernel\Domain'
+
+when@prod:
+    doctrine:
+        orm:
+            query_cache_driver:
+                type: pool
+                pool: doctrine.system_cache_pool
+            result_cache_driver:
+                type: pool
+                pool: doctrine.result_cache_pool
+
+    framework:
+        cache:
+            pools:
+                doctrine.result_cache_pool:
+                    adapter: cache.app
+                doctrine.system_cache_pool:
+                    adapter: cache.system

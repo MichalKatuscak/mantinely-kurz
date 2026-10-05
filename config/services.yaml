@@ -1,0 +1,46 @@
+# Autowiring po ohraničených kontextech (kniha DDD v Symfony, „Autowiring s oddělenými
+# Bounded Contexts“). Třída v adresáři, který tu není vyjmenovaný, není služba.
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # ──────────────────────────────────────────────────
+    # Ohraničený kontext Ordering
+    # ──────────────────────────────────────────────────
+    App\Ordering\:
+        resource: '../src/Ordering/'
+        exclude:
+            - '../src/Ordering/Domain/Model/'
+            - '../src/Ordering/Domain/ValueObject/'
+            - '../src/Ordering/Domain/Event/'
+            - '../src/Ordering/Domain/Exception/'
+            - '../src/Ordering/Application/Command/'
+
+    App\Ordering\Domain\Repository\OrderRepository: '@App\Ordering\Infrastructure\Repository\DoctrineOrderRepository'
+    App\Ordering\Application\Port\ProductCatalog: '@App\Ordering\Infrastructure\Catalog\DbalProductCatalog'
+
+    # ──────────────────────────────────────────────────
+    # Ohraničený kontext Inventory
+    # ──────────────────────────────────────────────────
+    App\Inventory\:
+        resource: '../src/Inventory/'
+        exclude:
+            - '../src/Inventory/Domain/Model/'
+            - '../src/Inventory/Domain/Exception/'
+
+    App\Inventory\Domain\Repository\StockItemRepository: '@App\Inventory\Infrastructure\Repository\DoctrineStockItemRepository'
+
+    # ──────────────────────────────────────────────────
+    # Identity: přihlášený zákazník
+    # ──────────────────────────────────────────────────
+    App\Identity\:
+        resource: '../src/Identity/'
+
+    # ──────────────────────────────────────────────────
+    # SharedKernel: sdílené komponenty napříč kontexty
+    # ──────────────────────────────────────────────────
+    App\SharedKernel\:
+        resource: '../src/SharedKernel/'
+        exclude:
+            - '../src/SharedKernel/Domain/'

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Mantinely – obchod{% endblock %}</title>
+    </head>
+    <body>
+        {% for message in app.flashes('success') %}
+            <p class="flash">{{ message }}</p>
+        {% endfor %}
+        {% block body %}{% endblock %}
+    </body>
+</html>

@@ -1,0 +1,8 @@
+# Stará administrace (src/Legacy) běží přes jeden vstupní bod.
+legacy_admin:
+    path: /admin/legacy/{page}
+    controller: App\Legacy\Http\LegacyFrontController
+    defaults:
+        page: dashboard
+    requirements:
+        page: '[a-z_]+'

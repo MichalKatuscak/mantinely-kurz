@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Moje objednávky{% endblock %}
+
+{% block body %}
+    <h1>Moje objednávky</h1>
+
+    <form method="post" action="{{ path('order_place') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('order_place') }}">
+        <button type="submit">Nová objednávka</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr><th>Objednávka</th><th>Stav</th><th>Zaplatit</th></tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td><a href="{{ path('order_detail', {id: order.id.value}) }}">{{ order.id.value }}</a></td>
+                    <td>{{ order.status.value }}</td>
+                    <td>{{ order.paidAmount|money }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="3">Zatím žádné objednávky.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
