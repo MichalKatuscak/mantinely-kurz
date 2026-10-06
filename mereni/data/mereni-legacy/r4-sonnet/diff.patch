@@ -1,0 +1,125 @@
+diff --git a/src/Legacy/Admin/OrderController.php b/src/Legacy/Admin/OrderController.php
+index e26dff6..3356c88 100644
+--- a/src/Legacy/Admin/OrderController.php
++++ b/src/Legacy/Admin/OrderController.php
+@@ -93,6 +93,88 @@ class OrderController extends BaseController
+         ), 'Objednávka ' . $id);
+     }
+ 
++    /**
++     * Storno objednavky: stav cancelled, uvolneni rezervaci ve skladu a vraceni
++     * zaplacene castky zakaznikovi. Stejna pravidla jako Order::cancel() –
++     * odeslanou a dorucenou objednavku nelze stornovat.
++     */
++    public function cancelAction()
++    {
++        global $db;
++        legacy_db();
++        auth_require('obchod');
++
++        $id = post_param('id');
++        $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
++        if ($order === null) {
++            return $this->notFound('Objednávka ' . $id . ' neexistuje');
++        }
++
++        $back = admin_url('order', array('id' => $id));
++        if ($order['status'] == 'cancelled') {
++            flash('Objednávka už je stornovaná.', 'error');
++
++            return $this->redirect($back);
++        }
++        if (!in_array($order['status'], array('draft', 'confirmed', 'paid'))) {
++            flash('Odeslanou nebo doručenou objednávku nelze stornovat.', 'error');
++
++            return $this->redirect($back);
++        }
++
++        // vracime jen to, co zakaznik skutecne zaplatil
++        $refund = $order['status'] == 'paid' ? order_total_after_discount($id) : 0;
++
++        $db->begin();
++        try {
++            $db->exec("UPDATE orders SET status = 'cancelled' WHERE id = " . $db->quote($id));
++
++            // vratit zbozi na sklad = uvolnit rezervace teto objednavky
++            $released = array();
++            foreach ($db->query("SELECT product_id, reservations FROM stock_items") as $s) {
++                $data = json_decode((string) $s['reservations'], true);
++                if (!is_array($data) || !isset($data[$id])) {
++                    continue;
++                }
++                $released[$s['product_id']] = (int) $data[$id];
++                unset($data[$id]);
++                $db->exec("UPDATE stock_items SET reservations = " . $db->quote(json_encode((object) $data))
++                    . " WHERE product_id = " . $db->quote($s['product_id']));
++            }
++
++            audit_log('order', $id, 'storno', array(
++                'from'     => $order['status'],
++                'refund'   => $refund,
++                'currency' => $order['currency'],
++                'released' => $released,
++            ));
++            if ($refund > 0) {
++                $db->exec("INSERT INTO order_notes (order_id, author, note, created_at) VALUES ("
++                    . $db->quote($id) . ", " . $db->quote(auth_login_name()) . ", "
++                    . $db->quote('Storno: k vrácení zákazníkovi ' . format_price($refund, $order['currency'])) . ", "
++                    . "'" . date('Y-m-d H:i:s') . "')");
++            }
++            $db->commit();
++        } catch (\Throwable $e) {
++            $db->rollback();
++            throw $e;
++        }
++
++        $c = $db->one("SELECT email FROM customers WHERE id = " . $db->quote($order['customer_id']));
++        if ($c) {
++            $body = "Dobrý den,\n\nvaše objednávka " . $id . " byla stornována.\n";
++            if ($refund > 0) {
++                $body .= "Zaplacenou částku " . format_price($refund, $order['currency']) . " vám vrátíme.\n";
++            }
++            send_mail($c['email'], 'Objednávka byla stornována', $body);
++        }
++
++        cache_delete('dashboard_stats');
++        flash('Objednávka stornována.' . ($refund > 0 ? ' K vrácení zákazníkovi: ' . format_price($refund, $order['currency']) . '.' : ''));
++
++        return $this->redirect($back);
++    }
++
+     /**
+      * Objednavky zakaznika (volano z detailu zakaznika pres AJAX, 2016).
+      */
+diff --git a/src/Legacy/Http/LegacyFrontController.php b/src/Legacy/Http/LegacyFrontController.php
+index a27ab53..d7a00a6 100644
+--- a/src/Legacy/Http/LegacyFrontController.php
++++ b/src/Legacy/Http/LegacyFrontController.php
+@@ -38,7 +38,8 @@ class LegacyFrontController
+         'report_top'         => array(ReportController::class, 'topAction'),
+         'orders'             => array(OrderController::class, 'listAction'),
+         'order'              => array(OrderController::class, 'detailAction'),
+-        'customer_orders'    => array(OrderController::class, 'byCustomerAction'),
++        'order_cancel'       => array(OrderController::class, 'cancelAction'),
++        'customer_orders'   => array(OrderController::class, 'byCustomerAction'),
+         'customers'          => array(CustomerController::class, 'listAction'),
+         'customer'           => array(CustomerController::class, 'detailAction'),
+         'customer_delete'    => array(CustomerController::class, 'deleteAction'),
+diff --git a/src/Legacy/templates/orders/detail.php b/src/Legacy/templates/orders/detail.php
+index 7cf2439..5392c83 100644
+--- a/src/Legacy/templates/orders/detail.php
++++ b/src/Legacy/templates/orders/detail.php
+@@ -51,6 +51,13 @@
+     <a href="<?php echo h(admin_url('order_notes', array('order' => $order['id']))); ?>">Poznámky (<?php echo count($notes); ?>)</a>
+ </p>
+ 
++<?php if (in_array($order['status'], array('draft', 'confirmed', 'paid'))) { ?>
++<form method="post" action="<?php echo h(admin_url('order_cancel')); ?>" onsubmit="return confirm('Opravdu stornovat objednávku?<?php echo $order['status'] == 'paid' ? ' Zákazníkovi se vrátí ' . h(format_price($toPay, $order['currency'])) . '.' : ''; ?>')">
++    <input type="hidden" name="id" value="<?php echo h($order['id']); ?>">
++    <input type="submit" value="Stornovat objednávku">
++</form>
++<?php } ?>
++
+ <h2>Poznámky</h2>
+ <?php foreach ($notes as $n) { ?>
+     <p><strong><?php echo h($n['author']); ?></strong>, <?php echo format_date($n['created_at'], true); ?>:<br><?php echo nl2br(h($n['note'])); ?></p>

@@ -1,0 +1,3 @@
+ M src/Legacy/Admin/OrderController.php
+ M src/Legacy/Http/LegacyFrontController.php
+ M src/Legacy/templates/orders/detail.php

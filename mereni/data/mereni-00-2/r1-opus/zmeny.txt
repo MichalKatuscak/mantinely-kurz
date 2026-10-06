@@ -1,0 +1,9 @@
+ M src/Ordering/Domain/Event/OrderCancelled.php
+ M src/Ordering/Domain/Model/Order.php
+ M src/Ordering/Infrastructure/Http/OrderController.php
+ M templates/order/detail.html.twig
+ M tests/Ordering/Domain/OrderTest.php
+ M tests/Ordering/Infrastructure/OrderControllerTest.php
+?? migrations/Version20261006090000.php
+?? src/Ordering/Application/Command/CancelOrder.php
+?? src/Ordering/Application/Handler/CancelOrderHandler.php

@@ -1,0 +1,155 @@
+diff --git a/src/Ordering/Domain/Event/OrderCancelled.php b/src/Ordering/Domain/Event/OrderCancelled.php
+index 89158e2..f668831 100644
+--- a/src/Ordering/Domain/Event/OrderCancelled.php
++++ b/src/Ordering/Domain/Event/OrderCancelled.php
+@@ -6,6 +6,7 @@ namespace App\Ordering\Domain\Event;
+ 
+ use App\Ordering\Domain\ValueObject\CustomerId;
+ use App\Ordering\Domain\ValueObject\OrderId;
++use App\SharedKernel\Domain\Money;
+ 
+ final readonly class OrderCancelled
+ {
+@@ -14,5 +15,7 @@ final readonly class OrderCancelled
+         public CustomerId $customerId,
+         public string $reason,
+         public \DateTimeImmutable $occurredAt,
++        // Zaplacená částka, která se vrací zákazníkovi; nulová, pokud nezaplatil.
++        public Money $refundAmount,
+     ) {}
+ }
+diff --git a/src/Ordering/Domain/Model/Order.php b/src/Ordering/Domain/Model/Order.php
+index e38660d..61e4444 100644
+--- a/src/Ordering/Domain/Model/Order.php
++++ b/src/Ordering/Domain/Model/Order.php
+@@ -190,8 +190,11 @@ final class Order extends AggregateRoot
+             );
+         }
+ 
++        // Vrací se jen to, co zákazník skutečně zaplatil (částka po slevě).
++        $refund = $this->status === OrderStatus::Paid ? $this->paidAmount() : Money::zero($this->currency);
++
+         $this->status = OrderStatus::Cancelled;
+-        $this->record(new OrderCancelled($this->id, $this->customerId, $reason, $when));
++        $this->record(new OrderCancelled($this->id, $this->customerId, $reason, $when, $refund));
+     }
+ 
+     public function isOwnedBy(CustomerId $customerId): bool
+diff --git a/src/Ordering/Infrastructure/Http/OrderController.php b/src/Ordering/Infrastructure/Http/OrderController.php
+index 0f53a0f..7f747cf 100644
+--- a/src/Ordering/Infrastructure/Http/OrderController.php
++++ b/src/Ordering/Infrastructure/Http/OrderController.php
+@@ -6,6 +6,7 @@ namespace App\Ordering\Infrastructure\Http;
+ 
+ use App\Identity\Infrastructure\Security\SecurityUser;
+ use App\Ordering\Application\Command\AddOrderItem;
++use App\Ordering\Application\Command\CancelOrder;
+ use App\Ordering\Application\Command\ConfirmOrder;
+ use App\Ordering\Application\Command\PayOrder;
+ use App\Ordering\Application\Command\PlaceOrder;
+@@ -99,6 +100,16 @@ final class OrderController extends AbstractController
+         return $this->redirectToRoute('order_detail', ['id' => $order->id->value]);
+     }
+ 
++    #[Route('/{id}/stornovat', name: 'order_cancel', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
++    #[IsCsrfTokenValid('order_edit')]
++    public function cancel(string $id): Response
++    {
++        $order = $this->ownOrder($id);
++        $this->commandBus->dispatch(new CancelOrder($order->id, 'customer request'));
++
++        return $this->redirectToRoute('order_detail', ['id' => $order->id->value]);
++    }
++
+     /** Cizí objednávka se tváří jako neexistující (404, ne 403). */
+     private function ownOrder(string $id): Order
+     {
+diff --git a/templates/order/detail.html.twig b/templates/order/detail.html.twig
+index 4a53a3d..5a33191 100644
+--- a/templates/order/detail.html.twig
++++ b/templates/order/detail.html.twig
+@@ -49,4 +49,11 @@
+             <button type="submit">Zaplatit</button>
+         </form>
+     {% endif %}
++
++    {% if order.status.allowedTransitions|filter(s => s.value == 'cancelled')|length > 0 %}
++        <form method="post" action="{{ path('order_cancel', {id: order.id.value}) }}">
++            <input type="hidden" name="_token" value="{{ csrf_token('order_edit') }}">
++            <button type="submit">Stornovat objednávku</button>
++        </form>
++    {% endif %}
+ {% endblock %}
+diff --git a/tests/Ordering/Domain/OrderTest.php b/tests/Ordering/Domain/OrderTest.php
+index edaa59c..4b52241 100644
+--- a/tests/Ordering/Domain/OrderTest.php
++++ b/tests/Ordering/Domain/OrderTest.php
+@@ -172,6 +172,36 @@ final class OrderTest extends TestCase
+         self::assertSame(OrderStatus::Cancelled, $order->status);
+     }
+ 
++    #[Test]
++    public function cancellingPaidOrderRefundsPaidAmountAfterDiscount(): void
++    {
++        $order = $this->draftOrder();
++        $order->addItem(ProductId::generate(), 2, $this->czk(500_00));
++        $order->applyDiscount($this->czk(100_00));
++        $order->confirm();
++        $order->markPaid();
++        $order->releaseEvents();
++
++        $order->cancel('customer request', new \DateTimeImmutable());
++
++        $events = $order->releaseEvents();
++        self::assertInstanceOf(OrderCancelled::class, $events[0]);
++        self::assertTrue($events[0]->refundAmount->equals($this->czk(900_00)));
++    }
++
++    #[Test]
++    public function cancellingUnpaidOrderRefundsNothing(): void
++    {
++        $order = $this->confirmedOrder();
++        $order->releaseEvents();
++
++        $order->cancel('customer request', new \DateTimeImmutable());
++
++        $events = $order->releaseEvents();
++        self::assertInstanceOf(OrderCancelled::class, $events[0]);
++        self::assertTrue($events[0]->refundAmount->equals($this->czk(0)));
++    }
++
+     #[Test]
+     public function shippedOrderCannotBeCancelled(): void
+     {
+diff --git a/tests/Ordering/Infrastructure/OrderControllerTest.php b/tests/Ordering/Infrastructure/OrderControllerTest.php
+index 56ec9f2..c887aec 100644
+--- a/tests/Ordering/Infrastructure/OrderControllerTest.php
++++ b/tests/Ordering/Infrastructure/OrderControllerTest.php
+@@ -51,6 +51,27 @@ final class OrderControllerTest extends WebTestCase
+         self::assertSame(OrderStatus::Paid, $this->orderFromUrl()->status);
+     }
+ 
++    #[Test]
++    public function customerCancelsPaidOrder(): void
++    {
++        $this->loginAs('alice@example.com');
++        $this->client->request('GET', '/objednavky');
++        $this->client->submitForm('Nová objednávka');
++        $this->client->followRedirect();
++        $this->client->submitForm('Přidat', ['productId' => Catalog::KEYBOARD, 'quantity' => 2]);
++        $this->client->followRedirect();
++        $this->client->submitForm('Potvrdit objednávku');
++        $this->client->followRedirect();
++        $this->client->submitForm('Zaplatit');
++        $this->client->followRedirect();
++
++        $this->client->submitForm('Stornovat objednávku');
++        $this->client->followRedirect();
++
++        self::assertSelectorTextContains('strong', 'cancelled');
++        self::assertSame(OrderStatus::Cancelled, $this->orderFromUrl()->status);
++    }
++
+     #[Test]
+     public function foreignCustomerDoesNotSeeOrder(): void
+     {

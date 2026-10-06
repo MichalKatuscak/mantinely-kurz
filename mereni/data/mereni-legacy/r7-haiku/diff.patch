@@ -1,0 +1,198 @@
+diff --git a/src/Legacy/Admin/order_edit.php b/src/Legacy/Admin/order_edit.php
+index c51d5f2..7b8ed01 100644
+--- a/src/Legacy/Admin/order_edit.php
++++ b/src/Legacy/Admin/order_edit.php
+@@ -26,38 +26,53 @@ if ($order === null) {
+ 
+ $errors = array();
+ $msg = '';
++$cancelConfirm = false;
+ 
+ if (is_post()) {
+     $newStatus = post_param('status');
+     $discount = post_param('discount');
+-
+-    // --- zmena stavu ---
+-    if ($newStatus != '' && $newStatus != $order['status']) {
+-        if (!isset($GLOBALS['ORDER_STATES'][$newStatus])) {
+-            $errors[] = 'Neplatný stav';
++    $cancelOrder = post_param('cancel_order');
++
++    // --- stornování objednávky ---
++    if ($cancelOrder == '1' && post_param('confirm_cancel') == '1') {
++        $reason = post_param('cancel_reason');
++        $refund = cancel_order($id, $reason);
++        if ($refund !== false) {
++            $msg .= 'Objednávka stornována. Vrácená částka: ' . format_price($refund, $order['currency']) . '. ';
+         } else {
+-            // obchodaci obcas vraceji stornovane zpet – zakazano (2016, po incidentu)
+-            if ($order['status'] == 'cancelled' && !auth_has_role('admin')) {
+-                $errors[] = 'Stornovanou objednávku může obnovit jen admin';
++            $errors[] = 'Objednávku nelze stornovat (byla již doručena)';
++        }
++    } elseif ($cancelOrder == '1' && post_param('confirm_cancel') != '1') {
++        // prvni klik na storno – zobraz potvrzeni
++        $cancelConfirm = true;
++    } else {
++        // --- zmena stavu ---
++        if ($newStatus != '' && $newStatus != $order['status']) {
++            if (!isset($GLOBALS['ORDER_STATES'][$newStatus])) {
++                $errors[] = 'Neplatný stav';
+             } else {
+-                $db->exec("UPDATE orders SET status = '" . $newStatus . "' WHERE id = '" . $id . "'");
+-
+-                // pri potvrzeni doplnit datum, pokud chybi (stare objednavky)
+-                if ($newStatus == 'confirmed' && $order['placed_at'] === null) {
+-                    $db->exec("UPDATE orders SET placed_at = '" . date('Y-m-d H:i:s') . "' WHERE id = '" . $id . "'");
+-                }
++                // obchodaci obcas vraceji stornovane zpet – zakazano (2016, po incidentu)
++                if ($order['status'] == 'cancelled' && !auth_has_role('admin')) {
++                    $errors[] = 'Stornovanou objednávku může obnovit jen admin';
++                } else {
++                    $db->exec("UPDATE orders SET status = '" . $newStatus . "' WHERE id = '" . $id . "'");
++
++                    // pri potvrzeni doplnit datum, pokud chybi (stare objednavky)
++                    if ($newStatus == 'confirmed' && $order['placed_at'] === null) {
++                        $db->exec("UPDATE orders SET placed_at = '" . date('Y-m-d H:i:s') . "' WHERE id = '" . $id . "'");
++                    }
+ 
+-                audit_log('order', $id, 'status', array('from' => $order['status'], 'to' => $newStatus));
++                    audit_log('order', $id, 'status', array('from' => $order['status'], 'to' => $newStatus));
+ 
+-                // mail zakaznikovi pri odeslani
+-                if ($newStatus == 'shipped') {
+-                    $c = $db->one("SELECT email FROM customers WHERE id = '" . $order['customer_id'] . "'");
+-                    if ($c) {
+-                        send_mail($c['email'], 'Vaše objednávka byla odeslána', "Dobrý den,\n\nvaše objednávka " . $id . " byla právě odeslána.\n");
++                    // mail zakaznikovi pri odeslani
++                    if ($newStatus == 'shipped') {
++                        $c = $db->one("SELECT email FROM customers WHERE id = '" . $order['customer_id'] . "'");
++                        if ($c) {
++                            send_mail($c['email'], 'Vaše objednávka byla odeslána', "Dobrý den,\n\nvaše objednávka " . $id . " byla právě odeslána.\n");
++                        }
+                     }
++                    $msg .= 'Stav změněn na ' . order_state_label($newStatus) . '. ';
+                 }
+-                // TODO: pri 'cancelled' uvolnit rezervace ve skladu (cron to taky nedela)
+-                $msg .= 'Stav změněn na ' . order_state_label($newStatus) . '. ';
+             }
+         }
+     }
+@@ -131,6 +146,31 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+     </tr>
+ <?php } ?>
+ </table>
++
++<?php if ($cancelConfirm) { ?>
++<h2 id="cancel">Potvrzení storna</h2>
++<p class="warn">Opravdu chcete stornovat tuto objednávku?</p>
++<table class="grid" style="width:auto">
++    <tr><th>Vrácená částka</th><td><strong><?php echo format_price(order_total_after_discount($id), $order['currency']); ?></strong></td></tr>
++</table>
++<form method="post">
++<input type="hidden" name="id" value="<?php echo h($order['id']); ?>">
++<input type="hidden" name="cancel_order" value="1">
++<input type="hidden" name="confirm_cancel" value="1">
++<textarea name="cancel_reason" rows="3" cols="50" placeholder="Důvod storna (volitelně)"></textarea><br>
++<input type="submit" value="Potvrdit storno">
++<a href="<?php echo h(admin_url('order_edit', array('id' => $order['id']))); ?>">Zrušit</a>
++</form>
++<?php } elseif ($order['status'] != 'cancelled' && $order['status'] != 'delivered') { ?>
++<h2 id="cancel">Storno objednávky</h2>
++<p>Zboží bude vráceno na sklad a zákazník dostane zpět zaplacenou částku.</p>
++<form method="post">
++<input type="hidden" name="id" value="<?php echo h($order['id']); ?>">
++<input type="hidden" name="cancel_order" value="1">
++<input type="submit" value="Stornovat objednávku" style="color: red; font-weight: bold;">
++</form>
++<?php } ?>
++
+ <p><a href="<?php echo h(admin_url('order', array('id' => $order['id']))); ?>">« detail objednávky</a></p>
+ <?php
+ include LEGACY_TEMPLATES . '/partials/old_footer.php';
+diff --git a/src/Legacy/Admin/orders.php b/src/Legacy/Admin/orders.php
+index abbf9e1..88080fb 100644
+--- a/src/Legacy/Admin/orders.php
++++ b/src/Legacy/Admin/orders.php
+@@ -26,13 +26,14 @@ $idList = ids_to_sql($ids);
+ if ($action == 'storno') {
+     // stornovat lze cokoliv krome dorucenych (2017: i odeslane, kdyz se balik vrati)
+     $before = $db->query("SELECT id, status FROM orders WHERE id IN (" . $idList . ")");
+-    $n = $db->exec("UPDATE orders SET status = 'cancelled' WHERE id IN (" . $idList . ") AND status != 'delivered'");
++    $n = 0;
+     foreach ($before as $b) {
+         if ($b['status'] != 'delivered') {
+-            audit_log('order', $b['id'], 'storno', array('from' => $b['status'], 'bulk' => true));
++            if (cancel_order($b['id'], 'Hromadné storno')) {
++                $n++;
++            }
+         }
+     }
+-    // FIXME: rezervace ve skladu zustanou viset, viz StockReport::orphanReservations()
+     flash('Stornováno objednávek: ' . $n);
+ } elseif ($action == 'paid') {
+     $n = $db->exec("UPDATE orders SET status = 'paid' WHERE id IN (" . $idList . ") AND status = 'confirmed'");
+diff --git a/src/Legacy/lib/functions.php b/src/Legacy/lib/functions.php
+index 86c57cb..b1079b9 100644
+--- a/src/Legacy/lib/functions.php
++++ b/src/Legacy/lib/functions.php
+@@ -187,3 +187,45 @@ function ids_to_sql($ids)
+ 
+     return implode(',', $out);
+ }
++
++/**
++ * Stornování objednávky – vrácení zboží na sklad a záznam o vrácení.
++ * Vrací částku k vrácení (v haléřích), nebo false pokud se nepovedlo stornovat.
++ */
++function cancel_order($orderId, $reason = '')
++{
++    global $db;
++    legacy_db();
++
++    $order = $db->one("SELECT * FROM orders WHERE id = '" . $orderId . "'");
++    if ($order === null) {
++        return false;
++    }
++
++    // lze stornovat cokoliv mimo doručených
++    if ($order['status'] === 'delivered') {
++        return false;
++    }
++
++    // vrátit zboží na sklad – odstranit rezervaci z JSON
++    $items = $db->query("SELECT product_id, quantity FROM order_items WHERE order_id = '" . $orderId . "'");
++    foreach ($items as $item) {
++        $stock = $db->one("SELECT reservations FROM stock_items WHERE product_id = '" . $item['product_id'] . "'");
++        if ($stock !== null) {
++            $reservations = json_decode((string) $stock['reservations'], true);
++            if (is_array($reservations) && isset($reservations[$orderId])) {
++                unset($reservations[$orderId]);
++                $db->exec("UPDATE stock_items SET reservations = " . $db->quote(json_encode($reservations)) . " WHERE product_id = '" . $item['product_id'] . "'");
++            }
++        }
++    }
++
++    // změnit stav na stornovanou
++    $db->exec("UPDATE orders SET status = 'cancelled' WHERE id = '" . $orderId . "'");
++
++    // zaznamenat do logu
++    $refund = order_total_after_discount($orderId);
++    audit_log('order', $orderId, 'cancel', array('refund_cents' => $refund, 'reason' => $reason));
++
++    return $refund;
++}
+diff --git a/src/Legacy/templates/orders/detail.php b/src/Legacy/templates/orders/detail.php
+index 7cf2439..5b6996d 100644
+--- a/src/Legacy/templates/orders/detail.php
++++ b/src/Legacy/templates/orders/detail.php
+@@ -49,6 +49,9 @@
+ <p>
+     <a href="<?php echo h(admin_url('order_edit', array('id' => $order['id']))); ?>">Změnit stav / slevu</a> |
+     <a href="<?php echo h(admin_url('order_notes', array('order' => $order['id']))); ?>">Poznámky (<?php echo count($notes); ?>)</a>
++    <?php if ($order['status'] != 'cancelled' && $order['status'] != 'delivered') { ?>
++        | <a href="<?php echo h(admin_url('order_edit', array('id' => $order['id']))); ?>#cancel" style="color: red;">Stornovat</a>
++    <?php } ?>
+ </p>
+ 
+ <h2>Poznámky</h2>

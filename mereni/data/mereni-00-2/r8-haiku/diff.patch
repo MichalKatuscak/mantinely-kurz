@@ -1,0 +1,47 @@
+diff --git a/src/Ordering/Infrastructure/Http/OrderController.php b/src/Ordering/Infrastructure/Http/OrderController.php
+index 0f53a0f..66b4d83 100644
+--- a/src/Ordering/Infrastructure/Http/OrderController.php
++++ b/src/Ordering/Infrastructure/Http/OrderController.php
+@@ -6,6 +6,7 @@ namespace App\Ordering\Infrastructure\Http;
+ 
+ use App\Identity\Infrastructure\Security\SecurityUser;
+ use App\Ordering\Application\Command\AddOrderItem;
++use App\Ordering\Application\Command\CancelOrder;
+ use App\Ordering\Application\Command\ConfirmOrder;
+ use App\Ordering\Application\Command\PayOrder;
+ use App\Ordering\Application\Command\PlaceOrder;
+@@ -99,6 +100,17 @@ final class OrderController extends AbstractController
+         return $this->redirectToRoute('order_detail', ['id' => $order->id->value]);
+     }
+ 
++    #[Route('/{id}/storno', name: 'order_cancel', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
++    #[IsCsrfTokenValid('order_edit')]
++    public function cancel(string $id, Request $request): Response
++    {
++        $order = $this->ownOrder($id);
++        $reason = $request->getPayload()->getString('reason', 'Zákazník zrušil objednávku');
++        $this->commandBus->dispatch(new CancelOrder($order->id, $reason));
++
++        return $this->redirectToRoute('order_detail', ['id' => $order->id->value]);
++    }
++
+     /** Cizí objednávka se tváří jako neexistující (404, ne 403). */
+     private function ownOrder(string $id): Order
+     {
+diff --git a/templates/order/detail.html.twig b/templates/order/detail.html.twig
+index 4a53a3d..a6bb16a 100644
+--- a/templates/order/detail.html.twig
++++ b/templates/order/detail.html.twig
+@@ -49,4 +49,12 @@
+             <button type="submit">Zaplatit</button>
+         </form>
+     {% endif %}
++
++    {% if order.status.value in ['draft', 'confirmed', 'paid'] %}
++        <form method="post" action="{{ path('order_cancel', {id: order.id.value}) }}" style="display: inline;">
++            <input type="hidden" name="_token" value="{{ csrf_token('order_edit') }}">
++            <input type="hidden" name="reason" value="Zákazník zrušil objednávku">
++            <button type="submit" onclick="return confirm('Opravdu chcete zrušit tuto objednávku? Zaplacenou částku vám vrátíme zpět.')">Zrušit objednávku</button>
++        </form>
++    {% endif %}
+ {% endblock %}

@@ -1,0 +1,277 @@
+diff --git a/src/Legacy/Admin/OrderController.php b/src/Legacy/Admin/OrderController.php
+index e26dff6..9452c2b 100644
+--- a/src/Legacy/Admin/OrderController.php
++++ b/src/Legacy/Admin/OrderController.php
+@@ -93,6 +93,29 @@ class OrderController extends BaseController
+         ), 'Objednávka ' . $id);
+     }
+ 
++    /**
++     * Storno objednavky (POST z detailu): vraceni penez a uvolneni skladu.
++     */
++    public function cancelAction()
++    {
++        auth_require('obchod');
++        $id = post_param('id');
++        if (!is_post() || $id == '') {
++            return $this->redirect(admin_url('orders'));
++        }
++
++        $result = \App\Legacy\lib\OrderCancellation::cancel($id, post_param('reason'));
++        if (is_string($result)) {
++            flash($result, 'error');
++        } elseif ($result['refund'] > 0) {
++            flash('Objednávka stornována, zákazníkovi se vrací ' . format_price($result['refund'], $result['currency']));
++        } else {
++            flash('Objednávka stornována');
++        }
++
++        return $this->redirect(admin_url('order', array('id' => $id)));
++    }
++
+     /**
+      * Objednavky zakaznika (volano z detailu zakaznika pres AJAX, 2016).
+      */
+diff --git a/src/Legacy/Http/LegacyFrontController.php b/src/Legacy/Http/LegacyFrontController.php
+index a27ab53..de02708 100644
+--- a/src/Legacy/Http/LegacyFrontController.php
++++ b/src/Legacy/Http/LegacyFrontController.php
+@@ -38,6 +38,7 @@ class LegacyFrontController
+         'report_top'         => array(ReportController::class, 'topAction'),
+         'orders'             => array(OrderController::class, 'listAction'),
+         'order'              => array(OrderController::class, 'detailAction'),
++        'order_cancel'       => array(OrderController::class, 'cancelAction'),
+         'customer_orders'    => array(OrderController::class, 'byCustomerAction'),
+         'customers'          => array(CustomerController::class, 'listAction'),
+         'customer'           => array(CustomerController::class, 'detailAction'),
+diff --git a/src/Legacy/lib/OrderCancellation.php b/src/Legacy/lib/OrderCancellation.php
+new file mode 100644
+index 0000000..5c332a6
+--- /dev/null
++++ b/src/Legacy/lib/OrderCancellation.php
+@@ -0,0 +1,67 @@
++<?php
++/**
++ * Storno objednavky z detailu: stav, vraceni penez zakaznikovi a uvolneni skladu.
++ *
++ * Stornovat lze draft, confirmed, paid a shipped (vracena zasilka, viz orders.php),
++ * ne delivered. Vraci se castka po sleve (jako order_total_after_discount()),
++ * a jen u objednavek, ktere byly zaplacene (paid, shipped).
++ */
++
++namespace App\Legacy\lib;
++
++class OrderCancellation
++{
++    /**
++     * @return array|string pole array('refund' => halere, 'currency' => ..) nebo text chyby
++     */
++    public static function cancel($orderId, $reason = '')
++    {
++        global $db;
++        legacy_db();
++
++        $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($orderId));
++        if ($order === null) {
++            return 'Objednávka neexistuje';
++        }
++        if ($order['status'] == 'cancelled') {
++            return 'Objednávka už je stornovaná';
++        }
++        if ($order['status'] == 'delivered') {
++            return 'Doručenou objednávku nelze stornovat';
++        }
++
++        $refund = in_array($order['status'], array('paid', 'shipped'))
++            ? order_total_after_discount($orderId)
++            : 0;
++
++        $db->begin();
++        try {
++            $db->exec("UPDATE orders SET status = 'cancelled' WHERE id = " . $db->quote($orderId));
++            $released = StockReport::releaseReservations($orderId);
++            audit_log('order', $orderId, 'storno', array(
++                'from'     => $order['status'],
++                'reason'   => $reason,
++                'refund'   => $refund,
++                'currency' => $order['currency'],
++                'released' => $released,
++            ));
++            $db->commit();
++        } catch (\Exception $e) {
++            $db->rollback();
++            throw $e;
++        }
++
++        cache_delete('dashboard_stats');
++
++        $customer = $db->one("SELECT email FROM customers WHERE id = " . $db->quote($order['customer_id']));
++        if ($customer) {
++            $body = "Dobrý den,\n\nvaše objednávka " . $orderId . " byla stornována.\n";
++            if ($refund > 0) {
++                $body .= "Zaplacenou částku " . format_price($refund, $order['currency']) . " vám vrátíme.\n";
++            }
++            send_mail($customer['email'], 'Objednávka byla stornována', $body);
++        }
++
++        return array('refund' => $refund, 'currency' => $order['currency']);
++    }
++}
+diff --git a/src/Legacy/lib/StockReport.php b/src/Legacy/lib/StockReport.php
+index 1b14fa4..0f70491 100644
+--- a/src/Legacy/lib/StockReport.php
++++ b/src/Legacy/lib/StockReport.php
+@@ -87,6 +87,30 @@ class StockReport
+         audit_log('stock', $productId, 'inventura', array('on_hand' => (int) $qty));
+     }
+ 
++    /**
++     * Uvolni vsechny rezervace objednavky (zbozi je zase k dispozici).
++     * Vraci pocet uvolnenych kusu.
++     */
++    public static function releaseReservations($orderId)
++    {
++        global $db;
++        legacy_db();
++        $released = 0;
++        foreach ($db->query("SELECT product_id, reservations FROM stock_items") as $r) {
++            $data = json_decode((string) $r['reservations'], true);
++            if (!is_array($data) || !isset($data[$orderId])) {
++                continue;
++            }
++            $released += (int) $data[$orderId];
++            unset($data[$orderId]);
++            // prazdne pole by se zakodovalo jako [], novy e-shop cte objekt
++            $json = count($data) ? json_encode($data) : '{}';
++            $db->exec("UPDATE stock_items SET reservations = " . $db->quote($json) . " WHERE product_id = " . $db->quote($r['product_id']));
++        }
++
++        return $released;
++    }
++
+     /**
+      * Rezervace, jejichz objednavka uz je stornovana (visi tam).
+      */
+diff --git a/src/Legacy/templates/orders/detail.php b/src/Legacy/templates/orders/detail.php
+index 7cf2439..32769f8 100644
+--- a/src/Legacy/templates/orders/detail.php
++++ b/src/Legacy/templates/orders/detail.php
+@@ -51,6 +51,14 @@
+     <a href="<?php echo h(admin_url('order_notes', array('order' => $order['id']))); ?>">Poznámky (<?php echo count($notes); ?>)</a>
+ </p>
+ 
++<?php if (in_array($order['status'], array('draft', 'confirmed', 'paid', 'shipped'))) { ?>
++<form method="post" action="<?php echo h(admin_url('order_cancel')); ?>" onsubmit="return confirm('Opravdu stornovat objednávku?')">
++    <input type="hidden" name="id" value="<?php echo h($order['id']); ?>">
++    <input type="text" name="reason" placeholder="Důvod storna" size="30">
++    <input type="submit" value="Stornovat objednávku<?php echo in_array($order['status'], array('paid', 'shipped')) ? ' a vrátit ' . h(format_price($toPay, $order['currency'])) : ''; ?>">
++</form>
++<?php } ?>
++
+ <h2>Poznámky</h2>
+ <?php foreach ($notes as $n) { ?>
+     <p><strong><?php echo h($n['author']); ?></strong>, <?php echo format_date($n['created_at'], true); ?>:<br><?php echo nl2br(h($n['note'])); ?></p>
+diff --git a/tests/Legacy/OrderCancelTest.php b/tests/Legacy/OrderCancelTest.php
+new file mode 100644
+index 0000000..a49ca08
+--- /dev/null
++++ b/tests/Legacy/OrderCancelTest.php
+@@ -0,0 +1,98 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Tests\Legacy;
++
++use App\Identity\Infrastructure\Security\DemoCustomerProvider;
++use App\Legacy\Http\LegacyFrontController;
++use App\Tests\Support\Catalog;
++use App\Tests\Support\TestDatabase;
++use Doctrine\DBAL\Connection;
++use PHPUnit\Framework\Attributes\CoversClass;
++use PHPUnit\Framework\Attributes\Test;
++use Symfony\Bundle\FrameworkBundle\KernelBrowser;
++use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
++
++#[CoversClass(LegacyFrontController::class)]
++final class OrderCancelTest extends WebTestCase
++{
++    private const string ORDER = '0192f0a0-2b00-7000-8000-0000000000a1';
++    private const string OTHER_ORDER = '0192f0a0-2b00-7000-8000-0000000000a2';
++
++    private KernelBrowser $client;
++    private Connection $db;
++
++    protected function setUp(): void
++    {
++        TestDatabase::reset();
++        $this->client = self::createClient();
++        $this->db = self::getContainer()->get(Connection::class);
++        Catalog::seed($this->db);
++        $user = self::getContainer()->get(DemoCustomerProvider::class)->loadUserByIdentifier('sprava@example.com');
++        $this->client->loginUser($user);
++    }
++
++    #[Test]
++    public function cancellingPaidOrderRefundsPaidAmountAndReleasesStock(): void
++    {
++        $this->seedOrder(self::ORDER, 'paid', 1000);
++        $this->seedOrder(self::OTHER_ORDER, 'paid', 0);
++
++        $this->client->request('POST', '/admin/legacy/order_cancel', ['id' => self::ORDER, 'reason' => 'Zákazník si to rozmyslel']);
++
++        self::assertSame('cancelled', $this->db->fetchOne('SELECT status FROM orders WHERE id = ?', [self::ORDER]));
++        self::assertSame('paid', $this->db->fetchOne('SELECT status FROM orders WHERE id = ?', [self::OTHER_ORDER]));
++
++        // 2 × 500 Kč − sleva 10 Kč = 990 Kč se vrací, rezervace cizí objednávky zůstává
++        $payload = json_decode((string) $this->db->fetchOne("SELECT payload FROM audit_log WHERE action = 'storno'"), true);
++        self::assertSame(99000, $payload['refund']);
++        self::assertSame(2, $payload['released']);
++        $reservations = json_decode((string) $this->db->fetchOne('SELECT reservations FROM stock_items WHERE product_id = ?', [Catalog::KEYBOARD]), true);
++        self::assertSame([self::OTHER_ORDER => 2], $reservations);
++    }
++
++    #[Test]
++    public function unpaidOrderIsCancelledWithoutRefund(): void
++    {
++        $this->seedOrder(self::ORDER, 'confirmed', 0);
++
++        $this->client->request('POST', '/admin/legacy/order_cancel', ['id' => self::ORDER]);
++
++        $payload = json_decode((string) $this->db->fetchOne("SELECT payload FROM audit_log WHERE action = 'storno'"), true);
++        self::assertSame(0, $payload['refund']);
++    }
++
++    #[Test]
++    public function deliveredOrderCannotBeCancelled(): void
++    {
++        $this->seedOrder(self::ORDER, 'delivered', 0);
++
++        $this->client->request('POST', '/admin/legacy/order_cancel', ['id' => self::ORDER]);
++
++        self::assertSame('delivered', $this->db->fetchOne('SELECT status FROM orders WHERE id = ?', [self::ORDER]));
++    }
++
++    private function seedOrder(string $id, string $status, int $discountCents): void
++    {
++        $this->db->insert('orders', [
++            'id' => $id,
++            'customer_id' => DemoCustomerProvider::ALICE,
++            'status' => $status,
++            'currency' => 'CZK',
++            'discount_amount_in_cents' => $discountCents,
++            'discount_currency' => 'CZK',
++            'placed_at' => '2026-10-01 10:00:00',
++        ]);
++        $this->db->insert('order_items', [
++            'order_id' => $id,
++            'product_id' => Catalog::KEYBOARD,
++            'quantity' => 2,
++            'unit_price_amount_in_cents' => 50000,
++            'unit_price_currency' => 'CZK',
++        ]);
++        $existing = json_decode((string) $this->db->fetchOne('SELECT reservations FROM stock_items WHERE product_id = ?', [Catalog::KEYBOARD]), true) ?: [];
++        $existing[$id] = 2;
++        $this->db->update('stock_items', ['reservations' => json_encode($existing)], ['product_id' => Catalog::KEYBOARD]);
++    }
++}

@@ -1,0 +1,11 @@
+ M config/services.yaml
+ M src/Legacy/Admin/OrderController.php
+ M src/Legacy/Http/LegacyFrontController.php
+ M src/Legacy/lib/functions.php
+ M src/Legacy/templates/orders/detail.php
+ M src/Ordering/Domain/Event/OrderCancelled.php
+ M src/Ordering/Domain/Model/Order.php
+ M tests/Ordering/Domain/OrderTest.php
+?? src/Ordering/Application/Command/CancelOrder.php
+?? src/Ordering/Application/Handler/CancelOrderHandler.php
+?? tests/Legacy/

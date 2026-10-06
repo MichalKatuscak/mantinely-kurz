@@ -1,8 +1,13 @@
 # Mantinely – ukázková aplikace kurzu
 
-Soukromý repozitář videokurzu **Mantinely: vývoj s AI v PHP a Symfony**. Na této aplikaci
-se dělají cvičení a natáčí se experiment s AI agentem. Doménou navazuje na knihu
+Veřejný repozitář videokurzu **Mantinely: vývoj s AI v PHP a Symfony**
+([mantinely.katuscak.cz](https://mantinely.katuscak.cz)). Na této aplikaci se dělají
+cvičení a na ní běžel experiment s AI agentem z lekce 0.2. Doménou navazuje na knihu
 [DDD v Symfony](https://ddd-v-symfony.katuscak.cz).
+
+Ve složce [`mereni/`](mereni/README.md) je celá sada, se kterou jsme experiment měřili:
+zadání, skripty, kritéria, hodnocení a přepisy všech běhů agenta. Měření si můžete
+zopakovat se svým modelem.
 
 - PHP 8.4 (`composer.json`: `"php": ">=8.4"`), Symfony 8.1, Doctrine ORM 3, Symfony Messenger, PHPUnit 13.
 - Databáze SQLite (`var/data_<prostředí>.db`), žádná služba navíc.
@@ -26,9 +31,24 @@ a pro mutační testy (od modulu 4) `pcov` nebo `xdebug`.
 
 ## Tagy cvičení
 
-Jedno cvičení na modul: tag `mNN-start` je výchozí stav, `mNN-end` řešení.
-`m00-start` je aplikace bez storna objednávky, `m00-end` uložený výsledek experimentu
-z lekce 0.2. Záznamy jednotlivých lekcí leží ve větvích `zaznam/NN-L`.
+Jedno cvičení na modul: tag `mNN-start` je výchozí stav, `mNN-end` řešení. Tagy
+dalších modulů přibývají, jak kurz vychází.
+
+- `m00-start`: aplikace bez storna objednávky, přesně ve stavu, na kterém běželo měření
+  z lekce 0.2 (včetně tehdejšího README).
+- `m00-end`: skutečný výsledek ukázkového běhu agenta z lekce 0.2 beze změny, přepis
+  relace leží v `docs/experiment/`. Je to výsledek experimentu, ne vzorové řešení: jsou
+  v něm chyby, o kterých lekce mluví.
+
+```bash
+git checkout m00-start
+git diff m00-start m00-end -- . ':(exclude)docs/experiment'   # co agent změnil
+```
+
+## Licence
+
+Kód aplikace je pod licencí MIT (`LICENSE`). Data měření ve složce `mereni/` jsou pod
+licencí CC BY 4.0 (`mereni/LICENSE`).
 
 ## Kde se aplikace liší od knihy DDD v Symfony
 
@@ -38,8 +58,7 @@ události v minulém čase bez přípony, `Money` v haléřích s enumem `Curren
 
 - **Sleva na objednávku.** Kniha slevu nemá. `Order` má vlastnost `discount`,
   `totalAmount()` sčítá položky jako v knize a `paidAmount()` vrací zaplacenou částku po
-  slevě. Bez slevy by v experimentu nemohla vzniknout chyba, kdy se částka počítá podruhé
-  a jinak. Kvůli slevě má objednávka i měnu (`Order::place()` má třetí nepovinný
+  slevě, takže má agent co spočítat správně nebo špatně. Kvůli slevě má objednávka i měnu (`Order::place()` má třetí nepovinný
   parametr `Currency`, výchozí CZK).
 - **Přechody stavů přes `OrderStatus::canTransitionTo()` i v `cancel()`.** Kniha má
   v `cancel()` výčet `in_array(..., [Shipped, Delivered])`. Kurz používá ve všech

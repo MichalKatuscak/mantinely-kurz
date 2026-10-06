@@ -1,0 +1,3 @@
+*.sh text eol=lf
+# Data měření beze změny: přepisy a diffy se nesmí převádět (diff.patch musí jít aplikovat)
+mereni/data/** -text

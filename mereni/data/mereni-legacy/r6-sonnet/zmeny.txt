@@ -1,0 +1,6 @@
+ M src/Legacy/Admin/OrderController.php
+ M src/Legacy/Http/LegacyFrontController.php
+ M src/Legacy/lib/StockReport.php
+ M src/Legacy/templates/orders/detail.php
+?? src/Legacy/lib/OrderCancellation.php
+?? tests/Legacy/

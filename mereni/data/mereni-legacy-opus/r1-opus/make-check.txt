@@ -1,0 +1,10 @@
+vendor/bin/phpunit --no-progress
+PHPUnit 13.4.1 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /home/michal/mantinely-zaznamy/app-r1/phpunit.dist.xml
+
+Time: 00:00.725, Memory: 44.50 MB
+
+[30;42mOK (32 tests, 67 assertions)[0m
+make check exit=0

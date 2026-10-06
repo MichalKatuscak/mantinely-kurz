@@ -1,0 +1,129 @@
+diff --git a/src/Ordering/Application/Command/CancelOrder.php b/src/Ordering/Application/Command/CancelOrder.php
+new file mode 100644
+index 0000000..9c54a8c
+--- /dev/null
++++ b/src/Ordering/Application/Command/CancelOrder.php
+@@ -0,0 +1,15 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Command;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++
++final readonly class CancelOrder
++{
++    public function __construct(
++        public OrderId $orderId,
++        public string $reason,
++    ) {}
++}
+diff --git a/src/Ordering/Application/Handler/CancelOrderHandler.php b/src/Ordering/Application/Handler/CancelOrderHandler.php
+new file mode 100644
+index 0000000..c936ae8
+--- /dev/null
++++ b/src/Ordering/Application/Handler/CancelOrderHandler.php
+@@ -0,0 +1,24 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Handler;
++
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Domain\Repository\OrderRepository;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++#[AsMessageHandler(bus: 'command.bus')]
++final readonly class CancelOrderHandler
++{
++    public function __construct(
++        private OrderRepository $orders,
++    ) {}
++
++    public function __invoke(CancelOrder $command): void
++    {
++        $order = $this->orders->get($command->orderId);
++        $order->cancel($command->reason, new \DateTimeImmutable());
++        $this->orders->save($order);
++    }
++}
+diff --git a/src/Ordering/Infrastructure/Http/OrderController.php b/src/Ordering/Infrastructure/Http/OrderController.php
+index 0f53a0f..f82f056 100644
+--- a/src/Ordering/Infrastructure/Http/OrderController.php
++++ b/src/Ordering/Infrastructure/Http/OrderController.php
+@@ -6,6 +6,7 @@ namespace App\Ordering\Infrastructure\Http;
+ 
+ use App\Identity\Infrastructure\Security\SecurityUser;
+ use App\Ordering\Application\Command\AddOrderItem;
++use App\Ordering\Application\Command\CancelOrder;
+ use App\Ordering\Application\Command\ConfirmOrder;
+ use App\Ordering\Application\Command\PayOrder;
+ use App\Ordering\Application\Command\PlaceOrder;
+@@ -99,6 +100,18 @@ final class OrderController extends AbstractController
+         return $this->redirectToRoute('order_detail', ['id' => $order->id->value]);
+     }
+ 
++    #[Route('/{id}/stornovat', name: 'order_cancel', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
++    #[IsCsrfTokenValid('order_edit')]
++    public function cancel(string $id, Request $request): Response
++    {
++        $order = $this->ownOrder($id);
++        $reason = $request->getPayload()->getString('reason', 'Zrušeno zákazníkem');
++
++        $this->commandBus->dispatch(new CancelOrder($order->id, $reason));
++
++        return $this->redirectToRoute('order_detail', ['id' => $order->id->value]);
++    }
++
+     /** Cizí objednávka se tváří jako neexistující (404, ne 403). */
+     private function ownOrder(string $id): Order
+     {
+diff --git a/src/Payment/Application/EventHandler/RefundOrderHandler.php b/src/Payment/Application/EventHandler/RefundOrderHandler.php
+new file mode 100644
+index 0000000..3696063
+--- /dev/null
++++ b/src/Payment/Application/EventHandler/RefundOrderHandler.php
+@@ -0,0 +1,24 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Payment\Application\EventHandler;
++
++use App\Ordering\Domain\Event\OrderCancelled;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++/**
++ * Stornovaná objednávka se refunduje zákazníkovi.
++ *
++ * Prozatím loguje operaci; v produkčním kódu by se zde
++ * volala payment gateway API (Stripe, PayPal, etc.).
++ */
++#[AsMessageHandler(bus: 'event.bus')]
++final readonly class RefundOrderHandler
++{
++    public function __invoke(OrderCancelled $event): void
++    {
++        // TODO: Implementovat skutečné refundování přes payment gateway
++        // Příklad: $this->paymentGateway->refund($event->orderId);
++    }
++}
+diff --git a/templates/order/detail.html.twig b/templates/order/detail.html.twig
+index 4a53a3d..de2c5ae 100644
+--- a/templates/order/detail.html.twig
++++ b/templates/order/detail.html.twig
+@@ -49,4 +49,12 @@
+             <button type="submit">Zaplatit</button>
+         </form>
+     {% endif %}
++
++    {% if order.status.value in ['draft', 'confirmed', 'paid'] %}
++        <form method="post" action="{{ path('order_cancel', {id: order.id.value}) }}" style="margin-top: 1em;">
++            <input type="hidden" name="_token" value="{{ csrf_token('order_edit') }}">
++            <input type="hidden" name="reason" value="Zrušeno zákazníkem">
++            <button type="submit" style="background-color: #dc3545; color: white;">Stornovat objednávku</button>
++        </form>
++    {% endif %}
+ {% endblock %}

@@ -1,0 +1,201 @@
+diff --git a/src/Ordering/Application/Command/CancelOrder.php b/src/Ordering/Application/Command/CancelOrder.php
+new file mode 100644
+index 0000000..e067ef4
+--- /dev/null
++++ b/src/Ordering/Application/Command/CancelOrder.php
+@@ -0,0 +1,15 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Command;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++
++final readonly class CancelOrder
++{
++    public function __construct(
++        public OrderId $orderId,
++        public string $reason = 'Customer requested cancellation',
++    ) {}
++}
+diff --git a/src/Ordering/Application/EventHandler/RefundOrderHandler.php b/src/Ordering/Application/EventHandler/RefundOrderHandler.php
+new file mode 100644
+index 0000000..6d04b6e
+--- /dev/null
++++ b/src/Ordering/Application/EventHandler/RefundOrderHandler.php
+@@ -0,0 +1,28 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\EventHandler;
++
++use App\Ordering\Domain\Event\OrderCancelled;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++/**
++ * Stornovaná objednávka vrací zákazníkovi zaplacenou částku.
++ *
++ * V praxi by zde byla logika pro vrácení peněz skrze payment gateway.
++ * Momentálně se vrácená částka zaznamenává v OrderCancelled eventu.
++ */
++#[AsMessageHandler(bus: 'event.bus')]
++final readonly class RefundOrderHandler
++{
++    public function __invoke(OrderCancelled $event): void
++    {
++        if ($event->refundAmount === null) {
++            return;
++        }
++
++        // Integrovat s payment systémem pro vrácení peněz
++        // Např.: $this->paymentGateway->refund($event->orderId, $event->refundAmount);
++    }
++}
+diff --git a/src/Ordering/Application/Handler/CancelOrderHandler.php b/src/Ordering/Application/Handler/CancelOrderHandler.php
+new file mode 100644
+index 0000000..c936ae8
+--- /dev/null
++++ b/src/Ordering/Application/Handler/CancelOrderHandler.php
+@@ -0,0 +1,24 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Handler;
++
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Domain\Repository\OrderRepository;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++#[AsMessageHandler(bus: 'command.bus')]
++final readonly class CancelOrderHandler
++{
++    public function __construct(
++        private OrderRepository $orders,
++    ) {}
++
++    public function __invoke(CancelOrder $command): void
++    {
++        $order = $this->orders->get($command->orderId);
++        $order->cancel($command->reason, new \DateTimeImmutable());
++        $this->orders->save($order);
++    }
++}
+diff --git a/src/Ordering/Domain/Event/OrderCancelled.php b/src/Ordering/Domain/Event/OrderCancelled.php
+index 89158e2..326ef17 100644
+--- a/src/Ordering/Domain/Event/OrderCancelled.php
++++ b/src/Ordering/Domain/Event/OrderCancelled.php
+@@ -6,6 +6,7 @@ namespace App\Ordering\Domain\Event;
+ 
+ use App\Ordering\Domain\ValueObject\CustomerId;
+ use App\Ordering\Domain\ValueObject\OrderId;
++use App\SharedKernel\Domain\Money;
+ 
+ final readonly class OrderCancelled
+ {
+@@ -14,5 +15,6 @@ final readonly class OrderCancelled
+         public CustomerId $customerId,
+         public string $reason,
+         public \DateTimeImmutable $occurredAt,
++        public ?Money $refundAmount = null,
+     ) {}
+ }
+diff --git a/src/Ordering/Domain/Model/Order.php b/src/Ordering/Domain/Model/Order.php
+index e38660d..837c666 100644
+--- a/src/Ordering/Domain/Model/Order.php
++++ b/src/Ordering/Domain/Model/Order.php
+@@ -190,8 +190,9 @@ final class Order extends AggregateRoot
+             );
+         }
+ 
++        $refundAmount = $this->status === OrderStatus::Paid ? $this->paidAmount() : null;
+         $this->status = OrderStatus::Cancelled;
+-        $this->record(new OrderCancelled($this->id, $this->customerId, $reason, $when));
++        $this->record(new OrderCancelled($this->id, $this->customerId, $reason, $when, $refundAmount));
+     }
+ 
+     public function isOwnedBy(CustomerId $customerId): bool
+diff --git a/src/Ordering/Infrastructure/Http/OrderController.php b/src/Ordering/Infrastructure/Http/OrderController.php
+index 0f53a0f..c339d2a 100644
+--- a/src/Ordering/Infrastructure/Http/OrderController.php
++++ b/src/Ordering/Infrastructure/Http/OrderController.php
+@@ -6,6 +6,7 @@ namespace App\Ordering\Infrastructure\Http;
+ 
+ use App\Identity\Infrastructure\Security\SecurityUser;
+ use App\Ordering\Application\Command\AddOrderItem;
++use App\Ordering\Application\Command\CancelOrder;
+ use App\Ordering\Application\Command\ConfirmOrder;
+ use App\Ordering\Application\Command\PayOrder;
+ use App\Ordering\Application\Command\PlaceOrder;
+@@ -99,6 +100,17 @@ final class OrderController extends AbstractController
+         return $this->redirectToRoute('order_detail', ['id' => $order->id->value]);
+     }
+ 
++    #[Route('/{id}/storno', name: 'order_cancel', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
++    #[IsCsrfTokenValid('order_edit')]
++    public function cancel(string $id, Request $request): Response
++    {
++        $order = $this->ownOrder($id);
++        $reason = $request->getPayload()->getString('reason', 'Customer requested cancellation');
++        $this->commandBus->dispatch(new CancelOrder($order->id, $reason));
++
++        return $this->redirectToRoute('order_detail', ['id' => $order->id->value]);
++    }
++
+     /** Cizí objednávka se tváří jako neexistující (404, ne 403). */
+     private function ownOrder(string $id): Order
+     {
+diff --git a/templates/order/detail.html.twig b/templates/order/detail.html.twig
+index 4a53a3d..d8112a5 100644
+--- a/templates/order/detail.html.twig
++++ b/templates/order/detail.html.twig
+@@ -49,4 +49,12 @@
+             <button type="submit">Zaplatit</button>
+         </form>
+     {% endif %}
++
++    {% if order.status.value in ['draft', 'confirmed', 'paid'] %}
++        <form method="post" action="{{ path('order_cancel', {id: order.id.value}) }}" style="margin-top: 1rem;">
++            <input type="hidden" name="_token" value="{{ csrf_token('order_edit') }}">
++            <textarea name="reason" placeholder="Důvod storna..." style="display: block; width: 100%; margin-bottom: 0.5rem;"></textarea>
++            <button type="submit" style="background-color: #dc3545; color: white;">Stornovat objednávku</button>
++        </form>
++    {% endif %}
+ {% endblock %}
+diff --git a/tests/Ordering/Infrastructure/OrderControllerTest.php b/tests/Ordering/Infrastructure/OrderControllerTest.php
+index 56ec9f2..2ac993c 100644
+--- a/tests/Ordering/Infrastructure/OrderControllerTest.php
++++ b/tests/Ordering/Infrastructure/OrderControllerTest.php
+@@ -73,6 +73,30 @@ final class OrderControllerTest extends WebTestCase
+         self::assertResponseStatusCodeSame(401);
+     }
+ 
++    #[Test]
++    public function customerCancelsPayedOrder(): void
++    {
++        $this->loginAs('alice@example.com');
++
++        $this->client->request('GET', '/objednavky');
++        $this->client->submitForm('Nová objednávka');
++        $this->client->followRedirect();
++
++        $this->client->submitForm('Přidat', ['productId' => Catalog::KEYBOARD, 'quantity' => 1]);
++        $this->client->followRedirect();
++        $this->client->submitForm('Potvrdit objednávku');
++        $this->client->followRedirect();
++        $this->client->submitForm('Zaplatit');
++        $this->client->followRedirect();
++
++        self::assertSelectorTextContains('strong', 'paid');
++        $this->client->submitForm('Stornovat objednávku', ['reason' => 'Changed my mind']);
++        $this->client->followRedirect();
++
++        self::assertSelectorTextContains('strong', 'cancelled');
++        self::assertSame(OrderStatus::Cancelled, $this->orderFromUrl()->status);
++    }
++
+     private function loginAs(string $email): void
+     {
+         $user = self::getContainer()->get(DemoCustomerProvider::class)->loadUserByIdentifier($email);

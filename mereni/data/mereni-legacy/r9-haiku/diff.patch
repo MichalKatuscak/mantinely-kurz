@@ -1,0 +1,124 @@
+diff --git a/src/Legacy/Admin/order_edit.php b/src/Legacy/Admin/order_edit.php
+index c51d5f2..217ec39 100644
+--- a/src/Legacy/Admin/order_edit.php
++++ b/src/Legacy/Admin/order_edit.php
+@@ -56,7 +56,17 @@ if (is_post()) {
+                         send_mail($c['email'], 'Vaše objednávka byla odeslána', "Dobrý den,\n\nvaše objednávka " . $id . " byla právě odeslána.\n");
+                     }
+                 }
+-                // TODO: pri 'cancelled' uvolnit rezervace ve skladu (cron to taky nedela)
++
++                // storno: uvolnit rezervace ve skladu a vrátit peníze
++                if ($newStatus == 'cancelled') {
++                    release_order_reservations($id);
++                    $sum = order_total($id);
++                    $toPay = max(0, $sum - (int) $order['discount_amount_in_cents']);
++                    if ($toPay > 0) {
++                        process_order_refund($id, $toPay, $order['currency'], 'Ruční storno v administraci');
++                    }
++                }
++
+                 $msg .= 'Stav změněn na ' . order_state_label($newStatus) . '. ';
+             }
+         }
+diff --git a/src/Legacy/Admin/orders.php b/src/Legacy/Admin/orders.php
+index abbf9e1..3b11ef5 100644
+--- a/src/Legacy/Admin/orders.php
++++ b/src/Legacy/Admin/orders.php
+@@ -25,14 +25,23 @@ $idList = ids_to_sql($ids);
+ 
+ if ($action == 'storno') {
+     // stornovat lze cokoliv krome dorucenych (2017: i odeslane, kdyz se balik vrati)
+-    $before = $db->query("SELECT id, status FROM orders WHERE id IN (" . $idList . ")");
++    $before = $db->query("SELECT id, status, currency, discount_amount_in_cents FROM orders WHERE id IN (" . $idList . ")");
+     $n = $db->exec("UPDATE orders SET status = 'cancelled' WHERE id IN (" . $idList . ") AND status != 'delivered'");
+     foreach ($before as $b) {
+         if ($b['status'] != 'delivered') {
+             audit_log('order', $b['id'], 'storno', array('from' => $b['status'], 'bulk' => true));
++
++            // uvolnit rezervace ve skladu
++            release_order_reservations($b['id']);
++
++            // vrátit peníze
++            $sum = order_total($b['id']);
++            $toPay = max(0, $sum - (int) $b['discount_amount_in_cents']);
++            if ($toPay > 0) {
++                process_order_refund($b['id'], $toPay, $b['currency'], 'Hromadné storno');
++            }
+         }
+     }
+-    // FIXME: rezervace ve skladu zustanou viset, viz StockReport::orphanReservations()
+     flash('Stornováno objednávek: ' . $n);
+ } elseif ($action == 'paid') {
+     $n = $db->exec("UPDATE orders SET status = 'paid' WHERE id IN (" . $idList . ") AND status = 'confirmed'");
+diff --git a/src/Legacy/cron.php b/src/Legacy/cron.php
+index bcac2e7..2a02767 100644
+--- a/src/Legacy/cron.php
++++ b/src/Legacy/cron.php
+@@ -31,7 +31,10 @@ foreach ($unpaid as $o) {
+         continue;
+     }
+     $db->exec("UPDATE orders SET status = 'cancelled' WHERE id = '" . $o['id'] . "' AND status = 'confirmed'");
+-    // TODO: uvolnit rezervace ve stock_items? (novy e-shop to dela sam? overit!)
++
++    // uvolnit rezervace ve skladu
++    release_order_reservations($o['id']);
++
+     audit_log('order', $o['id'], 'cron_storno', array('placed_at' => $o['placed_at']));
+ 
+     $c = $db->one("SELECT email FROM customers WHERE id = '" . $o['customer_id'] . "'");
+diff --git a/src/Legacy/lib/helpers.php b/src/Legacy/lib/helpers.php
+index 1ae5021..6712cad 100644
+--- a/src/Legacy/lib/helpers.php
++++ b/src/Legacy/lib/helpers.php
+@@ -216,3 +216,50 @@ function debug_dump($var)
+ 
+     return '<pre class="debug">' . h(print_r($var, true)) . '</pre>';
+ }
++
++/**
++ * Uvolní rezervace objednávky ze skladu při stornování.
++ * Odebere objednávku z JSON pole reservations u všech stock_items.
++ */
++function release_order_reservations($orderId)
++{
++    global $db;
++    legacy_db();
++
++    $rows = $db->query("SELECT product_id, reservations FROM stock_items WHERE reservations IS NOT NULL AND reservations != ''");
++    foreach ($rows as $r) {
++        $data = json_decode((string) $r['reservations'], true);
++        if (!is_array($data) || !isset($data[$orderId])) {
++            continue;
++        }
++
++        unset($data[$orderId]);
++        $newReservations = empty($data) ? '' : json_encode($data);
++        $db->exec("UPDATE stock_items SET reservations = " . $db->quote($newReservations) . " WHERE product_id = '" . $r['product_id'] . "'");
++    }
++}
++
++/**
++ * Vrácení zaplacené částky za stornovanou objednávku.
++ * Zaloguje to do poznámky objednávky a do auditního logu.
++ */
++function process_order_refund($orderId, $amountInCents, $currency, $reason = 'Vrácení zaplacené částky')
++{
++    global $db;
++    legacy_db();
++
++    if ($amountInCents > 0) {
++        $amount = number_format($amountInCents / 100, 2, ',', '');
++        $refundNote = sprintf('REFUND: %s %s – %s', $amount, $currency, $reason);
++        $db->exec("INSERT INTO order_notes (order_id, author, note, created_at) VALUES ("
++            . $db->quote($orderId) . ", 'system', "
++            . $db->quote($refundNote) . ", '"
++            . date('Y-m-d H:i:s') . "')");
++
++        audit_log('order', $orderId, 'refund', array(
++            'amount_cents' => (int) $amountInCents,
++            'currency' => $currency,
++            'reason' => $reason,
++        ));
++    }
++}
