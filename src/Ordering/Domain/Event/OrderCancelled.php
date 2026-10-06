@@ -6,6 +6,7 @@ namespace App\Ordering\Domain\Event;
 
 use App\Ordering\Domain\ValueObject\CustomerId;
 use App\Ordering\Domain\ValueObject\OrderId;
+use App\SharedKernel\Domain\Money;
 
 final readonly class OrderCancelled
 {
@@ -14,5 +15,7 @@ final readonly class OrderCancelled
         public CustomerId $customerId,
         public string $reason,
         public \DateTimeImmutable $occurredAt,
+        // Kolik zákazník dostane zpět; nula, když ještě nezaplatil.
+        public Money $refund,
     ) {}
 }

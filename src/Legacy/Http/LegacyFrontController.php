@@ -23,9 +23,18 @@ use App\Legacy\Admin\StockController;
 use App\Legacy\Admin\UserController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 
 class LegacyFrontController
 {
+    public function __construct(
+        // vychozi sbernice je command.bus (config/packages/messenger.yaml)
+        private MessageBusInterface $commandBus,
+    ) {
+    }
+
     /**
      * Povolene stranky: page => array(trida, metoda) nebo nazev souboru v Admin/.
      */
@@ -60,6 +69,7 @@ class LegacyFrontController
         'export_customers'   => array(ExportController::class, 'customersAction'),
 
         // proceduralni stranky (2014–2016)
+        'order_cancel'       => array(OrderController::class, 'cancelAction'),
         'order_edit'         => 'order_edit.php',
         'orders_bulk'        => 'orders.php',
         'order_list'         => 'order_list.php',
@@ -103,6 +113,20 @@ class LegacyFrontController
         $GLOBALS['LEGACY_STATUS'] = 200;
         $GLOBALS['LEGACY_CONTENT_TYPE'] = 'text/html; charset=utf-8';
         $GLOBALS['LEGACY_FILENAME'] = null;
+
+        // prikazy noveho e-shopu, stara administrace je vola pres legacy_command()
+        $GLOBALS['LEGACY_COMMAND'] = function ($command) {
+            try {
+                $envelope = $this->commandBus->dispatch($command);
+            } catch (HandlerFailedException $e) {
+                // stara administrace chyta domenove vyjimky, ne obalku Messengeru
+                $wrapped = $e->getWrappedExceptions();
+                throw $wrapped ? reset($wrapped) : $e;
+            }
+            $handled = $envelope->last(HandledStamp::class);
+
+            return $handled !== null ? $handled->getResult() : null;
+        };
 
         $target = self::$pages[$page];
         $level = ob_get_level();
