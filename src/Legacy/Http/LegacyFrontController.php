@@ -38,6 +38,7 @@ class LegacyFrontController
         'report_top'         => array(ReportController::class, 'topAction'),
         'orders'             => array(OrderController::class, 'listAction'),
         'order'              => array(OrderController::class, 'detailAction'),
+        'order_cancel'       => array(OrderController::class, 'cancelAction'),
         'customer_orders'    => array(OrderController::class, 'byCustomerAction'),
         'customers'          => array(CustomerController::class, 'listAction'),
         'customer'           => array(CustomerController::class, 'detailAction'),

@@ -51,6 +51,14 @@
     <a href="<?php echo h(admin_url('order_notes', array('order' => $order['id']))); ?>">Poznámky (<?php echo count($notes); ?>)</a>
 </p>
 
+<?php if (in_array($order['status'], array('draft', 'confirmed', 'paid', 'shipped'))) { ?>
+<form method="post" action="<?php echo h(admin_url('order_cancel')); ?>" onsubmit="return confirm('Opravdu stornovat objednávku?')">
+    <input type="hidden" name="id" value="<?php echo h($order['id']); ?>">
+    <input type="text" name="reason" placeholder="Důvod storna" size="30">
+    <input type="submit" value="Stornovat objednávku<?php echo in_array($order['status'], array('paid', 'shipped')) ? ' a vrátit ' . h(format_price($toPay, $order['currency'])) : ''; ?>">
+</form>
+<?php } ?>
+
 <h2>Poznámky</h2>
 <?php foreach ($notes as $n) { ?>
     <p><strong><?php echo h($n['author']); ?></strong>, <?php echo format_date($n['created_at'], true); ?>:<br><?php echo nl2br(h($n['note'])); ?></p>

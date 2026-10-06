@@ -88,6 +88,30 @@ class StockReport
     }
 
     /**
+     * Uvolni vsechny rezervace objednavky (zbozi je zase k dispozici).
+     * Vraci pocet uvolnenych kusu.
+     */
+    public static function releaseReservations($orderId)
+    {
+        global $db;
+        legacy_db();
+        $released = 0;
+        foreach ($db->query("SELECT product_id, reservations FROM stock_items") as $r) {
+            $data = json_decode((string) $r['reservations'], true);
+            if (!is_array($data) || !isset($data[$orderId])) {
+                continue;
+            }
+            $released += (int) $data[$orderId];
+            unset($data[$orderId]);
+            // prazdne pole by se zakodovalo jako [], novy e-shop cte objekt
+            $json = count($data) ? json_encode($data) : '{}';
+            $db->exec("UPDATE stock_items SET reservations = " . $db->quote($json) . " WHERE product_id = " . $db->quote($r['product_id']));
+        }
+
+        return $released;
+    }
+
+    /**
      * Rezervace, jejichz objednavka uz je stornovana (visi tam).
      */
     public static function orphanReservations()

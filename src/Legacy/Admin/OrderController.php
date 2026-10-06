@@ -94,6 +94,29 @@ class OrderController extends BaseController
     }
 
     /**
+     * Storno objednavky (POST z detailu): vraceni penez a uvolneni skladu.
+     */
+    public function cancelAction()
+    {
+        auth_require('obchod');
+        $id = post_param('id');
+        if (!is_post() || $id == '') {
+            return $this->redirect(admin_url('orders'));
+        }
+
+        $result = \App\Legacy\lib\OrderCancellation::cancel($id, post_param('reason'));
+        if (is_string($result)) {
+            flash($result, 'error');
+        } elseif ($result['refund'] > 0) {
+            flash('Objednávka stornována, zákazníkovi se vrací ' . format_price($result['refund'], $result['currency']));
+        } else {
+            flash('Objednávka stornována');
+        }
+
+        return $this->redirect(admin_url('order', array('id' => $id)));
+    }
+
+    /**
      * Objednavky zakaznika (volano z detailu zakaznika pres AJAX, 2016).
      */
     public function byCustomerAction()
