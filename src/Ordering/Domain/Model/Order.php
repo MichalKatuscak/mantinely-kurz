@@ -220,12 +220,16 @@ final class Order extends AggregateRoot
         $this->record(new OrderDelivered($this->id, new \DateTimeImmutable()));
     }
 
-    // Čas přichází zvenku, aby šel v testech zadat.
-    public function cancel(string $reason, \DateTimeImmutable $when): void
+    /**
+     * Čas přichází zvenku, aby šel v testech zadat.
+     *
+     * Vrací částku, kterou je třeba zákazníkovi vrátit.
+     */
+    public function cancel(string $reason, \DateTimeImmutable $when): Money
     {
-        // Opakované storno není chyba volajícího, jen už není co dělat.
+        // Opakované storno není chyba volajícího, jen už není co dělat ani vracet.
         if ($this->status === OrderStatus::Cancelled) {
-            return;
+            return Money::zero($this->currency);
         }
 
         // Storno je hrana grafu jako každá jiná: odeslanou ani doručenou
@@ -237,8 +241,15 @@ final class Order extends AggregateRoot
             );
         }
 
+        // Peníze vracíme jen za zaplacenou objednávku, a to přesně tolik, kolik zaplatila.
+        $refund = $this->status === OrderStatus::Paid
+            ? $this->paidAmount()
+            : Money::zero($this->currency);
+
         $this->status = OrderStatus::Cancelled;
-        $this->record(new OrderCancelled($this->id, $this->customerId, $reason, $when));
+        $this->record(new OrderCancelled($this->id, $this->customerId, $reason, $when, $refund));
+
+        return $refund;
     }
 
     public function isOwnedBy(CustomerId $customerId): bool

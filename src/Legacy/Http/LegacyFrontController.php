@@ -69,6 +69,7 @@ class LegacyFrontController
         'export_customers'   => array(ExportController::class, 'customersAction'),
 
         // proceduralni stranky (2014–2016)
+        'order_cancel'       => array(OrderController::class, 'cancelAction'),
         'order_edit'         => 'order_edit.php',
         'orders_bulk'        => 'orders.php',
         'order_list'         => 'order_list.php',

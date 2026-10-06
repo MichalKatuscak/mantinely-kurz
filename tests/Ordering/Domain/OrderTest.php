@@ -334,6 +334,45 @@ final class OrderTest extends TestCase
     }
 
     #[Test]
+    public function cancelledPaidOrderRefundsPaidAmountAfterDiscount(): void
+    {
+        $order = $this->draftOrder();
+        $order->addItem(ProductId::generate(), 2, $this->czk(500_00));
+        $order->applyDiscount($this->czk(150_00));
+        $order->confirm();
+        $order->markPaid();
+        $order->releaseEvents();
+
+        $refund = $order->cancel('customer request', new \DateTimeImmutable());
+
+        self::assertTrue($refund->equals($this->czk(850_00)));
+        $events = $order->releaseEvents();
+        self::assertInstanceOf(OrderCancelled::class, $events[0]);
+        self::assertTrue($events[0]->refund->equals($this->czk(850_00)));
+    }
+
+    #[Test]
+    public function cancelledUnpaidOrderRefundsNothing(): void
+    {
+        $order = $this->confirmedOrder();
+
+        $refund = $order->cancel('customer request', new \DateTimeImmutable());
+
+        self::assertTrue($refund->equals(Money::zero(Currency::CZK)));
+    }
+
+    #[Test]
+    public function secondCancelRefundsNothing(): void
+    {
+        $order = $this->paidOrder();
+        $order->cancel('customer request', new \DateTimeImmutable());
+
+        $refund = $order->cancel('customer request', new \DateTimeImmutable());
+
+        self::assertTrue($refund->equals(Money::zero(Currency::CZK)));
+    }
+
+    #[Test]
     public function paidAmountIsItemsTotalAfterDiscount(): void
     {
         $order = $this->draftOrder();
