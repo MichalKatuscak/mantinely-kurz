@@ -40,8 +40,9 @@ Počty po modelech jsou v `data/mereni-legacy/VYSLEDKY.md` (9 běhů všech tř�
 a `data/mereni-legacy-opus/VYSLEDKY.md` (Opus, 10 běhů sloučeně). U T4 závisí počet
 na výkladu hraničních případů (Opus 6 až 9 z 10). Průřez to rozebírá.
 
-Ukázkový běh v lekci je `data/mereni-legacy/r3-opus` (nejsilnější model a nejvíc typů
-chyb v jednom běhu: T1, T2 a T4). Jeho výsledek je i tag `m00-end`. Obejití domény (T3)
+Ukázkový běh v lekci je `data/mereni-legacy/r3-opus` (nejsilnější model Claude v době
+měření, jeden ze dvou jeho běhů s nejvíc typy chyb: T1, T2 a T4; druhý je
+`mereni-legacy-opus/r2-opus`). Jeho výsledek je i tag `m00-end`. Obejití domény (T3)
 lekce ukazuje na běhu `r6-sonnet`. Zhuštěné průběhy mají oba v `PRUBEH.md`.
 
 ### Kontrast: skoro stejné zadání v novém kódu
