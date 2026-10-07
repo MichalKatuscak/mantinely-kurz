@@ -5,7 +5,7 @@ Veřejný repozitář videokurzu **Mantinely: vývoj s AI v PHP a Symfony**
 cvičení a na ní běžel experiment s AI agentem z lekce 0.2. Doménou navazuje na knihu
 [DDD v Symfony](https://ddd-v-symfony.katuscak.cz).
 
-Ve složce [`mereni/`](mereni/README.md) je celá sada, se kterou jsme experiment měřili:
+Ve složce [`mereni/`](mereni/README.md) je celá sada, se kterou jsem experiment měřil:
 zadání, skripty, kritéria, hodnocení a přepisy všech běhů agenta. Měření si můžete
 zopakovat se svým modelem.
 

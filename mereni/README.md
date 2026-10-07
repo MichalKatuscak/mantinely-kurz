@@ -4,7 +4,7 @@ Tady je všechno, z čeho vycházejí čísla v lekci 0.2 kurzu Mantinely: zadá
 kritéria, hodnocení a přepisy všech běhů agenta, beze změny. Můžete si je přečíst,
 zkontrolovat, nebo měření zopakovat se svým modelem.
 
-Měřili jsme v říjnu 2026. Modely se zlepšují, takže čísla stárnou. Mechanismy, které
+Měřil jsem v říjnu 2026. Modely se zlepšují, takže čísla stárnou. Mechanismy, které
 z nich lekce vyvozuje, platí dál a ověřit si je můžete právě touto sadou.
 
 ## Experiment
@@ -87,16 +87,16 @@ zveřejněn.
 
 - Je to jedna aplikace, jedno zadání a malé vzorky (10, 3 a 3 běhy). Žádná obecná
   procenta a žádné pořadí modelů z toho neplyne.
-- Měřili jsme jen Claude Code s modely Claude. Jiné nástroje a modely netestovány.
-- Typy chyb T1 až T4 jsme pojmenovali až po měření, podle toho, co hodnotitelé našli.
-  Kritéria v `KRITERIA.md` vznikla před během a hledala čtyři chyby, které jsme čekali.
+- Měřil jsem jen Claude Code s modely Claude. Jiné nástroje a modely jsem netestoval.
+- Typy chyb T1 až T4 jsem pojmenoval až po měření, podle toho, co hodnotitelé našli.
+  Kritéria v `KRITERIA.md` vznikla před během a hledala čtyři chyby, které jsem čekal.
   Chyba se slevou se neobjevila vůbec, SQL injection a nevyžádané zásahy hodnotitelé
   našli navíc. Sloupce v hodnoceních proto neodpovídají T1 až T4 jedna k jedné.
 - Hodnotitelé byli modely stejné rodiny jako agent. Průřez proto každý nález ověřil
   znovu přímo v diffu nebo v přepisu, hodnocení mu sloužila jen k orientaci.
 - README výchozího stavu, které většina agentů četla, popisuje slevu a zmiňuje, že na
   aplikaci běží experiment. Že všech 16 běhů vrátilo částku po slevě správně, proto
-  nebereme jako zjištění.
+  neberu jako zjištění.
 - Agenti běželi v běžném uživatelském prostředí Claude Code. V přepisech (záznam `init`)
   je vidět, jaké servery MCP a dovednosti byly k dispozici. Agenti je nepoužili. Výjimka
   je jedno volání vestavěné dovednosti `run` (`mereni-00-2/r9-haiku`).
