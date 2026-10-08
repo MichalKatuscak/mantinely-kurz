@@ -10,7 +10,7 @@
 ## Kód
 - Kód je po ohraničených kontextech `src/Ordering`, `src/Inventory`, vrstvy Domain / Application / Infrastructure
 - Ordering a Inventory spolu mluví jen přes doménové události
-- Stav objednávky mění jen metody `Order`
+- Stav objednávky a skladu mění jen doména, i ze `src/Legacy` (command, ne SQL)
 - Události v minulém čase bez přípony `Event`, command na command busu bez přípony `Command`
 - Existující kód v `src/Ordering` a `src/Inventory` bez zadání neměnit
 - `src/Legacy` bez zadání nerefaktorovat
