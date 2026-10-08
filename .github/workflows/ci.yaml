@@ -20,4 +20,6 @@ jobs:
           coverage: pcov
       - run: composer install --no-interaction --no-progress
       - run: composer audit
-      - run: make check
+      - run: vendor/bin/phpunit --no-progress
+      - run: bin/console cache:warmup
+      - run: vendor/bin/phpstan analyse --no-progress
