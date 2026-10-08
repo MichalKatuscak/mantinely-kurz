@@ -14,7 +14,15 @@
             {% for item in order.items %}
                 <tr>
                     <td>{{ item.productId.value }}</td>
-                    <td>{{ item.quantity }}</td>
+                    <td>
+                        {{ item.quantity }}
+                        {% if order.status.value == 'draft' %}
+                            <form method="post" action="{{ path('order_remove_item', {id: order.id.value, productId: item.productId.value}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('order_edit') }}">
+                                <button type="submit">Odebrat</button>
+                            </form>
+                        {% endif %}
+                    </td>
                     <td>{{ item.unitPrice|money }}</td>
                     <td>{{ item.subtotal|money }}</td>
                 </tr>

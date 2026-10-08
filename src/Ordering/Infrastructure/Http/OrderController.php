@@ -9,6 +9,7 @@ use App\Ordering\Application\Command\AddOrderItem;
 use App\Ordering\Application\Command\ConfirmOrder;
 use App\Ordering\Application\Command\PayOrder;
 use App\Ordering\Application\Command\PlaceOrder;
+use App\Ordering\Application\Command\RemoveOrderItem;
 use App\Ordering\Application\Port\ProductCatalog;
 use App\Ordering\Domain\Model\Order;
 use App\Ordering\Domain\Repository\OrderRepository;
@@ -75,6 +76,16 @@ final class OrderController extends AbstractController
             max(1, $request->getPayload()->getInt('quantity', 1)),
             $product->price,
         ));
+
+        return $this->redirectToRoute('order_detail', ['id' => $order->id->value]);
+    }
+
+    #[Route('/{id}/polozky/{productId}/odebrat', name: 'order_remove_item', requirements: ['id' => Requirement::UUID, 'productId' => Requirement::UUID], methods: ['POST'])]
+    #[IsCsrfTokenValid('order_edit')]
+    public function removeItem(string $id, string $productId): Response
+    {
+        $order = $this->ownOrder($id);
+        $this->commandBus->dispatch(new RemoveOrderItem($order->id, ProductId::fromString($productId)));
 
         return $this->redirectToRoute('order_detail', ['id' => $order->id->value]);
     }

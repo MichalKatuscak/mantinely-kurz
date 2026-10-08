@@ -8,6 +8,11 @@
 - Bez zeptání žádný nový bundle ani balíček
 - Po každém kroku plánu commit, před commitem `make check`
 
+## Kontroly
+- Po každé změně: `make test-domain` (doménové testy bez jádra, pár sekund)
+- Před commitem: `make check`
+- Ve fázi implementace testy neměň. Když test odporuje zadání, zastav se a řekni to.
+
 ## Kód
 - Kód je po ohraničených kontextech `src/Ordering`, `src/Inventory`, vrstvy Domain / Application / Infrastructure
 - Ordering a Inventory spolu mluví jen přes doménové události
