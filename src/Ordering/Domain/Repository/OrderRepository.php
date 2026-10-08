@@ -19,5 +19,8 @@ interface OrderRepository
     /** @return list<Order> */
     public function findByCustomer(CustomerId $customerId): array;
 
+    /** @return list<Order> */
+    public function findByStatus(string $status): array;
+
     public function save(Order $order): void;
 }

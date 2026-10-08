@@ -44,6 +44,15 @@ final readonly class DoctrineOrderRepository implements OrderRepository
             ->getResult();
     }
 
+    public function findByStatus(string $status): array
+    {
+        /** @var list<Order> */
+        return $this->entityManager
+            ->createQuery('SELECT o FROM App\Ordering\Domain\Model\Order o WHERE o.status = :status ORDER BY o.placedAt DESC')
+            ->setParameter('status', $status)
+            ->getResult();
+    }
+
     public function save(Order $order): void
     {
         $this->entityManager->persist($order);

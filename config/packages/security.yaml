@@ -19,6 +19,7 @@ security:
     access_control:
         - { path: ^/objednavky, roles: ROLE_CUSTOMER }
         - { path: ^/admin, roles: ROLE_STAFF }
+        - { path: ^/sprava, roles: ROLE_STAFF }
 
 when@test:
     security:

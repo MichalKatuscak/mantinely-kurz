@@ -55,6 +55,10 @@ final class Order extends AggregateRoot
     #[ORM\Column(nullable: true)]
     public private(set) ?\DateTimeImmutable $placedAt = null;
 
+    // Důvod storna.
+    #[ORM\Column(type: 'text', nullable: true)]
+    public private(set) ?string $cancellationNote = null;
+
     // Sleva na celou objednávku. Kniha ji nemá, kurz ano (viz README).
     #[ORM\Embedded(class: Money::class, columnPrefix: 'discount_')]
     public private(set) Money $discount;
@@ -238,6 +242,7 @@ final class Order extends AggregateRoot
         }
 
         $this->status = OrderStatus::Cancelled;
+        $this->cancellationNote = $reason === '' ? null : $reason;
         $this->record(new OrderCancelled($this->id, $this->customerId, $reason, $when));
     }
 

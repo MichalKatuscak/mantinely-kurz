@@ -296,6 +296,18 @@ final class OrderTest extends TestCase
     }
 
     #[Test]
+    public function cancellationNoteIsKeptForStaff(): void
+    {
+        $withNote = $this->paidOrder();
+        $withNote->cancel('Přišlo to pozdě', new \DateTimeImmutable());
+        $withoutNote = $this->paidOrder();
+        $withoutNote->cancel('', new \DateTimeImmutable());
+
+        self::assertSame('Přišlo to pozdě', $withNote->cancellationNote);
+        self::assertNull($withoutNote->cancellationNote);
+    }
+
+    #[Test]
     public function draftOrderCanBeCancelled(): void
     {
         $order = $this->draftOrder();
