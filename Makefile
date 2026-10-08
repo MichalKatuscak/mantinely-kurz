@@ -1,5 +1,5 @@
 # Všechny kontroly projektu spouští jeden příkaz: make check
-.PHONY: check test test-domain infection infection-full phpstan
+.PHONY: check check-changed test test-domain infection infection-full phpstan
 
 # Mutační testy běží jen na řádcích změněných od posledního tagu cvičení
 # (mNN-start). Jiný základ: make check INFECTION_BASE=main
@@ -33,3 +33,13 @@ infection-full:
 phpstan:
 	@bin/console cache:warmup --quiet
 	@$(PHPSTAN) analyse --no-progress --error-format=raw --memory-limit=1G $(PHPSTAN_FLAGS) && echo "PHPStan: bez chyb"
+
+# Rychlá kontrola po editaci: PHPStan jen na změněné a nové soubory. Volají ji hooky
+# všech nástrojů. Chyby jdou na stderr a make při chybě končí kódem 2, takže je agent
+# dostane zpátky jako zpětnou vazbu.
+check-changed:
+	@files=$$( { git diff --name-only --diff-filter=d HEAD; git ls-files --others --exclude-standard; } \
+		| grep -E '^(src|tests|tools)/.*\.php$$' | grep -v '^src/Legacy/' | sort -u ); \
+	if [ -z "$$files" ]; then exit 0; fi; \
+	bin/console cache:warmup --quiet; \
+	$(PHPSTAN) analyse --no-progress --error-format=raw --memory-limit=1G $(PHPSTAN_FLAGS) $$files 1>&2
