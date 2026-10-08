@@ -109,6 +109,7 @@ class LegacyFrontController
 
         // akce, ktere meni objednavku prikazem noveho e-shopu (2026)
         'order_item_quantity'=> array(OrderController::class, 'changeItemQuantityAction'),
+        'order_cancel'       => array(OrderController::class, 'cancelAction'),
     );
 
     public function __invoke(Request $request, string $page = 'dashboard', #[CurrentUser] ?UserInterface $user = null): Response

@@ -54,7 +54,21 @@
     <tr><td colspan="4" class="num">Mezisoučet</td><td class="num"><?php echo format_price($sum, $order['currency']); ?></td></tr>
     <tr><td colspan="4" class="num">Sleva</td><td class="num">−<?php echo format_price($order['discount_amount_in_cents'], $order['discount_currency']); ?></td></tr>
     <tr><td colspan="4" class="num"><strong>K úhradě</strong></td><td class="num"><strong><?php echo format_price($toPay, $order['currency']); ?></strong></td></tr>
+<?php if ((int) $order['refund_amount_in_cents'] > 0) { ?>
+    <tr><td colspan="4" class="num"><strong>Vrátit zákazníkovi</strong> <span class="hint">(po stornu, vrací obchod ručně)</span></td><td class="num"><strong><?php echo format_price($order['refund_amount_in_cents'], $order['currency']); ?></strong></td></tr>
+<?php } ?>
 </table>
+
+<?php if (in_array($order['status'], array('draft', 'confirmed', 'paid'))) { ?>
+<h2>Storno</h2>
+<form method="post" action="<?php echo h(admin_url('order_cancel', array('id' => $order['id']))); ?>" onsubmit="return confirm('Opravdu stornovat objednávku?');"><?php echo csrf_field(); ?>
+    <label>Důvod <input type="text" name="reason" size="40"></label>
+    <?php if ($order['status'] == 'paid') { ?>
+        <span class="hint">Zákazník dostane zpět <?php echo format_price($toPay, $order['currency']); ?>, zboží se vrátí na sklad.</span>
+    <?php } ?>
+    <input type="submit" value="Stornovat">
+</form>
+<?php } ?>
 
 <p>
     <a href="<?php echo h(admin_url('order_edit', array('id' => $order['id']))); ?>">Změnit stav / slevu</a> |

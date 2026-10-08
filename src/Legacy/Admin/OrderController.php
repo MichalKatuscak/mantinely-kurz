@@ -157,4 +157,45 @@ class OrderController extends BaseController
 
         return $this->detailAction();
     }
+
+    /**
+     * Storno z detailu objednavky (2026).
+     *
+     * Storno dela novy e-shop (CancelOrder): hlida stav, u zaplacene objednavky
+     * zaznamena castku k vraceni (penize vraci obchod rucne) a sklad uvolni
+     * rezervace. Tady se jen ukaze vysledek.
+     */
+    public function cancelAction()
+    {
+        global $db;
+        legacy_db();
+        auth_require('obchod');
+        if (is_post()) {
+            csrf_check();
+        }
+
+        $id = get_param('id');
+        $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
+        if ($order === null) {
+            return $this->notFound('Objednávka ' . $id . ' neexistuje');
+        }
+        if (!is_post()) {
+            return $this->redirect(admin_url('order', array('id' => $id)));
+        }
+
+        try {
+            legacy_command(new \App\Ordering\Application\Command\CancelOrder(
+                \App\Ordering\Domain\ValueObject\OrderId::fromString($id),
+                trim((string) $this->post('reason'))
+            ));
+        } catch (\App\Ordering\Domain\Exception\InvalidOrderStateTransitionException $e) {
+            flash('Odeslanou ani doručenou objednávku stornovat nejde', 'error');
+
+            return $this->detailAction();
+        }
+
+        flash('Objednávka stornována');
+
+        return $this->detailAction();
+    }
 }

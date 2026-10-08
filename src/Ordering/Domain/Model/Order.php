@@ -13,6 +13,7 @@ use App\Ordering\Domain\Event\OrderItemRemoved;
 use App\Ordering\Domain\Event\OrderPaid;
 use App\Ordering\Domain\Event\OrderPlaced;
 use App\Ordering\Domain\Event\OrderShipped;
+use App\Ordering\Domain\Event\RefundRequested;
 use App\Ordering\Domain\Exception\CurrencyMismatchException;
 use App\Ordering\Domain\Exception\DiscountExceedsItemsTotalException;
 use App\Ordering\Domain\Exception\EmptyOrderException;
@@ -62,6 +63,16 @@ final class Order extends AggregateRoot
     // Sleva na celou objednávku. Kniha ji nemá, kurz ano (viz README).
     #[ORM\Embedded(class: Money::class, columnPrefix: 'discount_')]
     public private(set) Money $discount;
+
+    // Částka, kterou má obchod po stornu vrátit zákazníkovi (vrací ručně), vždy
+    // v měně objednávky. Výchozí 0 kvůli řádkům, které do orders zapisuje stará
+    // administrace bez tohoto sloupce.
+    #[ORM\Column(options: ['default' => 0])]
+    private int $refundAmountInCents = 0;
+
+    public Money $refund {
+        get => new Money($this->refundAmountInCents, $this->currency);
+    }
 
     private function __construct(
         #[ORM\Id]
@@ -244,6 +255,22 @@ final class Order extends AggregateRoot
         $this->status = OrderStatus::Cancelled;
         $this->cancellationNote = $reason === '' ? null : $reason;
         $this->record(new OrderCancelled($this->id, $this->customerId, $reason, $when));
+    }
+
+    /**
+     * Storno, po kterém zákazník dostane zpět, co zaplatil. U nezaplacené
+     * objednávky není co vracet, storno proběhne bez vrácení.
+     */
+    public function cancelWithRefund(string $reason, \DateTimeImmutable $when): void
+    {
+        // Stornovaná objednávka už zaplacená není, opakované storno peníze nevrací.
+        $wasPaid = $this->status === OrderStatus::Paid;
+        $this->cancel($reason, $when);
+
+        if ($wasPaid) {
+            $this->refundAmountInCents = $this->paidAmount()->amountInCents;
+            $this->record(new RefundRequested($this->id, $this->customerId, $this->refund, $when));
+        }
     }
 
     public function isOwnedBy(CustomerId $customerId): bool
