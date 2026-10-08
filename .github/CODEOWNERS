@@ -13,6 +13,8 @@
 /tools/                                 @MichalKatuscak
 /.claude/settings.json                  @MichalKatuscak
 /.claude/hooks/                         @MichalKatuscak
+/.codex/                                @MichalKatuscak
+/.cursor/                               @MichalKatuscak
 /.github/                               @MichalKatuscak
 /tests/Legacy/CsrfTest.php              @MichalKatuscak
 /tests/Legacy/AuthRequireTest.php       @MichalKatuscak

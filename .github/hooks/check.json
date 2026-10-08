@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      { "type": "command", "matcher": "edit|create", "bash": "make --no-print-directory check-changed 2>&1" }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "make --no-print-directory check-changed" }
+        ]
+      }
+    ]
+  }
+}
