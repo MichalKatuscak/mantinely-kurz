@@ -1,12 +1,12 @@
 # Protokol měření z lekce 12.1 (zapsaný před měřením)
 
 Zapsal jsem ho 8. 10. 2026, dřív než proběhl první běh. Výsledky se budou hodnotit přesně
-podle něj. Kdyby se během měření ukázalo, že něco změnit musím, zapíšu změnu sem i s důvodem
+podle něj. Kdyby se během měření ukázalo, že musím něco změnit, zapíšu změnu sem i s důvodem
 a datem, původní znění zůstane.
 
 ## Co měřím
 
-Stejný tiket jako v lekci 0.2, tentokrát v repozitáři se všemi mantinely z kurzu. Otázka:
+Stejný tiket jako v lekci 0.2, tentokrát v repozitáři se všemi mantinely z kurzu. Zajímá mě,
 které ze čtyř typů chyb z lekce 0.2 se ve výsledném kódu objeví, když má agent kolem sebe
 navádění, senzory a oprávnění.
 
@@ -17,27 +17,27 @@ navádění, senzory a oprávnění.
   voleb (`claude -p`, `--permission-mode acceptEdits`, stejně povolené nástroje).
 - **Běhy:** 16, každý ve vlastní čisté kopii. 10× Opus 5.5, 3× Sonnet 5.5, 3× Haiku 4.5
   (`--model opus|sonnet|haiku`, ID modelu je v přepisu každého běhu).
-- **Kritéria:** typy chyb T1 až T4 se stejnou definicí jako v 0.2 (`KRITERIA.md` obou
+- **Kritéria:** typy chyb T1 až T4 definované stejně jako v 0.2 (`KRITERIA.md` obou
   složek a průřez nevyžádaných zásahů se stejným měřítkem). Každý běh posoudí nezávislý
   hodnotitel v nové relaci, každý nález cituje řádek diffu nebo výchozího kódu.
 
 ## Co je jinak a proč
 
 - **Výchozí stav:** tag `m12-start` (větev `kurz`). Má instrukční soubor a pravidlo pro
-  `src/Legacy`, testy s mutačním testováním, PHPStan, vlastní pravidla PHPStanu pro starou
+  `src/Legacy`, testy včetně mutačních, PHPStan, vlastní pravidla PHPStanu pro starou
   administraci, Rector, Deptrac s vrstvou `Legacy`, CSRF a kontrolu role ve všech akcích
   staré administrace, oprávnění agenta a hook, který po každé editaci spustí
   `make check-changed`. Storno ve staré administraci není.
-- **Precedens v kódu:** stará administrace už má jednu akci, která mění objednávku přes
+- **Vzor v kódu:** stará administrace už má jednu akci, která mění objednávku přes
   příkaz nového kódu (změna množství z cvičení modulu 3), a všechny akce mají token
   a roli. Na `m00-start` nic z toho nebylo. Je to součást mantinelů „v kódu“, ale agentovi
-  to usnadňuje práci a výsledek je třeba číst s tím.
+  to usnadňuje práci a při čtení výsledku je potřeba s tím počítat.
 - **Klon jen posledního commitu** (`--depth 1` v `beh.sh`). V 0.2 měl `m00-start` jediný
   commit. Historie `m12-start` obsahuje storno z běhu r3 v modulech 8 až 11, takže by si
-  agent mohl řešení přečíst v `git log`. Takhle vidí v obou měřeních jen výchozí stav.
-- **Oprávnění agenta:** konfiguraci kontrol, hlídací testy a snapshoty agent upravit
-  nesmí. Testy, které byly ve výchozím tagu, zastaví hook; nový test agent založí
-  i doladí. Přes Bash (třeba `php -r`) jde obojí obejít. Zápis do hlídacích testů nebo
+  agent mohl řešení přečíst v `git log`. Agent tak v obou měřeních vidí jen výchozí stav.
+- **Oprávnění agenta:** konfiguraci kontrol, hlídací testy a snapshoty agent nesmí
+  upravit. Úpravu testů, které už byly ve výchozím tagu, zastaví hook. Nový test agent
+  založit i doladit smí. Přes Bash (třeba `php -r`) jde obojí obejít. Zápis do hlídacích testů nebo
   konfigurace kontrol jakoukoli cestou počítám jako T4.
 
 ## Jak čtu výsledek
@@ -49,8 +49,8 @@ Pro každý běh a každý typ chyby jeden ze tří stavů:
    (doloženo přepisem relace);
 3. **zůstala ve výsledném diffu.**
 
-Chybu, která nevznikla, nejde s jistotou připsat navádění. Poznat se dá jen podle četnosti
-proti 0.2.
+To, že chyba nevznikla, nejde s jistotou připsat navádění. Poznat se to dá jen podle
+četnosti ve srovnání s 0.2.
 
 **Pravá strana Tabule** v lekci: pro každý typ počet běhů, ve kterých zůstal ve výsledném
 diffu. Skóre vpravo je počet typů, které zůstaly aspoň v jednom běhu (vlevo jsou čtyři).
@@ -69,13 +69,13 @@ tag `m12-end`.
 - Stejná omezení jako v 0.2: jedna aplikace, jeden tiket, malé vzorky, jen Claude Code
   s modely Claude, stav k datu měření.
 - Mantinely i zadání reviewera jsem stavěl podle chyb, které jsem znal z 0.2, a měřím je
-  na stejném tiketu. Pro mantinely je to nejpříznivější případ, chyba nového typu by mohla
-  projít.
+  na stejném tiketu. Pro mantinely je to nejpříznivější případ. Chyba nového typu by přitom
+  mohla projít.
 
 ## Změna protokolu (8. 10. 2026, po první fázi, před hodnocením)
 
 **Co se stalo:** 7 z 16 běhů (6× Opus, 1× Sonnet) se po průzkumu kódu zastavilo
-a zeptalo, jak udělat vrácení peněz, protože v aplikaci nemá na co navázat. Nic
+a zeptalo, jak vracet peníze, protože v aplikaci nemají na co navázat. Nic
 nezměnily. Zbylých 9 udělalo storno se vrácením zboží a ve zprávě napsalo, že vrácení
 peněz neudělalo. V 0.2 si to agenti domysleli sami. Běh bez kódu by se podle původního
 protokolu hodnotil jako „žádná chyba“, a to by bylo zavádějící.
