@@ -43,6 +43,15 @@ final class OrderItem
         $this->quantity += $by;
     }
 
+    public function changeQuantity(int $quantity): void
+    {
+        if ($quantity < 1) {
+            throw new \InvalidArgumentException('Quantity must be positive');
+        }
+
+        $this->quantity = $quantity;
+    }
+
     public function subtotal(): Money
     {
         return $this->unitPrice->multiply($this->quantity);

@@ -8,12 +8,15 @@ use App\Ordering\Domain\Event\OrderCancelled;
 use App\Ordering\Domain\Event\OrderConfirmed;
 use App\Ordering\Domain\Event\OrderDelivered;
 use App\Ordering\Domain\Event\OrderItemAdded;
+use App\Ordering\Domain\Event\OrderItemQuantityChanged;
 use App\Ordering\Domain\Event\OrderPaid;
 use App\Ordering\Domain\Event\OrderPlaced;
 use App\Ordering\Domain\Event\OrderShipped;
 use App\Ordering\Domain\Exception\CurrencyMismatchException;
 use App\Ordering\Domain\Exception\EmptyOrderException;
 use App\Ordering\Domain\Exception\InvalidOrderStateTransitionException;
+use App\Ordering\Domain\Exception\InvalidQuantityException;
+use App\Ordering\Domain\Exception\OrderItemNotFoundException;
 use App\Ordering\Domain\ValueObject\CustomerId;
 use App\Ordering\Domain\ValueObject\OrderId;
 use App\Ordering\Domain\ValueObject\OrderStatus;
@@ -95,6 +98,20 @@ final class Order extends AggregateRoot
 
         $this->lines->add(new OrderItem($this, $productId, $quantity, $unitPrice));
         $this->record(new OrderItemAdded($this->id, $productId, $quantity, new \DateTimeImmutable()));
+    }
+
+    public function changeItemQuantity(ProductId $productId, int $quantity): void
+    {
+        if ($this->status !== OrderStatus::Draft) {
+            throw InvalidOrderStateTransitionException::notAllowedInState('changeItemQuantity', $this->status->value);
+        }
+
+        if ($quantity < 1) {
+            throw InvalidQuantityException::mustBePositive($quantity);
+        }
+
+        $this->itemFor($productId)->changeQuantity($quantity);
+        $this->record(new OrderItemQuantityChanged($this->id, $productId, $quantity, new \DateTimeImmutable()));
     }
 
     public function applyDiscount(Money $discount): void
@@ -215,6 +232,17 @@ final class Order extends AggregateRoot
     {
         return $this->totalAmount()
             ->subtract($this->discount);
+    }
+
+    private function itemFor(ProductId $productId): OrderItem
+    {
+        foreach ($this->lines as $item) {
+            if ($item->productId->equals($productId)) {
+                return $item;
+            }
+        }
+
+        throw OrderItemNotFoundException::forProduct($productId);
     }
 
     private function assertSameCurrency(Money $amount): void

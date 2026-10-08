@@ -12,6 +12,8 @@ use App\Ordering\Domain\Event\OrderPlaced;
 use App\Ordering\Domain\Exception\CurrencyMismatchException;
 use App\Ordering\Domain\Exception\EmptyOrderException;
 use App\Ordering\Domain\Exception\InvalidOrderStateTransitionException;
+use App\Ordering\Domain\Exception\InvalidQuantityException;
+use App\Ordering\Domain\Exception\OrderItemNotFoundException;
 use App\Ordering\Domain\Model\Order;
 use App\Ordering\Domain\ValueObject\CustomerId;
 use App\Ordering\Domain\ValueObject\OrderId;
@@ -68,6 +70,48 @@ final class OrderTest extends TestCase
 
         $this->expectException(CurrencyMismatchException::class);
         $order->addItem(ProductId::generate(), 1, new Money(100_00, Currency::EUR));
+    }
+
+    #[Test]
+    public function itemQuantityChangesInDraftOrder(): void
+    {
+        $order = $this->draftOrder();
+        $productId = ProductId::generate();
+        $order->addItem($productId, 2, $this->czk(300_00));
+
+        $order->changeItemQuantity($productId, 5);
+
+        self::assertSame(5, $order->items[0]->quantity);
+        self::assertSame(1500_00, $order->totalAmount()->amountInCents);
+    }
+
+    #[Test]
+    public function itemQuantityCannotChangeInConfirmedOrder(): void
+    {
+        $order = $this->confirmedOrder();
+
+        $this->expectException(InvalidOrderStateTransitionException::class);
+        $order->changeItemQuantity($order->items[0]->productId, 1);
+    }
+
+    #[Test]
+    public function itemQuantityMustBePositive(): void
+    {
+        $order = $this->draftOrder();
+        $productId = ProductId::generate();
+        $order->addItem($productId, 2, $this->czk(300_00));
+
+        $this->expectException(InvalidQuantityException::class);
+        $order->changeItemQuantity($productId, 0);
+    }
+
+    #[Test]
+    public function quantityOfMissingItemCannotChange(): void
+    {
+        $order = $this->draftOrder();
+
+        $this->expectException(OrderItemNotFoundException::class);
+        $order->changeItemQuantity(ProductId::generate(), 1);
     }
 
     #[Test]
