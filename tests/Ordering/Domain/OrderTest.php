@@ -7,6 +7,7 @@ namespace App\Tests\Ordering\Domain;
 use App\Ordering\Domain\Event\OrderCancelled;
 use App\Ordering\Domain\Event\OrderConfirmed;
 use App\Ordering\Domain\Event\OrderItemAdded;
+use App\Ordering\Domain\Event\OrderItemRemoved;
 use App\Ordering\Domain\Event\OrderPaid;
 use App\Ordering\Domain\Event\OrderPlaced;
 use App\Ordering\Domain\Exception\CurrencyMismatchException;
@@ -14,6 +15,7 @@ use App\Ordering\Domain\Exception\DiscountExceedsItemsTotalException;
 use App\Ordering\Domain\Exception\EmptyOrderException;
 use App\Ordering\Domain\Exception\InvalidOrderStateTransitionException;
 use App\Ordering\Domain\Exception\InvalidQuantityException;
+use App\Ordering\Domain\Exception\LastItemCannotBeRemovedException;
 use App\Ordering\Domain\Exception\OrderItemNotFoundException;
 use App\Ordering\Domain\Model\Order;
 use App\Ordering\Domain\ValueObject\CustomerId;
@@ -113,6 +115,65 @@ final class OrderTest extends TestCase
 
         $this->expectException(OrderItemNotFoundException::class);
         $order->changeItemQuantity(ProductId::generate(), 1);
+    }
+
+    #[Test]
+    public function itemIsRemovedFromDraftOrder(): void
+    {
+        $order = $this->draftOrder();
+        $keyboard = ProductId::generate();
+        $mouse = ProductId::generate();
+        $order->addItem($keyboard, 2, $this->czk(300_00));
+        $order->addItem($mouse, 1, $this->czk(400_00));
+        $order->releaseEvents();
+
+        $order->removeItem($mouse);
+
+        self::assertCount(1, $order->items);
+        self::assertTrue($order->items[0]->productId->equals($keyboard));
+        $events = $order->releaseEvents();
+        self::assertCount(1, $events);
+        self::assertInstanceOf(OrderItemRemoved::class, $events[0]);
+    }
+
+    #[Test]
+    public function itemCannotBeRemovedFromConfirmedOrder(): void
+    {
+        $order = $this->draftOrder();
+        $keyboard = ProductId::generate();
+        $order->addItem($keyboard, 2, $this->czk(300_00));
+        $order->addItem(ProductId::generate(), 1, $this->czk(400_00));
+        $order->confirm();
+
+        $this->expectException(InvalidOrderStateTransitionException::class);
+        $order->removeItem($keyboard);
+    }
+
+    #[Test]
+    public function lastItemCannotBeRemoved(): void
+    {
+        $order = $this->draftOrder();
+        $keyboard = ProductId::generate();
+        $order->addItem($keyboard, 2, $this->czk(300_00));
+
+        $this->expectException(LastItemCannotBeRemovedException::class);
+        $order->removeItem($keyboard);
+    }
+
+    #[Test]
+    public function paidAmountDropsAfterItemRemoval(): void
+    {
+        // 2 × 300 + 1 × 400 = 1 000 Kč, sleva 100 Kč → 900 Kč; bez myši 600 − 100 = 500 Kč
+        $order = $this->draftOrder();
+        $mouse = ProductId::generate();
+        $order->addItem(ProductId::generate(), 2, $this->czk(300_00));
+        $order->addItem($mouse, 1, $this->czk(400_00));
+        $order->applyDiscount($this->czk(100_00));
+
+        $order->removeItem($mouse);
+
+        self::assertSame(600_00, $order->totalAmount()->amountInCents);
+        self::assertSame(500_00, $order->paidAmount()->amountInCents);
     }
 
     #[Test]
