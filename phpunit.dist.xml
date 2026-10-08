@@ -9,6 +9,7 @@
          failOnWarning="true"
          bootstrap="tests/bootstrap.php"
          cacheDirectory=".phpunit.cache"
+         defaultTestSuite="all"
 >
     <php>
         <ini name="display_errors" value="1" />
@@ -18,8 +19,12 @@
     </php>
 
     <testsuites>
-        <testsuite name="Project Test Suite">
+        <testsuite name="all">
             <directory>tests</directory>
+        </testsuite>
+        <testsuite name="domain">
+            <directory>tests/Ordering/Domain</directory>
+            <file>tests/Inventory/StockItemTest.php</file>
         </testsuite>
     </testsuites>
 

@@ -1,0 +1,19 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": ["src"],
+        // Stará administrace nemá testy, mutace by tam jen přežívaly.
+        "excludes": ["Legacy"]
+    },
+    "timeout": 20,
+    "logs": {
+        "text": "var/infection/infection.log",
+        "summary": "var/infection/summary.log"
+    },
+    "tmpDir": "var/infection",
+    "mutators": {
+        "@default": true
+    },
+    "testFramework": "phpunit",
+    "minCoveredMsi": 80
+}

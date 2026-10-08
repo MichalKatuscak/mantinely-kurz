@@ -1,0 +1,19 @@
+name: Infection (celý běh)
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'   # jednou týdně, v pondělí ve 2:00 UTC
+  workflow_dispatch:
+
+jobs:
+  infection:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_sqlite, intl, mbstring
+          coverage: pcov
+      - run: composer install --no-interaction --no-progress
+      - run: make infection-full

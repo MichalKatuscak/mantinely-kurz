@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Infection porovnává změněné řádky s posledním tagem cvičení.
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_sqlite, intl, mbstring
+          coverage: pcov
+      - run: composer install --no-interaction --no-progress
+      - run: composer audit
+      - run: make check
