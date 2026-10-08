@@ -13,6 +13,7 @@
 - Po každé editaci spouští hook `make check-changed` (PHPStan na změněné soubory, ve staré administraci `make phpstan-legacy`, k tomu Deptrac). Nahlášenou chybu oprav, baseline negeneruj znovu.
 - Před commitem: `make check`
 - Ve fázi implementace testy neměň. Když test odporuje zadání, zastav se a řekni to.
+- Ve zprávě o hotové práci tvrď jen to, co ověřil test nebo příkaz; co ověřené není, napiš výslovně.
 
 ## Kód
 - Kód je po ohraničených kontextech `src/Ordering`, `src/Inventory`, vrstvy Domain / Application / Infrastructure
@@ -21,7 +22,8 @@
 - Každá hodnota v SQL přes `$db->quote()` nebo přetypování (`(int)`), nikdy vlepená proměnná
 - Události v minulém čase bez přípony `Event`, command na command busu bez přípony `Command`
 - Částky drž v haléřích jako int (`Money::$amountInCents`), měnu ber z enumu `Currency`
-- Existující kód v `src/Ordering` a `src/Inventory` bez zadání neměnit
+- Bez výslovného zadání neměň chování ani signatury existujících metod (hlavně doménových: `Order`, `StockItem`), konfiguraci (`config/`, `*.neon`, `Makefile`) ani existující testy. Když bez toho úkol nejde, zastav se a řekni to.
+- Malé změny: jen to, co zadání žádá, bez úklidu a přestavby okolního kódu
 - `src/Legacy` bez zadání nerefaktorovat
 - Nový případ užití: skill `novy-pripad-uziti`
 
