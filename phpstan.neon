@@ -9,6 +9,8 @@ parameters:
     excludePaths:
         # Stará administrace se zatím neanalyzuje (modul 10).
         - src/Legacy
+        # Ukázky pro testy pravidel obsahují chyby záměrně.
+        - tests/PHPStan/data
     tmpDir: var/cache/phpstan
     symfony:
         # Vzniká při bin/console cache:warmup, make check ho spouští před PHPStanem.
