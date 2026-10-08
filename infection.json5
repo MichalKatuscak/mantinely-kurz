@@ -15,5 +15,6 @@
         "@default": true
     },
     "testFramework": "phpunit",
+    "testFrameworkOptions": "--testsuite=infection",
     "minCoveredMsi": 80
 }

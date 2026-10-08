@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Ordering\Infrastructure\Export;
 
 use App\Ordering\Domain\Model\Order;
+use App\SharedKernel\Domain\Money;
 
 /**
  * CSV s objednávkami zákazníka (tlačítko „Stáhnout CSV“ v přehledu).
@@ -49,9 +50,8 @@ final class OrderExport
         return number_format($cents / 100, 2, '.', '');
     }
 
-    // Starší pomocná metoda bez typu, zůstala z prvního exportu.
-    private function cents($money): int
+    private function cents(Money $money): int
     {
-        return $money->getAmountInCents();
+        return $money->amountInCents;
     }
 }

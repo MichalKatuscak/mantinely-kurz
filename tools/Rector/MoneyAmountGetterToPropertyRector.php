@@ -34,9 +34,12 @@ final class MoneyAmountGetterToPropertyRector extends AbstractRector
         return [MethodCall::class, NullsafeMethodCall::class];
     }
 
-    /** @param MethodCall|NullsafeMethodCall $node */
     public function refactor(Node $node): ?Node
     {
+        if (!$node instanceof MethodCall && !$node instanceof NullsafeMethodCall) {
+            return null;
+        }
+
         if (!$this->isName($node->name, 'getAmountInCents')) {
             return null;
         }

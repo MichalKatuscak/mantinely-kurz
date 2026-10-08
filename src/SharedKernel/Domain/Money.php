@@ -20,14 +20,6 @@ final readonly class Money
         }
     }
 
-    /**
-     * Přežitek z doby, kdy Money mělo soukromé vlastnosti. Nový kód čte $amountInCents.
-     */
-    public function getAmountInCents(): int
-    {
-        return $this->amountInCents;
-    }
-
     public static function zero(Currency $currency): self
     {
         return new self(0, $currency);

@@ -54,4 +54,5 @@ události v minulém čase bez přípony, `Money` v haléřích s enumem `Curren
   `ProductCatalog`; vlastní katalog kniha neřeší.
 - **Přežitek `Money::getAmountInCents()`** (od `m06-start` do `m06-end`). Kniha čte
   `$money->amountInCents`. Getter s 32 voláními, z toho pět na proměnných bez typu, je tu
-  záměrně: lekce 6.3 na něm ukazuje vlastní pravidlo pro Rector a v `m06-end` getter mizí.
+  záměrně: lekce 6.3 na něm ukazuje vlastní pravidlo pro Rector
+  (`tools/Rector`) a v `m06-end` getter mizí.

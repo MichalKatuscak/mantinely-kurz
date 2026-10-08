@@ -16,7 +16,7 @@
         </thead>
         <tbody>
             {% for order in orders %}
-                <tr data-paid-cents="{{ order.paidAmount.getAmountInCents }}">
+                <tr data-paid-cents="{{ order.paidAmount.amountInCents }}">
                     <td><a href="{{ path('order_detail', {id: order.id.value}) }}">{{ order.id.value }}</a></td>
                     <td>{{ order.status.value }}</td>
                     <td>{{ order.paidAmount|money }}</td>

@@ -1,5 +1,5 @@
 # Všechny kontroly projektu spouští jeden příkaz: make check
-.PHONY: check check-changed test test-domain infection infection-full phpstan phpstan-legacy
+.PHONY: check check-changed test test-domain infection infection-full phpstan phpstan-legacy rector
 
 # Mutační testy běží jen na řádcích změněných od posledního tagu cvičení
 # (mNN-start). Jiný základ: make check INFECTION_BASE=main
@@ -7,8 +7,9 @@ INFECTION_BASE ?= $(shell git describe --tags --abbrev=0 --match 'm[0-9][0-9]-st
 
 PHPSTAN ?= vendor/bin/phpstan
 PHPSTAN_FLAGS ?=
+RECTOR_FLAGS ?=
 
-check: test infection phpstan phpstan-legacy
+check: test infection phpstan phpstan-legacy rector
 
 test:
 	vendor/bin/phpunit --no-progress
@@ -38,6 +39,10 @@ phpstan:
 # hodnoty přilepené do SQL). Staré výskyty jsou v baseline, hlásí se jen nové.
 phpstan-legacy:
 	@$(PHPSTAN) analyse -c phpstan-legacy.neon --no-progress --error-format=raw --memory-limit=1G $(PHPSTAN_FLAGS) && echo "PHPStan (stará administrace): bez nových nebezpečných vzorů"
+
+# Rector nanečisto: selže, když by v kódu něco přepsal.
+rector:
+	@vendor/bin/rector process --dry-run --no-progress-bar $(RECTOR_FLAGS)
 
 # Rychlá kontrola po editaci: PHPStan jen na změněné a nové soubory. Volají ji hooky
 # všech nástrojů. Chyby jdou na stderr a make při chybě končí kódem 2, takže je agent

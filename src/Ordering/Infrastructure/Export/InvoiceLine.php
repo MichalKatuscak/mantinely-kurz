@@ -23,14 +23,10 @@ final readonly class InvoiceLine
         return new self($item->productId->value, $item->quantity, $item->unitPrice);
     }
 
-    /** @param array<string, mixed> $line */
+    /** @param array{productId: string, quantity: int, price: Money} $line */
     public static function fromArray(array $line): self
     {
-        return new self(
-            (string) $line['productId'],
-            (int) $line['quantity'],
-            new Money($line['price']->getAmountInCents(), $line['price']->currency),
-        );
+        return new self($line['productId'], $line['quantity'], $line['price']);
     }
 
     public function priceInCents(): int

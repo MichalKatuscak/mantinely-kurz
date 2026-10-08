@@ -64,8 +64,8 @@ final class ChangeItemQuantityTest extends WebTestCase
         self::getContainer()->get(EntityManagerInterface::class)->clear();
         $unchanged = $orders->get($order->id);
         self::assertSame(2, $unchanged->items[0]->quantity);
-        self::assertSame(600_00, $unchanged->totalAmount()->getAmountInCents());
-        self::assertSame(500_00, $unchanged->paidAmount()->getAmountInCents());
+        self::assertSame(600_00, $unchanged->totalAmount()->amountInCents);
+        self::assertSame(500_00, $unchanged->paidAmount()->amountInCents);
     }
 
     #[Test]

@@ -46,13 +46,13 @@ final readonly class OrderTotals
     /**
      * Součet částek, které přišly odjinud (např. z cache přehledu).
      *
-     * @param array<mixed> $amounts
+     * @param list<Money> $amounts
      */
     public static function sumOf(array $amounts, Currency $currency = Currency::CZK): Money
     {
         $sum = 0;
         foreach ($amounts as $amount) {
-            $sum += $amount->getAmountInCents();
+            $sum += $amount->amountInCents;
         }
 
         return new Money($sum, $currency);
