@@ -1,6 +1,6 @@
 # Mantinely – ukázková aplikace kurzu
 
-Soukromý repozitář videokurzu **Mantinely: vývoj s AI v PHP a Symfony**. Na této aplikaci
+Repozitář videokurzu **Mantinely: vývoj s AI v PHP a Symfony**. Na této aplikaci
 se dělají cvičení a natáčí se experiment s AI agentem. Doménou navazuje na knihu
 [DDD v Symfony](https://ddd-v-symfony.katuscak.cz).
 
@@ -38,13 +38,13 @@ události v minulém čase bez přípony, `Money` v haléřích s enumem `Curren
 
 - **Sleva na objednávku.** Kniha slevu nemá. `Order` má vlastnost `discount`,
   `totalAmount()` sčítá položky jako v knize a `paidAmount()` vrací zaplacenou částku po
-  slevě. Bez slevy by v experimentu nemohla vzniknout chyba, kdy se částka počítá podruhé
-  a jinak. Kvůli slevě má objednávka i měnu (`Order::place()` má třetí nepovinný
-  parametr `Currency`, výchozí CZK).
+  slevě. Zaplacená částka se tak liší od součtu položek, na čemž stojí limit slevy
+  (modul 4) a vratka při stornu (modul 8). Kvůli slevě má objednávka i měnu
+  (`Order::place()` má třetí nepovinný parametr `Currency`, výchozí CZK).
 - **Přechody stavů přes `OrderStatus::canTransitionTo()` i v `cancel()`.** Kniha má
   v `cancel()` výčet `in_array(..., [Shipped, Delivered])`. Kurz používá ve všech
-  metodách, které mění `status`, jednu konvenci, protože se o ni opírá vlastní pravidlo
-  PHPStanu z modulu 6.
+  metodách, které mění `status`, jednu konvenci, takže povolené přechody jsou na jednom
+  místě (`OrderStatus::allowedTransitions()`).
 - **Kontext `Inventory` se `StockItem`.** Kniha jinde používá `Warehouse` a
   `InventoryItem`. Kurz potřebuje malý agregát s rezervacemi podle `OrderId`, na který
   se dá ukázat porušení hranice mezi kontexty.
