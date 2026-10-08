@@ -10,8 +10,9 @@
 #   TAG     výchozí stav (výchozí: m00-start)
 #   CLAUDE  spustitelný soubor Claude Code (výchozí: claude z PATH)
 #
-# Agent pracuje v klonu, který obsahuje jen historii tagu: bez větví, bez dalších tagů,
-# bez remote a bez složky mereni/ (jinak by si mohl přečíst výsledky a přepisy).
+# Agent pracuje v klonu, který obsahuje jen poslední commit tagu: bez starší historie,
+# bez větví, bez dalších tagů, bez remote a bez složky mereni/ (jinak by si mohl
+# přečíst výsledky, přepisy nebo dřívější řešení v historii).
 set -euo pipefail
 OUT="$1"; ZADANI="$2"; shift 2
 SKRIPTY="$(cd "$(dirname "$0")" && pwd)"
@@ -23,7 +24,9 @@ ZADANI="$(cd "$(dirname "$ZADANI")" && pwd)/$(basename "$ZADANI")"
 cp "$ZADANI" "$OUT/zadani.txt"
 
 APP="$(mktemp -d)/aplikace"
-git -c advice.detachedHead=false clone -q --no-tags --single-branch --branch "$TAG" "$REPO" "$APP"
+# --depth 1 u místní cesty platí jen přes file://
+ZDROJ="$REPO"; [ -d "$REPO" ] && ZDROJ="file://$(cd "$REPO" && pwd)"
+git -c advice.detachedHead=false clone -q --depth 1 --no-tags --single-branch --branch "$TAG" "$ZDROJ" "$APP"
 cd "$APP"
 git remote remove origin
 git tag -f "$TAG" > /dev/null   # klon s --branch <tag> ho někdy vytvoří sám

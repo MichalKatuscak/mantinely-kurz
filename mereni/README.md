@@ -128,6 +128,13 @@ Skripty počítají s touto aplikací (Composer, migrace Doctrine, `make check`)
 aplikaci upravte přípravu v `beh.sh` a pusťte ho s `REPO=/cesta/k/repozitari TAG=vas-tag`
 a vlastním zadáním. Měřte víc běhů, jeden běh nic neříká.
 
+## Měření z lekce 12.1
+
+Stejný tiket na tagu `m12-start` se všemi mantinely. Protokol jsem zapsal před prvním
+během do `PROTOKOL-12-1.md`, výsledky přibudou do `data/mereni-12-1/`. `beh.sh` od té
+doby klonuje jen poslední commit výchozího tagu (`--depth 1`); pro `m00-start`, který má
+jediný commit, se tím nic nemění.
+
 ## Přepisy
 
 Přepisy jsou beze změny, včetně metadat prostředí: cesty (`/home/michal/…`), ID relací,
