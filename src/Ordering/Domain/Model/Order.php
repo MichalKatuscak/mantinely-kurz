@@ -13,6 +13,7 @@ use App\Ordering\Domain\Event\OrderPaid;
 use App\Ordering\Domain\Event\OrderPlaced;
 use App\Ordering\Domain\Event\OrderShipped;
 use App\Ordering\Domain\Exception\CurrencyMismatchException;
+use App\Ordering\Domain\Exception\DiscountExceedsItemsTotalException;
 use App\Ordering\Domain\Exception\EmptyOrderException;
 use App\Ordering\Domain\Exception\InvalidOrderStateTransitionException;
 use App\Ordering\Domain\Exception\InvalidQuantityException;
@@ -121,6 +122,12 @@ final class Order extends AggregateRoot
         }
 
         $this->assertSameCurrency($discount);
+
+        $total = $this->totalAmount();
+        if ($discount->amountInCents > $total->amountInCents) {
+            throw DiscountExceedsItemsTotalException::forItemsTotal($discount, $total);
+        }
+
         $this->discount = $discount;
     }
 
