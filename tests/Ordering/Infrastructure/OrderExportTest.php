@@ -30,7 +30,7 @@ final class OrderExportTest extends TestCase
 
         $rows = array_map(
             static fn (string $row): array => str_getcsv($row, escape: ''),
-            explode("\n", trim((new OrderExport())->toCsv([$order]))),
+            explode("\n", trim(new OrderExport()->toCsv([$order]))),
         );
 
         self::assertCount(3, $rows);

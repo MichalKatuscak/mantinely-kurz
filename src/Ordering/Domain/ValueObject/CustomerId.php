@@ -6,7 +6,7 @@ namespace App\Ordering\Domain\ValueObject;
 
 use Symfony\Component\Uid\Uuid;
 
-final readonly class CustomerId
+final readonly class CustomerId implements \Stringable
 {
     public function __construct(public string $value)
     {

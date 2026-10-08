@@ -17,7 +17,7 @@ final class TestDatabase
     public static function buildTemplate(): void
     {
         $template = self::template();
-        $newest = max(array_map('filemtime', self::migrations()));
+        $newest = max(array_map(filemtime(...), self::migrations()));
 
         if (is_file($template) && filemtime($template) >= $newest) {
             return;
