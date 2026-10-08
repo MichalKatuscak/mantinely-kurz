@@ -81,7 +81,7 @@ final class OrderControllerTest extends WebTestCase
 
     private function orderFromUrl(): Order
     {
-        $path = (string) parse_url((string) $this->client->getRequest()->getUri(), PHP_URL_PATH);
+        $path = (string) parse_url($this->client->getRequest()->getUri(), PHP_URL_PATH);
         $id = basename($path);
 
         return self::getContainer()->get(OrderRepository::class)->get(OrderId::fromString($id));

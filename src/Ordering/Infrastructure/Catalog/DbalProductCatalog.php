@@ -36,16 +36,25 @@ final readonly class DbalProductCatalog implements ProductCatalog
             'SELECT id, name, price_cents, currency FROM products WHERE active = 1 ORDER BY name',
         );
 
-        return array_values(array_map($this->toProduct(...), $rows));
+        return array_map($this->toProduct(...), $rows);
     }
 
     /** @param array<string, mixed> $row */
     private function toProduct(array $row): CatalogProduct
     {
+        $id = $row['id'] ?? null;
+        $name = $row['name'] ?? null;
+        $priceCents = $row['price_cents'] ?? null;
+        $currency = $row['currency'] ?? null;
+
+        if (!is_string($id) || !is_string($name) || !is_numeric($priceCents) || !is_string($currency)) {
+            throw new \UnexpectedValueException('Unexpected row in table products.');
+        }
+
         return new CatalogProduct(
-            ProductId::fromString((string) $row['id']),
-            (string) $row['name'],
-            new Money((int) $row['price_cents'], Currency::from((string) $row['currency'])),
+            ProductId::fromString($id),
+            $name,
+            new Money((int) $priceCents, Currency::from($currency)),
         );
     }
 }

@@ -17,7 +17,7 @@ final class TestDatabase
     public static function buildTemplate(): void
     {
         $template = self::template();
-        $newest = max(array_map('filemtime', glob(self::projectDir().'/migrations/*.php') ?: [__FILE__]));
+        $newest = max(array_map('filemtime', self::migrations()));
 
         if (is_file($template) && filemtime($template) >= $newest) {
             return;
@@ -40,6 +40,14 @@ final class TestDatabase
     public static function reset(): void
     {
         copy(self::template(), self::file());
+    }
+
+    /** @return non-empty-list<string> */
+    private static function migrations(): array
+    {
+        $files = glob(self::projectDir().'/migrations/*.php');
+
+        return $files === false || $files === [] ? [__FILE__] : $files;
     }
 
     private static function template(): string

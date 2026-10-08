@@ -1,0 +1,17 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+    excludePaths:
+        # Stará administrace se zatím neanalyzuje (modul 10).
+        - src/Legacy
+    tmpDir: var/cache/phpstan
+    symfony:
+        # Vzniká při bin/console cache:warmup, make check ho spouští před PHPStanem.
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    doctrine:
+        objectManagerLoader: tests/object-manager.php
