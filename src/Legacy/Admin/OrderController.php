@@ -112,4 +112,45 @@ class OrderController extends BaseController
 
         return $html;
     }
+
+    /**
+     * Zmena mnozstvi polozky z detailu objednavky (2026).
+     *
+     * Mnozstvi meni novy e-shop (ChangeItemQuantity): ten hlida, ze je objednavka
+     * rozpracovana a mnozstvi kladne. Tady se jen ukaze vysledek.
+     */
+    public function changeItemQuantityAction()
+    {
+        global $db;
+        legacy_db();
+
+        $id = get_param('id');
+        $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
+        if ($order === null) {
+            return $this->notFound('Objednávka ' . $id . ' neexistuje');
+        }
+        if (!is_post()) {
+            return $this->redirect(admin_url('order', array('id' => $id)));
+        }
+
+        try {
+            legacy_command(new \App\Ordering\Application\Command\ChangeItemQuantity(
+                \App\Ordering\Domain\ValueObject\OrderId::fromString($id),
+                \App\Ordering\Domain\ValueObject\ProductId::fromString((string) $this->post('product')),
+                (int) $this->post('quantity')
+            ));
+        } catch (\App\Ordering\Domain\Exception\InvalidOrderStateTransitionException $e) {
+            flash('Množství jde změnit jen u rozpracované objednávky', 'error');
+
+            return $this->detailAction();
+        } catch (\App\Ordering\Domain\Exception\InvalidQuantityException $e) {
+            flash('Množství musí být kladné celé číslo', 'error');
+
+            return $this->detailAction();
+        }
+
+        flash('Množství položky změněno');
+
+        return $this->detailAction();
+    }
 }

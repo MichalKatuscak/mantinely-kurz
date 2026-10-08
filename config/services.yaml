@@ -38,6 +38,12 @@ services:
         resource: '../src/Identity/'
 
     # ──────────────────────────────────────────────────
+    # Stará administrace: službou je jen most, zbytek src/Legacy ne
+    # ──────────────────────────────────────────────────
+    App\Legacy\Http\LegacyFrontController:
+        tags: ['controller.service_arguments']
+
+    # ──────────────────────────────────────────────────
     # SharedKernel: sdílené komponenty napříč kontexty
     # ──────────────────────────────────────────────────
     App\SharedKernel\:

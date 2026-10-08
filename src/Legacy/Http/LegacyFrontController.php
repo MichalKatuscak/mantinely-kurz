@@ -23,9 +23,18 @@ use App\Legacy\Admin\StockController;
 use App\Legacy\Admin\UserController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 
 class LegacyFrontController
 {
+    public function __construct(
+        // vychozi sbernice je command.bus (config/packages/messenger.yaml)
+        private MessageBusInterface $commandBus,
+    ) {
+    }
+
     /**
      * Povolene stranky: page => array(trida, metoda) nebo nazev souboru v Admin/.
      */
@@ -83,6 +92,9 @@ class LegacyFrontController
         'suppliers'          => 'suppliers.php',
         'exchange_rates'     => 'exchange_rates.php',
         'sales_by_currency'  => 'sales_by_currency.php',
+
+        // akce, ktere meni objednavku prikazem noveho e-shopu (2026)
+        'order_item_quantity'=> array(OrderController::class, 'changeItemQuantityAction'),
     );
 
     public function __invoke(Request $request, string $page = 'dashboard'): Response
@@ -103,6 +115,20 @@ class LegacyFrontController
         $GLOBALS['LEGACY_STATUS'] = 200;
         $GLOBALS['LEGACY_CONTENT_TYPE'] = 'text/html; charset=utf-8';
         $GLOBALS['LEGACY_FILENAME'] = null;
+
+        // prikazy noveho e-shopu, stara administrace je vola pres legacy_command()
+        $GLOBALS['LEGACY_COMMAND'] = function ($command) {
+            try {
+                $envelope = $this->commandBus->dispatch($command);
+            } catch (HandlerFailedException $e) {
+                // stara administrace chyta domenove vyjimky, ne obalku Messengeru
+                $wrapped = $e->getWrappedExceptions();
+                throw $wrapped ? reset($wrapped) : $e;
+            }
+            $handled = $envelope->last(HandledStamp::class);
+
+            return $handled !== null ? $handled->getResult() : null;
+        };
 
         $target = self::$pages[$page];
         $level = ob_get_level();

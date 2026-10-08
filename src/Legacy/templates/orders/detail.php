@@ -36,7 +36,17 @@
     <tr>
         <td><?php echo h($it['name'] !== null ? $it['name'] : $it['product_id']); ?></td>
         <td><?php echo h($it['sku']); ?></td>
-        <td class="num"><?php echo (int) $it['quantity']; ?></td>
+        <td class="num">
+        <?php if ($order['status'] == 'draft') { ?>
+            <form method="post" action="<?php echo h(admin_url('order_item_quantity', array('id' => $order['id']))); ?>">
+                <input type="hidden" name="product" value="<?php echo h($it['product_id']); ?>">
+                <input type="number" name="quantity" value="<?php echo (int) $it['quantity']; ?>" min="1" style="width:4em">
+                <input type="submit" value="Změnit">
+            </form>
+        <?php } else { ?>
+            <?php echo (int) $it['quantity']; ?>
+        <?php } ?>
+        </td>
         <td class="num"><?php echo format_price($it['unit_price_amount_in_cents'], $it['unit_price_currency']); ?></td>
         <td class="num"><?php echo format_price($it['quantity'] * $it['unit_price_amount_in_cents'], $it['unit_price_currency']); ?></td>
     </tr>

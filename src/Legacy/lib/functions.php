@@ -187,3 +187,16 @@ function ids_to_sql($ids)
 
     return implode(',', $out);
 }
+
+/**
+ * Prikaz pro novy e-shop (src/Ordering). Vraci vysledek handleru.
+ * Most pripravi $GLOBALS['LEGACY_COMMAND'] (viz Http/LegacyFrontController).
+ */
+function legacy_command($command)
+{
+    if (!isset($GLOBALS['LEGACY_COMMAND']) || !is_callable($GLOBALS['LEGACY_COMMAND'])) {
+        throw new \RuntimeException('Příkazy nového e-shopu jdou volat jen přes /admin/legacy');
+    }
+
+    return call_user_func($GLOBALS['LEGACY_COMMAND'], $command);
+}

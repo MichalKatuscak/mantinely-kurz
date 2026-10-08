@@ -67,4 +67,19 @@ final class ChangeItemQuantityTest extends WebTestCase
         self::assertSame(600_00, $unchanged->totalAmount()->amountInCents);
         self::assertSame(500_00, $unchanged->paidAmount()->amountInCents);
     }
+
+    #[Test]
+    public function quantityInDraftOrderChangesFromOrderDetail(): void
+    {
+        $order = Order::place(OrderId::generate(), CustomerId::generate());
+        $order->addItem(ProductId::fromString(Catalog::KEYBOARD), 2, new Money(300_00, Currency::CZK));
+        self::getContainer()->get(OrderRepository::class)->save($order);
+
+        $this->client->request('GET', '/admin/legacy/order?id='.$order->id->value);
+        $this->client->submitForm('Změnit', ['quantity' => '3']);
+
+        self::assertSelectorTextContains('.flash', 'Množství položky změněno');
+        self::getContainer()->get(EntityManagerInterface::class)->clear();
+        self::assertSame(3, self::getContainer()->get(OrderRepository::class)->get($order->id)->items[0]->quantity);
+    }
 }
