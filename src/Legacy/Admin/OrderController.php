@@ -110,7 +110,7 @@ class OrderController extends BaseController
         legacy_db();
 
         $id = get_param('id');
-        $order = $db->one("SELECT * FROM orders WHERE id = '" . $id . "'");
+        $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
         if ($order === null) {
             return $this->notFound('Objednávka ' . $id . ' neexistuje');
         }
@@ -146,12 +146,12 @@ class OrderController extends BaseController
 
         $msg = 'Objednávka stornována, zboží vráceno na sklad.';
         if ($refundCents > 0) {
-            $db->exec("INSERT INTO order_notes (order_id, author, note, created_at) VALUES ('" . $id . "', '" . auth_login_name() . "', "
+            $db->exec("INSERT INTO order_notes (order_id, author, note, created_at) VALUES (" . $db->quote($id) . ", " . $db->quote(auth_login_name()) . ", "
                 . $db->quote('Storno: vrátit zákazníkovi ' . format_price($refundCents, $refundCurrency)) . ", '" . date('Y-m-d H:i:s') . "')");
             $msg .= ' Zákazníkovi se vrací ' . format_price($refundCents, $refundCurrency) . '.';
         }
 
-        $c = $db->one("SELECT email FROM customers WHERE id = '" . $order['customer_id'] . "'");
+        $c = $db->one("SELECT email FROM customers WHERE id = " . $db->quote($order['customer_id']));
         if ($c) {
             $body = "Dobrý den,\n\nvaše objednávka " . $id . " byla stornována.\n";
             if ($refundCents > 0) {
