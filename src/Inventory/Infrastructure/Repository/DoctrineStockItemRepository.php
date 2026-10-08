@@ -29,7 +29,7 @@ final readonly class DoctrineStockItemRepository implements StockItemRepository
 
         return array_values(array_filter(
             $all,
-            static fn ($stockItem) => $stockItem->hasReservationFor($orderId),
+            static fn (StockItem $stockItem): bool => $stockItem->hasReservationFor($orderId),
         ));
     }
 

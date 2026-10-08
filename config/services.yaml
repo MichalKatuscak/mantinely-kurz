@@ -27,6 +27,7 @@ services:
         resource: '../src/Inventory/'
         exclude:
             - '../src/Inventory/Domain/Model/'
+            - '../src/Inventory/Domain/ValueObject/'
             - '../src/Inventory/Domain/Exception/'
 
     App\Inventory\Domain\Repository\StockItemRepository: '@App\Inventory\Infrastructure\Repository\DoctrineStockItemRepository'

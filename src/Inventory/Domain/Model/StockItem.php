@@ -6,6 +6,7 @@ namespace App\Inventory\Domain\Model;
 
 use App\Inventory\Domain\Exception\InsufficientStockException;
 use App\Inventory\Domain\Exception\NothingReservedException;
+use App\Inventory\Domain\ValueObject\Reservation;
 use App\Ordering\Domain\ValueObject\OrderId;
 use App\Ordering\Domain\ValueObject\ProductId;
 use App\SharedKernel\Domain\AggregateRoot;
@@ -17,6 +18,8 @@ final class StockItem extends AggregateRoot
 {
     /**
      * Rezervace podle objednávky: ID objednávky => počet kusů.
+     *
+     * @var array<string, int>
      */
     #[ORM\Column(type: 'json')]
     private array $reservations = [];
@@ -73,10 +76,15 @@ final class StockItem extends AggregateRoot
         return isset($this->reservations[$orderId->value]);
     }
 
-    /** Rezervace jako pole pro přehledy a repozitář. */
+    /** @return list<Reservation> */
     public function reservations(): array
     {
-        return $this->reservations;
+        $reservations = [];
+        foreach ($this->reservations as $orderId => $quantity) {
+            $reservations[] = new Reservation(OrderId::fromString($orderId), $quantity);
+        }
+
+        return $reservations;
     }
 
     /** Naskladnění od dodavatele. */

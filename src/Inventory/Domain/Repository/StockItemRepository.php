@@ -14,7 +14,11 @@ interface StockItemRepository
     /** @throws StockItemNotFoundException */
     public function get(ProductId $productId): StockItem;
 
-    /** Skladové položky, na kterých objednávka drží rezervaci. */
+    /**
+     * Skladové položky, na kterých objednávka drží rezervaci.
+     *
+     * @return list<StockItem>
+     */
     public function reservedFor(OrderId $orderId): array;
 
     public function save(StockItem $stockItem): void;

@@ -18,6 +18,7 @@
 - Ordering a Inventory spolu mluví jen přes doménové události
 - Stav objednávky a skladu mění jen doména, i ze `src/Legacy` (command, ne SQL)
 - Události v minulém čase bez přípony `Event`, command na command busu bez přípony `Command`
+- Částky drž v haléřích jako int (`Money::$amountInCents`), měnu ber z enumu `Currency`
 - Existující kód v `src/Ordering` a `src/Inventory` bez zadání neměnit
 - `src/Legacy` bez zadání nerefaktorovat
 - Nový případ užití: skill `novy-pripad-uziti`
