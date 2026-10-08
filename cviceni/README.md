@@ -27,3 +27,11 @@ Každé porušení je samostatný patch. Nasazuje se přes `git apply`, vrací p
 
 Na všech čtyřech patchích projdou testy i PHPStan. `make check` s Deptracem
 (`--fail-on-uncovered`) má selhat na každém z nich.
+
+## Modul 10: report měsíčních tržeb
+
+`tests/Legacy/fixtures/report-months.sql` naplní testovací databázi pro charakterizační
+testy: měsíc bez objednávek (2025-11), se slevou (2025-10), se stornem (2026-02)
+a přelom roku (2025-12 a 2026-01). Report se volá přes
+`App\Legacy\Admin\ReportController::monthlyAction()` s `$_GET['month']`, databázi mu
+nastavíte přes `$GLOBALS['LEGACY_DSN']` (viz `src/Legacy/lib/db.php`).
