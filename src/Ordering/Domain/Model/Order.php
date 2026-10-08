@@ -9,6 +9,7 @@ use App\Ordering\Domain\Event\OrderConfirmed;
 use App\Ordering\Domain\Event\OrderDelivered;
 use App\Ordering\Domain\Event\OrderItemAdded;
 use App\Ordering\Domain\Event\OrderItemQuantityChanged;
+use App\Ordering\Domain\Event\OrderItemRemoved;
 use App\Ordering\Domain\Event\OrderPaid;
 use App\Ordering\Domain\Event\OrderPlaced;
 use App\Ordering\Domain\Event\OrderShipped;
@@ -17,6 +18,7 @@ use App\Ordering\Domain\Exception\DiscountExceedsItemsTotalException;
 use App\Ordering\Domain\Exception\EmptyOrderException;
 use App\Ordering\Domain\Exception\InvalidOrderStateTransitionException;
 use App\Ordering\Domain\Exception\InvalidQuantityException;
+use App\Ordering\Domain\Exception\LastItemCannotBeRemovedException;
 use App\Ordering\Domain\Exception\OrderItemNotFoundException;
 use App\Ordering\Domain\ValueObject\CustomerId;
 use App\Ordering\Domain\ValueObject\OrderId;
@@ -113,6 +115,27 @@ final class Order extends AggregateRoot
 
         $this->itemFor($productId)->changeQuantity($quantity);
         $this->record(new OrderItemQuantityChanged($this->id, $productId, $quantity, new \DateTimeImmutable()));
+    }
+
+    public function removeItem(ProductId $productId): void
+    {
+        if ($this->status !== OrderStatus::Draft) {
+            throw InvalidOrderStateTransitionException::notAllowedInState('removeItem', $this->status->value);
+        }
+
+        $item = $this->itemFor($productId);
+        if ($this->lines->count() === 1) {
+            throw LastItemCannotBeRemovedException::forProduct($productId);
+        }
+
+        // Sleva nesmí po odebrání přesáhnout nový součet položek.
+        $newTotal = $this->totalAmount()->subtract($item->subtotal());
+        if ($this->discount->amountInCents > $newTotal->amountInCents) {
+            throw DiscountExceedsItemsTotalException::forItemsTotal($this->discount, $newTotal);
+        }
+
+        $this->lines->removeElement($item);
+        $this->record(new OrderItemRemoved($this->id, $productId, new \DateTimeImmutable()));
     }
 
     public function applyDiscount(Money $discount): void
