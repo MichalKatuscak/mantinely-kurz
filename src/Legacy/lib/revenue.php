@@ -30,21 +30,8 @@ function revenueSql($month)
  */
 function monthlyRevenue($month)
 {
-    $rows = db_query(revenueSql($month));
-
-    $sum = 0;
-    foreach ($rows as $r) {
-        $line = $r['unitPrice'] * $r['quantity'];
-        if ($r['currency'] !== 'CZK') {
-            $line = toCzk($line, $r['currency']);
-        }
-        $sum += $line;
-    }
-
-    // halere -> koruny, zaokrouhleni na 2 mista (ucetni chce takhle)
-    $sum = round($sum / 100, 2);
-
-    return number_format($sum, 2, ',', ' ');
+    // Vypocet presunut do tridy App\Legacy\Report\MonthlyRevenue (2026, modul 10).
+    return (new \App\Legacy\Report\MonthlyRevenue(legacy_db()))->forMonth((string) $month);
 }
 
 /**

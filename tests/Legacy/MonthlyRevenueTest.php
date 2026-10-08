@@ -52,7 +52,9 @@ final class MonthlyRevenueTest extends TestCase
     {
         $table = mb_str_pad('měsíc', 24).'tržba'."\n";
         foreach (self::MONTHS as $label => $month) {
-            $table .= mb_str_pad($label, 24).\monthlyRevenue($month)." Kč\n";
+            $revenue = \monthlyRevenue($month);
+            self::assertIsString($revenue);
+            $table .= mb_str_pad($label, 24).$revenue." Kč\n";
         }
 
         $this->assertMatchesTextSnapshot($table);
@@ -64,11 +66,12 @@ final class MonthlyRevenueTest extends TestCase
     {
         $_GET['month'] = $month;
 
-        $html = (new ReportController())->monthlyAction();
+        $html = new ReportController()->monthlyAction();
+        self::assertIsString($html);
 
         // Datum vygenerování je jediná nedeterministická část výstupu.
         $this->assertMatchesHtmlSnapshot(
-            (string) preg_replace('/vygenerováno \d{1,2}\. \d{1,2}\. \d{4}/u', 'vygenerováno D. M. RRRR', (string) $html),
+            (string) preg_replace('/vygenerováno \d{1,2}\. \d{1,2}\. \d{4}/u', 'vygenerováno D. M. RRRR', $html),
         );
     }
 

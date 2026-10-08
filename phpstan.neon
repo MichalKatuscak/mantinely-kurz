@@ -9,9 +9,15 @@ parameters:
         - tools
     excludePaths:
         analyse:
-            # Stará administrace se zatím neanalyzuje (modul 10), jen se čte kvůli
-            # typům: testy volají její funkce (auth_require(), csrf_*()).
-            - src/Legacy
+            # Stará administrace se neanalyzuje, jen se čte kvůli typům.
+            # Výjimkou je src/Legacy/Report: kód vytažený z legacy s typy (modul 10).
+            - src/Legacy/Admin
+            - src/Legacy/Http
+            - src/Legacy/lib
+            - src/Legacy/templates
+            - src/Legacy/bootstrap.php
+            - src/Legacy/cron.php
+            - src/Legacy/export.php
         analyseAndScan:
             # Ukázky pro testy pravidel obsahují chyby záměrně.
             - tests/PHPStan/data

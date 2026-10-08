@@ -97,6 +97,7 @@ class LegacyDb
         return $res === false ? 0 : $res;
     }
 
+    /** @return string */
     public function quote($value)
     {
         if ($value === null) {
