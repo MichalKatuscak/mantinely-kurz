@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 // Ukázky pro SqlConcatenationRule ve stylu staré administrace: bez typů, global $db.
-// Hlášené případy (✕) pocházejí z běhů agenta v měření stará administrace
-// (video/zaznamy/mereni-legacy*/diff.patch v repozitáři kurzu).
+// Hlášené případy (✕) jsou vzory, které pravidlo hlásit má, i s obměnami;
+// u povolených (✓) je podobný kód, který hlásit nemá.
 
 namespace App\Tests\PHPStan\Data;
 
@@ -14,13 +14,13 @@ function skladane_sql($id, $newStatus, $order, $item, $ids, $idList)
 {
     global $db;
 
-    // ✕ hodnota v apostrofech (r2-opus)
+    // ✕ hodnota v apostrofech
     $db->one("SELECT * FROM orders WHERE id = '" . $id . "'");
-    // ✕ dvě hodnoty v jednom dotazu (r7-haiku): jedna chyba na volání
+    // ✕ dvě hodnoty v jednom dotazu: jedna chyba na volání
     $db->exec("UPDATE orders SET status = '" . $newStatus . "' WHERE id = '" . $id . "'");
-    // ✕ prvek pole (r7-haiku)
+    // ✕ prvek pole
     $db->one("SELECT email FROM customers WHERE id = '" . $order['customer_id'] . "'");
-    // ✕ jedna část ošetřená, druhá ne (r7-haiku, r9-haiku)
+    // ✕ jedna část ošetřená, druhá ne
     $db->exec("UPDATE stock_items SET reservations = " . $db->quote(json_encode($item))
         . " WHERE product_id = '" . $item['product_id'] . "'");
     // ✕ vstup z požadavku
@@ -34,7 +34,7 @@ function skladane_sql($id, $newStatus, $order, $item, $ids, $idList)
     $db->query("SELECT * FROM customers WHERE id = '" . db_escape_old($id) . "'");
     // ✕ přetypování na řetězec nic neošetří
     $db->query("SELECT * FROM customers WHERE id = '" . (string) $id . "'");
-    // ✕ proměnná: pravidlo nevidí, odkud hodnota přišla, ani když z ids_to_sql() (r9-haiku)
+    // ✕ proměnná: pravidlo nevidí, odkud hodnota přišla, ani když z ids_to_sql()
     $db->query('SELECT id FROM orders WHERE id IN (' . $idList . ')');
     // ✕ hodnota uvnitř řetězce v uvozovkách
     $db->query("SELECT * FROM orders WHERE id = '$id'");
@@ -86,7 +86,7 @@ function bezpecne_sql($id, $qty, $rate, $ids, $desc, $sql, $cache, LegacyDb $con
 {
     global $db;
 
-    // ✓ $db->quote() (r4-sonnet, r6-sonnet, r7-opus)
+    // ✓ $db->quote()
     $db->one('SELECT * FROM orders WHERE id = ' . $db->quote($id));
     $db->exec("INSERT INTO order_notes (order_id, author, note) VALUES ("
         . $db->quote($id) . ', ' . $db->quote('system') . ', '
@@ -101,7 +101,7 @@ function bezpecne_sql($id, $qty, $rate, $ids, $desc, $sql, $cache, LegacyDb $con
     $db->query('SELECT * FROM orders' . " WHERE status = 'paid'" . ' LIMIT ' . 10 . ' OFFSET ' . 0.0);
     // ✓ ids_to_sql(): každé ID v apostrofech, apostrofy zdvojené (ProductController)
     $db->exec("UPDATE products SET active = 0 WHERE id IN (" . ids_to_sql($ids) . ")");
-    // ✓ datum s pevným formátem (r4-sonnet, r9-haiku, r7-opus), db_now(), otisk md5()/sha1()
+    // ✓ datum s pevným formátem, db_now(), otisk md5()/sha1()
     $db->exec("INSERT INTO order_notes (order_id, note, created_at) VALUES ("
         . $db->quote($id) . ", 'storno', '"
         . date('Y-m-d H:i:s') . "')");

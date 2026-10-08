@@ -82,16 +82,6 @@ final class CsrfTest extends WebTestCase
     }
 
     #[Test]
-    public function orderCancelWithoutTokenIsRejected(): void
-    {
-        $this->client->request('POST', '/admin/legacy/order_cancel?id='.self::ORDER, ['reason' => 'zákazník volal']);
-
-        self::assertResponseStatusCodeSame(403);
-        self::assertStringContainsString(self::CSRF_MESSAGE, (string) $this->client->getResponse()->getContent());
-        self::assertSame('confirmed', $this->orderStatus());
-    }
-
-    #[Test]
     public function bulkActionWithoutTokenIsRejected(): void
     {
         $this->client->request('POST', '/admin/legacy/orders_bulk', ['ids' => [self::ORDER], 'action' => 'paid']);
@@ -148,7 +138,6 @@ final class CsrfTest extends WebTestCase
         yield 'hromadné akce s objednávkami' => ['orders_bulk', ['ids' => [self::ORDER], 'action' => 'paid']];
         yield 'úprava objednávky' => ['order_edit', ['id' => self::ORDER, 'status' => 'paid']];
         yield 'poznámka k objednávce' => ['order_notes', ['order' => self::ORDER, 'note' => 'poznámka']];
-        yield 'storno objednávky' => ['order_cancel?id='.self::ORDER, ['reason' => 'zákazník volal']];
         yield 'změna množství položky' => ['order_item_quantity?id='.self::ORDER, ['product' => Catalog::KEYBOARD, 'quantity' => '3']];
         yield 'úprava zákazníka' => ['customer_edit', ['email' => 'novy@example.com']];
         yield 'smazání zákazníka' => ['customer_delete', ['id' => DemoCustomerProvider::ALICE]];

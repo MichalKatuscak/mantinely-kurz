@@ -1,6 +1,6 @@
 # Legacy: mapa
 
-Ověřeno proti kódu na tagu `m10-end`, čísla řádků znovu po přidání CSRF a kontroly rolí. Každé tvrzení má `soubor:řádek`.
+Ověřeno proti kódu na tagu `m12-start`, čísla řádků znovu po přidání CSRF a kontroly rolí. Každé tvrzení má `soubor:řádek`.
 
 ## Report měsíčních tržeb
 - Vstup: `src/Legacy/Http/LegacyFrontController.php` (stránka `report`) → `src/Legacy/Admin/ReportController.php:15` (`monthlyAction()`), měsíc z `$_GET['month']`, bez validace.
@@ -19,5 +19,5 @@ Ověřeno proti kódu na tagu `m10-end`, čísla řádků znovu po přidání CS
 
 ## Závislosti
 - Legacy → `src/Legacy/lib/db.php:65` (`legacy_db()`, globální `$db`), používá ho 42 souborů (`global $db`).
-- Legacy → Ordering: jen příkazy přes `legacy_command()` (`src/Legacy/lib/functions.php:195`), storno `src/Legacy/Admin/OrderController.php:136` (`CancelOrder`) a změna množství `src/Legacy/Admin/OrderController.php:218` (`ChangeItemQuantity`). Hlídá Deptrac (vrstva `Legacy`).
+- Legacy → Ordering: jen příkazy přes `legacy_command()` (`src/Legacy/lib/functions.php:195`), změna množství `src/Legacy/Admin/OrderController.php:141` (`ChangeItemQuantity`). Hlídá Deptrac (vrstva `Legacy`).
 - Ordering, Inventory → Legacy: žádné. Výjimka je protikorupční vrstva `src/Ordering/Infrastructure/Legacy/LegacyProductCatalog.php` (čte tabulku `products`), hlídá ji Deptrac (vrstvy `Legacy` a `LegacyAcl`).

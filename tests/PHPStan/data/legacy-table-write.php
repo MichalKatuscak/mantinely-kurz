@@ -3,20 +3,20 @@
 declare(strict_types=1);
 
 // Ukázky pro LegacyTableWriteRule ve stylu staré administrace: bez typů, global $db.
-// Hlášené případy (✕) pocházejí z běhů agenta v měření stará administrace
-// (video/zaznamy/mereni-legacy*/diff.patch v repozitáři kurzu).
+// Hlášené případy (✕) jsou vzory, které pravidlo hlásit má, i s obměnami;
+// u povolených (✓) je podobný kód, který hlásit nemá.
 
 namespace App\Tests\PHPStan\Data;
 
 use App\Legacy\lib\LegacyDb;
 
-function storno_primo_v_sql($id, $data)
+function zapis_primo_v_sql($id, $data)
 {
     global $db;
 
-    // ✕ stav objednávky přímo v SQL (r4-sonnet, r6-sonnet, r7-opus)
+    // ✕ stav objednávky přímo v SQL
     $db->exec("UPDATE orders SET status = 'cancelled' WHERE id = " . $db->quote($id));
-    // ✕ rezervace přímo v SQL (r4-sonnet, r7-haiku, r9-haiku)
+    // ✕ rezervace přímo v SQL
     $db->exec("UPDATE stock_items SET reservations = " . $db->quote(json_encode($data))
         . " WHERE product_id = " . $db->quote($id));
     // ✕ zápis i přes query(), malá písmena, mezery na začátku

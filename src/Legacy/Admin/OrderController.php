@@ -8,10 +8,6 @@
 
 namespace App\Legacy\Admin;
 
-use App\Ordering\Application\Command\CancelOrder;
-use App\Ordering\Domain\Exception\InvalidOrderStateTransitionException;
-use App\Ordering\Domain\ValueObject\OrderId;
-
 class OrderController extends BaseController
 {
     protected $title = 'Objednávky';
@@ -95,79 +91,6 @@ class OrderController extends BaseController
             'sum'      => $sum,
             'toPay'    => max(0, $sum - (int) $order['discount_amount_in_cents']),
         ), 'Objednávka ' . $id);
-    }
-
-    /**
-     * Storno jedne objednavky z detailu (2026).
-     *
-     * Stornuje novy e-shop (CancelOrder): ten hlida, co jde stornovat,
-     * spocita vratku a uvolni rezervace ve skladu. Tady se jen zapise
-     * historie, poznamka k vratce a posle mail zakaznikovi.
-     */
-    public function cancelAction()
-    {
-        global $db;
-        legacy_db();
-        auth_require('obchod');
-        if (is_post()) {
-            csrf_check();
-        }
-
-        $id = get_param('id');
-        $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
-        if ($order === null) {
-            return $this->notFound('Objednávka ' . $id . ' neexistuje');
-        }
-        if (!is_post()) {
-            return $this->redirect(admin_url('order', array('id' => $id)));
-        }
-        if ($order['status'] == 'cancelled') {
-            flash('Objednávka už je stornovaná', 'error');
-
-            return $this->detailAction();
-        }
-
-        $reason = trim((string) $this->post('reason'));
-        if ($reason == '') {
-            $reason = 'Storno v administraci';
-        }
-
-        try {
-            $refund = legacy_command(new CancelOrder(OrderId::fromString($id), $reason));
-        } catch (InvalidOrderStateTransitionException $e) {
-            flash('Objednávku ve stavu „' . order_state_label($order['status']) . '“ nelze stornovat', 'error');
-
-            return $this->detailAction();
-        }
-
-        $refundCents = $refund->amountInCents;
-        $refundCurrency = $refund->currency->value;
-        audit_log('order', $id, 'storno', array(
-            'from'   => $order['status'],
-            'reason' => $reason,
-            'refund' => $refundCents,
-        ));
-
-        $msg = 'Objednávka stornována, zboží vráceno na sklad.';
-        if ($refundCents > 0) {
-            $db->exec("INSERT INTO order_notes (order_id, author, note, created_at) VALUES (" . $db->quote($id) . ", " . $db->quote(auth_login_name()) . ", "
-                . $db->quote('Storno: vrátit zákazníkovi ' . format_price($refundCents, $refundCurrency)) . ", '" . date('Y-m-d H:i:s') . "')");
-            $msg .= ' Zákazníkovi se vrací ' . format_price($refundCents, $refundCurrency) . '.';
-        }
-
-        $c = $db->one("SELECT email FROM customers WHERE id = " . $db->quote($order['customer_id']));
-        if ($c) {
-            $body = "Dobrý den,\n\nvaše objednávka " . $id . " byla stornována.\n";
-            if ($refundCents > 0) {
-                $body .= "Zaplacenou částku " . format_price($refundCents, $refundCurrency) . " vám vrátíme na účet.\n";
-            }
-            send_mail($c['email'], 'Vaše objednávka byla stornována', $body);
-        }
-
-        cache_delete('dashboard_stats');
-        flash($msg);
-
-        return $this->detailAction();
     }
 
     /**

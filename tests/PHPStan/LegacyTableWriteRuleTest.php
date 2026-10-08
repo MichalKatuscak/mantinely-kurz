@@ -26,18 +26,18 @@ final class LegacyTableWriteRuleTest extends RuleTestCase
     {
         // Řádky bez chyby v ukázce jsou čtení, jiné tabulky a jiné objekty (část „✓“).
         $this->analyse([__DIR__.'/data/legacy-table-write.php'], [
-            [self::message('orders', 'storno_primo_v_sql()', '"UPDATE orders SET status = \'cancelled\' WHERE id = " . $db->quote($id)'), 18],
-            [self::message('stock_items', 'storno_primo_v_sql()', '"UPDATE stock_items SET reservations = " . $db->quote(json_encode($data)) . " WHERE product_id = " .…', '"UPDATE stock_items SET reservations = " . $db->quote(json_encode($data)) . " WHERE product_id = " . $db->quote($id)'), 20],
-            [self::message('stock_items', 'storno_primo_v_sql()', '" insert into stock_items (product_id, on_hand) VALUES (" . $db->quote($id) . ", 0)"'), 23],
-            [self::message('orders', 'storno_primo_v_sql()', '"DELETE FROM orders WHERE id = " . $db->quote($id)'), 25],
+            [self::message('orders', 'zapis_primo_v_sql()', '"UPDATE orders SET status = \'cancelled\' WHERE id = " . $db->quote($id)'), 18],
+            [self::message('stock_items', 'zapis_primo_v_sql()', '"UPDATE stock_items SET reservations = " . $db->quote(json_encode($data)) . " WHERE product_id = " .…', '"UPDATE stock_items SET reservations = " . $db->quote(json_encode($data)) . " WHERE product_id = " . $db->quote($id)'), 20],
+            [self::message('stock_items', 'zapis_primo_v_sql()', '" insert into stock_items (product_id, on_hand) VALUES (" . $db->quote($id) . ", 0)"'), 23],
+            [self::message('orders', 'zapis_primo_v_sql()', '"DELETE FROM orders WHERE id = " . $db->quote($id)'), 25],
             // Víceřádkový dotaz: mezery a konce řádků slité do jedné mezery, takže
             // otisk vyjde stejně v checkoutu s CRLF i s LF.
-            [self::message('orders', 'storno_primo_v_sql()', '" UPDATE orders SET status = \'paid\' WHERE id = " . $db->quote($id)'), 27],
-            [self::message('stock_items', 'storno_primo_v_sql()', '"DELETE FROM stock_items WHERE on_hand = 0"'), 31],
-            [self::message('orders', 'storno_primo_v_sql()', '"UPDATE orders SET placed_at = \'" . $data . "\' WHERE id = 1"'), 33],
-            [self::message('orders', 'storno_primo_v_sql()', '"UPDATE orders SET status = \'paid\' WHERE id = " . $db->quote($id)'), 35],
-            [self::message('orders', 'storno_primo_v_sql()', '"UPDATE orders SET status = \'paid\'"'), 37],
-            [self::message('stock_items', 'storno_primo_v_sql()', '"UPDATE stock_items SET reservations = \'{}\'"'), 39],
+            [self::message('orders', 'zapis_primo_v_sql()', '" UPDATE orders SET status = \'paid\' WHERE id = " . $db->quote($id)'), 27],
+            [self::message('stock_items', 'zapis_primo_v_sql()', '"DELETE FROM stock_items WHERE on_hand = 0"'), 31],
+            [self::message('orders', 'zapis_primo_v_sql()', '"UPDATE orders SET placed_at = \'" . $data . "\' WHERE id = 1"'), 33],
+            [self::message('orders', 'zapis_primo_v_sql()', '"UPDATE orders SET status = \'paid\' WHERE id = " . $db->quote($id)'), 35],
+            [self::message('orders', 'zapis_primo_v_sql()', '"UPDATE orders SET status = \'paid\'"'), 37],
+            [self::message('stock_items', 'zapis_primo_v_sql()', '"UPDATE stock_items SET reservations = \'{}\'"'), 39],
             [self::message('orders', 'zapis_pres_pomocne_funkce()', '"UPDATE orders SET status = \'cancelled\' WHERE id = " . db_escape($id)'), 45],
             // Pomocné funkce: otisk ze všech argumentů.
             [self::message('stock_items', 'zapis_pres_pomocne_funkce()', 'db_update(\'stock_items\', …)', '"stock_items" . array(\'on_hand\' => 0) . (\'product_id = \' . db_escape($id))'), 47],

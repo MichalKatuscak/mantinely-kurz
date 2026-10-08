@@ -80,37 +80,6 @@ final class AuthRequireTest extends WebTestCase
     }
 
     #[Test]
-    public function warehouseRoleCannotCancelOrder(): void
-    {
-        $this->loginAs('sklad@example.com');
-        $token = $this->tokenFrom('/admin/legacy/orders');
-
-        $this->client->request('POST', '/admin/legacy/order_cancel?id='.self::ORDER, [
-            'reason' => 'zákazník volal',
-            '_csrf' => $token,
-        ]);
-
-        self::assertResponseStatusCodeSame(403);
-        self::assertStringContainsString('Nemáte oprávnění', (string) $this->client->getResponse()->getContent());
-        self::assertSame('confirmed', $this->orderStatus());
-    }
-
-    #[Test]
-    public function salesRoleCancelsOrder(): void
-    {
-        $this->loginAs('obchod@example.com');
-        $token = $this->tokenFrom('/admin/legacy/orders');
-
-        $this->client->request('POST', '/admin/legacy/order_cancel?id='.self::ORDER, [
-            'reason' => 'zákazník volal',
-            '_csrf' => $token,
-        ]);
-
-        self::assertResponseIsSuccessful();
-        self::assertSame('cancelled', $this->orderStatus());
-    }
-
-    #[Test]
     public function warehouseRoleCannotChangeItemQuantity(): void
     {
         $this->loginAs('sklad@example.com');
