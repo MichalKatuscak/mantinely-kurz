@@ -1,4 +1,4 @@
-# Kritéria vyhodnocení – měření 12.1 (stará administrace s mantinely)
+# Kritéria vyhodnocení: měření 12.1 (stará administrace s mantinely)
 
 Zadání agenta (doslova, stejně jako v 0.2): „Ve staré administraci (src/Legacy) přidej u objednávky storno: zákazník dostane zpět zaplacenou částku a zboží se vrátí na sklad.“
 Druhá zpráva zadavatele (stejná pro všechny běhy, `PROTOKOL-12-1.md`, změna protokolu): „Platební bránu aplikace nemá a neřeš ji. Vrácení peněz stačí u objednávky zaznamenat, peníze pak obchod vrátí ručně. Zbytek rozhodni sám a dokonči to.“
@@ -16,7 +16,7 @@ Pro každý ze čtyř typů chyb z lekce 0.2 (stejné definice) rozhodni **ANO /
 
 U každého typu, který se v běhu objevil, urči **stav**:
 1. **nevznikla**;
-2. **zastavená během běhu** – v přepisu je vidět, že ji senzor (hlášení `make check`/`check-changed`/hooku, PHPStan, Deptrac, test) nahlásil a agent ji opravil, takže ve výsledném diffu není; uveď, který senzor a kde v přepisu;
+2. **zastavená během běhu**: v přepisu je vidět, že ji senzor (hlášení `make check`/`check-changed`/hooku, PHPStan, Deptrac, test) nahlásil a agent ji opravil, takže ve výsledném diffu není; uveď, který senzor a kde v přepisu;
 3. **zůstala ve výsledném diffu.**
 
 Dále zapiš:

@@ -117,8 +117,8 @@ bash skripty/mereni.sh vysledky zadani.txt opus:3 sonnet:3
 ```
 
 Každý běh trvá několik minut. Spotřebu si hlídejte: podle odhadu, který Claude Code
-zapsal do přepisů (`total_cost_usd`), stál v ceníku API jeden běh Opusu 1,2–2,3 USD,
-Sonnetu 0,3–0,8 USD a Haiku 0,3–0,5 USD (říjen 2026).
+zapsal do přepisů (`total_cost_usd`), stál v ceníku API jeden běh Opusu 1,2 až 2,3 USD,
+Sonnetu 0,3 až 0,8 USD a Haiku 0,3 až 0,5 USD (říjen 2026).
 
 Výsledky pak posuďte podle `data/mereni-legacy/KRITERIA.md` a měřítka v průřezu,
 sami nebo nezávislým hodnotitelem v nové relaci. Hodnotitel dostane `diff.patch`,
@@ -132,7 +132,7 @@ a vlastním zadáním. Měřte víc běhů, jeden běh nic neříká.
 
 Stejný tiket na tagu `m12-start` se všemi mantinely, 16 běhů (10× Opus 5.5, 3× Sonnet 5.5,
 3× Haiku 4.5), 8. 10. 2026. Protokol jsem zapsal před prvním během (`PROTOKOL-12-1.md`),
-změnu po první fázi i obě poznámky najdete tamtéž. Data, hodnocení, průřez a review jsou
+změnu po první fázi i obě poznámky najdete tam taky. Data, hodnocení, průřez a review jsou
 v `data/mereni-12-1/`, souhrn v `data/mereni-12-1/VYSLEDKY.md`.
 
 | typ chyby (ve výsledném kódu) | 0.2 | 12.1 |
@@ -144,8 +144,9 @@ v `data/mereni-12-1/`, souhrn v `data/mereni-12-1/VYSLEDKY.md`.
 | testy zelené | 16 z 16 | 16 z 16 |
 
 V první fázi se 7 běhů zastavilo a zeptalo, jak vrátit peníze, protože v aplikaci nemají
-na co navázat; proto dostaly všechny běhy stejnou druhou zprávu zadavatele. Zadání po ní
-splnilo 13 z 16 běhů, tři běhy Haiku ne a všechny tři tvrdily opak. Prošla i chyba nového
+na co navázat. Proto pak všech 16 dostalo stejnou druhou zprávu zadavatele. Zadání po ní
+splnilo 13 z 16 běhů. Haiku ho ve dvou bězích splnil jen částečně a ve třetím vůbec ne,
+všechny tři zprávy přitom tvrdily opak. Prošla i chyba nového
 typu, na kterou mantinely nemířily: sleva vyšší než součet položek shodí storno zaplacené
 objednávky chybou 500. Našlo ji jen review v čistém kontextu. Ukázkový běh podle pravidla
 z protokolu je `r1-opus`, jeho výsledek je tag `m12-end`.
@@ -154,7 +155,7 @@ z protokolu je `r1-opus`, jeho výsledek je tag `m12-end`.
 `m00-start`, který má jediný commit, se tím nic nemění. Druhou zprávu posílá
 `skripty/pokracovani.sh`. U `r1-opus` a `r3-opus` je v `neplatny-pokus-2/` přepis neplatného
 pokusu o druhou zprávu (stream ze `claude -p`); surový soubor relace Claude Code nezveřejňuji,
-obsahuje interní metadata nástroje.
+protože obsahuje interní metadata nástroje.
 
 ## Přepisy
 
