@@ -6,6 +6,7 @@
 - Stav kontejneru, rout a listenerů zjišťuj přes `bin/console debug:*`
 - Migrace jen přes generátor migrací (`bin/console make:migration`), nikdy ruční úpravou schématu
 - Bez zeptání žádný nový bundle ani balíček
+- Po každém kroku plánu commit, před commitem `make check`
 
 ## Kód
 - Kód je po ohraničených kontextech `src/Ordering`, `src/Inventory`, vrstvy Domain / Application / Infrastructure
