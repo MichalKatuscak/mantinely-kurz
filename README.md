@@ -31,14 +31,32 @@ a pro mutační testy (od modulu 4) `pcov` nebo `xdebug`.
 
 ## Tagy cvičení
 
-Jedno cvičení na modul: tag `mNN-start` je výchozí stav, `mNN-end` řešení. Tagy
-dalších modulů přibývají, jak kurz vychází.
+Jedno cvičení na modul: tag `mNN-start` je výchozí stav, `mNN-end` řešení. Tagy od
+`m03-start` po `m12-start` leží na jedné linii ve větvi `kurz`, každý je předkem dalšího.
+Záznamy jednotlivých lekcí leží ve větvích `zaznam/NN-L`.
 
-- `m00-start`: aplikace bez storna objednávky, přesně ve stavu, na kterém běželo měření
-  z lekce 0.2 (včetně tehdejšího README).
-- `m00-end`: skutečný výsledek ukázkového běhu agenta z lekce 0.2 beze změny, přepis
-  relace leží v `docs/experiment/`. Je to výsledek experimentu, ne vzorové řešení: jsou
-  v něm chyby, o kterých lekce mluví.
+| Tag | Výchozí stav / řešení | `make check` |
+|---|---|---|
+| `m00-start` | aplikace bez storna objednávky, přesně ve stavu, na kterém běželo měření z lekce 0.2 (včetně tehdejšího README) | PHPUnit |
+| `m00-end` | skutečný výsledek ukázkového běhu agenta z lekce 0.2 (`mereni/data/mereni-legacy/r3-opus`) beze změny: storno ve staré administraci, přepis relace v `docs/experiment/` | PHPUnit |
+| `m03-start` / `m03-end` | instrukční soubor, skill, pravidlo pro `src/Legacy` / plán a změna množství položky ve staré administraci po krocích, most na command bus | PHPUnit |
+| `m04-start` / `m04-end` | Infection na změněných řádcích, CI / limit slevy a odebrání položky | + Infection |
+| `m05-start` / `m05-end` | PHPStan max s baseline / hodnotové objekty v Inventory, prázdná baseline, hook `make check-changed` | + PHPStan |
+| `m06-start` / `m06-end` | přežitek `Money::getAmountInCents()`, patche běhů r3 a r6 v `cviceni/` / pravidla PHPStanu pro starou administraci, Rector | + `phpstan-legacy`, Rector nanečisto |
+| `m07-start` / `m07-end` | Deptrac nainstalovaný, čtyři porušení hranic v `cviceni/m07` / Deptrac po kontextech s vrstvou `Legacy` | + Deptrac, `lint:container`, `schema:validate` |
+| `m08-start` / `m08-end` | storno z běhu r3 s dotazy přes `quote()`, popis změny v `docs/pr.md` / review: vrácený zásah do domény, vratka z `paidAmount()`, zadání reviewera | všech 8 kroků |
+| `m09-start` / `m09-end` | přehled stornovaných objednávek se šablonou s `raw` / CSRF a `auth_require()` s rolí ve staré administraci, oprávnění agenta, CODEOWNERS | všech 8 kroků |
+| `m10-start` / `m10-end` | data pro charakterizační testy / snapshoty, `MonthlyRevenue`, protikorupční vrstva katalogu, mapa staré administrace | všech 8 kroků |
+| `m11-start` / `m11-end` | CI jen `composer audit`, PHPUnit a PHPStan, mantinely agenta jen popsané / sdílené nastavení agenta, hooky dalších nástrojů, politika AI | všech 8 kroků lokálně |
+| `m12-start` / `m12-end` | všechny mantinely, bez storna / výsledek ukázkového běhu z lekce 12.1 (doplní se po měření 12.1) | všech 8 kroků |
+
+Větve: `kurz` (linie tagů `m03-start` až `m12-start`), `zaznam/03-2` (běh r6 z lekce 0.2
+beze změny a nad ním akceptační test storna odeslané objednávky, červený), `zaznam/04-2`
+(limit slevy: červené testy, implementace, test hranice; ukazuje do linie, sloučeno do
+`m04-end`).
+
+`m00-end` je výsledek experimentu, ne vzorové řešení: jsou v něm chyby, o kterých lekce
+mluví.
 
 ```bash
 git checkout m00-start
