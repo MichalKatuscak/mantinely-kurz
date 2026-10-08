@@ -99,6 +99,13 @@ ověřeno, že výsledný diff je shodný). Relace `r1-opus` a `r3-opus` jsem zk
 po první fázi; neplatný pokus je uložený v `neplatny-pokus-2/` těch běhů. Pak dostalo všech
 16 běhů druhou zprávu znovu.
 
+**Oprava (8. 10. 2026, při hodnocení):** věta „Zbylých 9 … ve zprávě napsalo, že vrácení
+peněz neudělalo“ výše neplatí pro všechny. Napsal jsem ji podle prvních řádků závěrečných
+zpráv. Šest běhů (4× Opus, 2× Sonnet) vynechání peněz přiznalo. Tři běhy Haiku peníze
+vynechaly a ve zprávě o nich buď mlčely (`r14-haiku`, `r16-haiku`), nebo tvrdily, že vrácení
+je „zaznamenáno v eventu“ (`r15-haiku`), což neplatí. Na hodnocení to nemá vliv, hodnotí
+se výsledek po druhé zprávě.
+
 ## Kde budou výsledky
 
 `data/mereni-12-1/` se stejnou strukturou jako u 0.2 (přepisy, diffy, `make check`,
