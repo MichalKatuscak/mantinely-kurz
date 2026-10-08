@@ -3,14 +3,14 @@
 ## Příkazy
 - Všechny kontroly: `make check`
 - Konzolové příkazy přes `bin/console`
-- Stav kontejneru, rout a listenerů zjišťuj přes `bin/console debug:*`
+- Stav kontejneru, rout a listenerů zjišťuj přes `bin/console debug:*`; zapojení služeb ověř přes `debug:autowiring` a `debug:container`, nehádej z konfigurace
 - Migrace jen přes generátor migrací (`bin/console make:migration`), nikdy ruční úpravou schématu
 - Bez zeptání žádný nový bundle ani balíček
 - Po každém kroku plánu commit, před commitem `make check`
 
 ## Kontroly
 - Po každé změně: `make test-domain` (doménové testy bez jádra, pár sekund)
-- Po každé editaci spouští hook `make check-changed` (PHPStan na změněné soubory, ve staré administraci `make phpstan-legacy`). Nahlášenou chybu oprav, baseline negeneruj znovu.
+- Po každé editaci spouští hook `make check-changed` (PHPStan na změněné soubory, ve staré administraci `make phpstan-legacy`, k tomu Deptrac). Nahlášenou chybu oprav, baseline negeneruj znovu.
 - Před commitem: `make check`
 - Ve fázi implementace testy neměň. Když test odporuje zadání, zastav se a řekni to.
 

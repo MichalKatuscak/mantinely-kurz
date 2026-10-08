@@ -1,5 +1,5 @@
 # Všechny kontroly projektu spouští jeden příkaz: make check
-.PHONY: check check-changed test test-domain infection infection-full phpstan phpstan-legacy rector
+.PHONY: check check-changed test test-domain infection infection-full phpstan phpstan-legacy rector deptrac symfony
 
 # Mutační testy běží jen na řádcích změněných od posledního tagu cvičení
 # (mNN-start). Jiný základ: make check INFECTION_BASE=main
@@ -9,7 +9,7 @@ PHPSTAN ?= vendor/bin/phpstan
 PHPSTAN_FLAGS ?=
 RECTOR_FLAGS ?=
 
-check: test infection phpstan phpstan-legacy rector
+check: test infection phpstan phpstan-legacy rector deptrac symfony
 
 test:
 	vendor/bin/phpunit --no-progress
@@ -47,10 +47,21 @@ phpstan-legacy:
 rector:
 	@vendor/bin/rector process --dry-run --no-progress-bar $(RECTOR_FLAGS)
 
+# Hranice mezi ohraničenými kontexty. Třída mimo všechny vrstvy je chyba
+# (--report-uncovered vypíše, která závislost to je).
+deptrac:
+	@vendor/bin/deptrac analyse --fail-on-uncovered --report-uncovered --no-progress
+
+# Kontejner a mapování Doctrine (bez porovnání s databází).
+symfony:
+	@bin/console lint:container
+	@bin/console doctrine:schema:validate --skip-sync
+
 # Rychlá kontrola po editaci: PHPStan jen na změněné a nové soubory. Volají ji hooky
 # všech nástrojů. Chyby jdou na stderr a make při chybě končí kódem 2, takže je agent
 # dostane zpátky jako zpětnou vazbu. Změněné soubory staré administrace kontroluje
-# phpstan-legacy.neon (jen nebezpečné vzory, staré výskyty v baseline).
+# phpstan-legacy.neon (jen nebezpečné vzory, staré výskyty v baseline). Při změně
+# v src/ běží i Deptrac (hranice platí i pro starou administraci).
 check-changed:
 	@changed=$$( { git diff --name-only --diff-filter=d HEAD; git ls-files --others --exclude-standard; } \
 		| grep -E '^(src|tests|tools)/.*\.php$$' | sort -u ); \
@@ -63,5 +74,8 @@ check-changed:
 	if [ -n "$$files" ]; then \
 		bin/console cache:warmup --quiet; \
 		$(PHPSTAN) analyse --no-progress --error-format=raw --memory-limit=1G $(PHPSTAN_FLAGS) $$files 1>&2 || status=2; \
+	fi; \
+	if echo "$$changed" | grep -q '^src/'; then \
+		vendor/bin/deptrac analyse --fail-on-uncovered --report-uncovered --no-progress 1>&2 || status=2; \
 	fi; \
 	exit $$status

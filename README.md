@@ -56,3 +56,15 @@ události v minulém čase bez přípony, `Money` v haléřích s enumem `Curren
   `$money->amountInCents`. Getter s 32 voláními, z toho pět na proměnných bez typu, je tu
   záměrně: lekce 6.3 na něm ukazuje vlastní pravidlo pro Rector
   (`tools/Rector`) a v `m06-end` getter mizí.
+- **Deptrac místo phparkitect.** Kniha ukazuje pro testy architektury phparkitect
+  (`/mene-zname-vzory#mod-phparkitect`). Kurz volí Deptrac (`deptrac.php`, balíček
+  `deptrac/deptrac` 4.x): pravidla jsou deklarativní mapa vrstev, kterou agent přečte
+  i bez spuštění, výstup jmenuje porušenou dvojici vrstev a `--fail-on-uncovered` chytí
+  i třídu v adresáři, který nikdo nezařadil (lekce 7.3).
+- **Vrstvy po ohraničených kontextech.** Knižní `deptrac.php` dělí vrstvy podle technické
+  role (Domain, Application, Infrastructure…), takže aplikační vrstva smí na celou doménu
+  a nepozná, že `StockItem` patří jinému kontextu. Tady jsou vrstvy `OrderingDomain`,
+  `OrderingApplication`, `InventoryDomain`… a zvlášť `OrderingEvents`, `OrderingErrors`,
+  `Identifiers` a `Persistence` (`Connection`, `EntityManagerInterface`, `QueryBuilder`).
+  Stará administrace má vrstvu `Legacy`, která smí do nového kódu jen příkazem Orderingu
+  (s ID a výjimkami, které příkaz hází); na ni nesmí žádná vrstva nového kódu.
