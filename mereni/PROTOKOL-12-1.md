@@ -72,6 +72,25 @@ tag `m12-end`.
   na stejném tiketu. Pro mantinely je to nejpříznivější případ, chyba nového typu by mohla
   projít.
 
+## Změna protokolu (8. 10. 2026, po první fázi, před hodnocením)
+
+**Co se stalo:** 7 z 16 běhů (6× Opus, 1× Sonnet) se po průzkumu kódu zastavilo
+a zeptalo, jak udělat vrácení peněz, protože v aplikaci nemá na co navázat. Nic
+nezměnily. Zbylých 9 udělalo storno se vrácením zboží a ve zprávě napsalo, že vrácení
+peněz neudělalo. V 0.2 si to agenti domysleli sami. Běh bez kódu by se podle původního
+protokolu hodnotil jako „žádná chyba“, a to by bylo zavádějící.
+
+**Změna:** každý z 16 běhů dostane do stejné relace stejnou druhou zprávu zadavatele
+(`odpoved-12-1.txt`, skript `skripty/pokracovani.sh`, stejné volby Claude Code):
+
+> Platební bránu aplikace nemá a neřeš ji. Vrácení peněz stačí u objednávky zaznamenat,
+> peníze pak obchod vrátí ručně. Zbytek rozhodni sám a dokonči to.
+
+Hodnotí se výsledek po druhé zprávě, podle kritérií a stavů výše. Výsledek první fáze
+zůstane v každém běhu uložený s příponou `-1` a zapíšu ho zvlášť (kolik běhů se zeptalo,
+kolik vrácení peněz vynechalo a řeklo to). Hodnocení ještě nezačalo, výsledné diffy
+první fáze jsem neprocházel, jen závěrečné zprávy a počty změněných souborů.
+
 ## Kde budou výsledky
 
 `data/mereni-12-1/` se stejnou strukturou jako u 0.2 (přepisy, diffy, `make check`,
