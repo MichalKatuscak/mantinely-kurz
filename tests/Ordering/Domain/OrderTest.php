@@ -267,6 +267,14 @@ final class OrderTest extends TestCase
     }
 
     #[Test]
+    public function discountEqualToItemsTotalIsAccepted(): void
+    {
+        $order = $this->orderWithItemsTotal(1000_00);
+        $order->applyDiscount(new Money(1000_00, Currency::CZK));
+        self::assertSame(0, $order->paidAmount()->amountInCents);
+    }
+
+    #[Test]
     public function discountAboveItemsTotalIsRejected(): void
     {
         $order = $this->orderWithItemsTotal(1000_00);
