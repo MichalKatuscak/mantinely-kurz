@@ -1,0 +1,39 @@
+# Stará administrace (src/Legacy) pod PHPStanem jen na nebezpečné vzory:
+# zápis do orders/stock_items mimo doménu a hodnoty přilepené do SQL.
+# Spouští se zvlášť: make phpstan-legacy (součást make check).
+#
+# Typové chyby starého kódu se nehlásí: customRulesetUsed vypne pravidla
+# úrovní PHPStanu (jednotlivá pravidla úrovně 0 vypnout nejde), běží jen
+# pravidla v sekci rules. Staré výskyty jsou v baseline, hlásí se jen nové.
+# Hláška obsahuje funkci, výňatek dotazu a otisk celého dotazu (#sha1),
+# takže položka baseline patří jednomu dotazu: nový dotaz se nahlásí na svém
+# řádku a upravený starý dotaz taky, i když se změna do výňatku nevejde.
+# Posun kódu ani konce řádků (CRLF/LF) hlášku nemění. Baseline vznikla na
+# tagu m06-end; po změně kódu ji negenerovat znovu, pohltila by i nové
+# výskyty.
+includes:
+    - phpstan-legacy-baseline.neon
+
+parameters:
+    customRulesetUsed: true
+    paths:
+        - src/Legacy
+    excludePaths:
+        analyse:
+            # Šablony jsou HTML s PHP, dotazy v nich nejsou.
+            - src/Legacy/templates
+    tmpDir: var/cache/phpstan-legacy
+    # Opravený starý dotaz nemá shodit kontrolu: nepoužitá položka baseline se nehlásí.
+    reportUnmatchedIgnoredErrors: false
+    # Rozšíření z phpstan.neon se načítají i sem; jejich pravidla vypnout.
+    # Zapnutý zůstává jen zákaz komentářů, které chybu umlčí.
+    ergebnis:
+        allRules: false
+        noPhpstanIgnore:
+            enabled: true
+    strictRules:
+        allRules: false
+
+rules:
+    - App\Tools\PHPStan\LegacyTableWriteRule
+    - App\Tools\PHPStan\SqlConcatenationRule

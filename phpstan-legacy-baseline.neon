@@ -1,0 +1,619 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Do not concatenate values into SQL in AdminController\:\:searchAction\(\)\: "SELECT id, status FROM orders WHERE id LIKE " \. \$like \. " LIMIT 20" \(\#09bb046c\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/AdminController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in AdminController\:\:searchAction\(\)\: …customers WHERE name LIKE " \. \$like \. " OR email LIKE " \. \$like \. " LIMIT 2… \(\#878d96e2\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/AdminController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in AdminController\:\:searchAction\(\)\: …products WHERE name LIKE " \. \$like \. " OR sku LIKE " \. \$like \. " LIMIT 20" \(\#3c1f7fbd\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/AdminController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in CustomerController\:\:anonymizeAction\(\)\: …SET email \= ''anonym\-" \. substr\(md5\(\$id\), 0, 8\) \. "@example\.invalid'', name \= ''Anonymizo… \(\#98286b30\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/CustomerController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in CustomerController\:\:deleteAction\(\)\: "DELETE FROM customers WHERE id \= ''" \. \$id \. "''" \(\#17683a36\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/CustomerController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in CustomerController\:\:deleteAction\(\)\: "SELECT COUNT\(\*\) FROM orders WHERE customer_id \= ''" \. \$id \. "''" \(\#40fc81fd\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/CustomerController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in CustomerController\:\:detailAction\(\)\: "SELECT \* FROM customers WHERE id \= ''" \. \$id \. "''" \(\#8f2b16ee\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/CustomerController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in CustomerController\:\:detailAction\(\)\: …o WHERE o\.customer_id \= ''" \. \$id \. "'' ORDER BY o\.placed_at DESC" \(\#b6bcb33a\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/CustomerController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in CustomerController\:\:listAction\(\)\: "SELECT COUNT\(\*\) FROM customers c" \. \$where \(\#923df200\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/CustomerController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in CustomerController\:\:listAction\(\)\: …" FROM customers c" \. \$where \. " ORDER BY c\.created_at DESC LIMIT " … \(\#20c4149d\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/CustomerController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in InvoiceController\:\:listAction\(\)\: …i\.issued_at\) \= ''" \. \$year \. "'' ORDER BY i\.number DESC" \(\#46ce6914\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/InvoiceController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in OrderController\:\:byCustomerAction\(\)\: …o WHERE o\.customer_id \= ''" \. \$cid \. "'' ORDER BY o\.placed_at DESC" \(\#140d08ea\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/OrderController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in OrderController\:\:detailAction\(\)\: "SELECT \* FROM customers WHERE id \= ''" \. \$order\[''customer_id''\] \. "''" \(\#4018e933\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/OrderController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in OrderController\:\:detailAction\(\)\: "SELECT \* FROM invoices WHERE order_id \= ''" \. \$id \. "''" \(\#18156e78\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/OrderController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in OrderController\:\:detailAction\(\)\: "SELECT \* FROM order_notes WHERE order_id \= ''" \. \$id \. "'' ORDER BY created_at DESC" \(\#22c3977a\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/OrderController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in OrderController\:\:detailAction\(\)\: "SELECT \* FROM orders WHERE id \= ''" \. \$id \. "''" \(\#b0f00721\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/OrderController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in OrderController\:\:detailAction\(\)\: …''order'' AND entity_id \= ''" \. \$id \. "'' ORDER BY created_at DESC LIMIT 50" \(\#8e9d864a\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/OrderController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in OrderController\:\:detailAction\(\)\: …WHERE i\.order_id \= ''" \. \$id \. "'' ORDER BY i\.id" \(\#9984a5cd\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/OrderController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in OrderController\:\:listAction\(\)\: "SELECT COUNT\(\*\) FROM orders o LEFT JOIN customers c ON c\.id \= o\.customer_id" \. \$where \(\#750e9330\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/OrderController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in OrderController\:\:listAction\(\)\: …c ON c\.id \= o\.customer_id" \. \$where \. " ORDER BY o\.placed_at DESC" \. " LIMI… \(\#011978e0\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/OrderController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in ProductController\:\:toggleAction\(\)\: "UPDATE products SET active \= 1 \- active WHERE id \= ''" \. \$id \. "''" \(\#43ec61ca\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/ProductController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in StockController\:\:reservationsAction\(\)\: "SELECT status, placed_at FROM orders WHERE id \= ''" \. \$orderId \. "''" \(\#d0300a13\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/StockController.php
+
+		-
+			message: '#^Do not concatenate values into SQL in UserController\:\:saveAction\(\)\: …last_login\) VALUES \(''" \. \$login \. "'', ''" \. md5\(\$password\) \. "'', ''" \. \$r… \(\#31629659\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/UserController.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT \* FROM audit_log" \. \$whereSql \. " ORDER BY id DESC LIMIT " \. \$limit \.… \(\#b7c950d0\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/audit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT COUNT\(\*\) FROM audit_log" \. \$whereSql \(\#63778190\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/audit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT \* FROM customers WHERE id \= ''" \. \$id \. "''" \(\#8f2b16ee\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/customer_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …SET" \. " email \= ''" \. \\db_escape_old\(\$zakaznik\[''email''\]\) \. "''," \. " name \= ''" \. \\db_escape_old\(\$… \(\#9c28c452\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/customer_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …customers WHERE email \= ''" \. \\db_escape_old\(\$zakaznik\[''email''\]\) \. "'' AND id \!\= ''" \. \$id \. "''" \(\#ba9698e8\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/customer_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT COUNT\(\*\) FROM orders WHERE date\(placed_at\) \= ''" \. \$dnes \. "''" \(\#68c8ed04\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/dashboard_old.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT id FROM orders WHERE date\(placed_at\) \= ''" \. \$dnes \. "'' AND currency \= ''CZK'' AND status \!\=… \(\#e63538fa\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/dashboard_old.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT currency FROM exchange_rates WHERE currency \= ''" \. \$mena \. "''" \(\#ef9344d8\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/exchange_rates.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …"'' WHERE currency \= ''" \. \$mena \. "''" \(\#db2230fe\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/exchange_rates.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …updated_at\) VALUES \(''" \. \$mena \. "'', " \. \$kurz \. ", ''" \. \\date\(''Y\-m\-d … \(\#4610e710\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/exchange_rates.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT \* FROM customers WHERE id \= ''" \. \$objednavka\[''customer_id''\] \. "''" \(\#bd9f0996\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/invoice_print.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT \* FROM orders WHERE id \= ''" \. \$faktura\[''order_id''\] \. "''" \(\#b9f45ec4\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/invoice_print.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …AND entity_id \= ''" \. \$ip \. "'' AND created_at \> ''" \. \\date\(''Y\-m\-d… \(\#58d79d54\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/login.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …o\.placed_at\) \= ''" \. \$mesic \. "'' AND o\.status \!\= ''cancelled''" \(\#7aa22c1a\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/monthly.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …placed_at\) \= ''" \. \$minuly \. "''" \(\#4971acd9\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/monthly.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT \* FROM orders WHERE id \= ''" \. \$id \. "''" \(\#b0f00721\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 2
+			path: src/Legacy/Admin/order_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT email FROM customers WHERE id \= ''" \. \$order\[''customer_id''\] \. "''" \(\#acaab65a\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/order_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "UPDATE orders SET placed_at \= ''" \. \\date\(''Y\-m\-d H\:i\:s''\) \. "'' WHERE id \= ''" \. \$id \. "''" \(\#7d235358\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/order_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "UPDATE orders SET status \= ''" \. \$newStatus \. "'' WHERE id \= ''" \. \$id \. "''" \(\#5b1f3e4d\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/order_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …\= " \. \$discountCents \. ", discount_currency \= ''" \. \$order\[''c… \(\#b3a2a8fc\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/order_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …WHERE i\.order_id \= ''" \. \$id \. "''" \(\#a69b7c56\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/order_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …created_at\) VALUES \(''" \. \$id \. "'', ''" \. \\auth_login_name\(\) \. "'', " \.… \(\#cb399642\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/order_edit.php
+
+		-
+			message: '#^Do not write table orders from legacy code\: "UPDATE orders SET discount_amount_in_cents \= " \. \$discountCents \. ", discount_currency \= ''" \. \$orde… \(\#b3a2a8fc\); use the domain \(aggregate methods, commands and events\) instead\.$#'
+			identifier: mantinely.legacyTableWrite
+			count: 1
+			path: src/Legacy/Admin/order_edit.php
+
+		-
+			message: '#^Do not write table orders from legacy code\: "UPDATE orders SET placed_at \= ''" \. \\date\(''Y\-m\-d H\:i\:s''\) \. "'' WHERE id \= ''" \. \$id \. "''" \(\#7d235358\); use the domain \(aggregate methods, commands and events\) instead\.$#'
+			identifier: mantinely.legacyTableWrite
+			count: 1
+			path: src/Legacy/Admin/order_edit.php
+
+		-
+			message: '#^Do not write table orders from legacy code\: "UPDATE orders SET status \= ''" \. \$newStatus \. "'' WHERE id \= ''" \. \$id \. "''" \(\#5b1f3e4d\); use the domain \(aggregate methods, commands and events\) instead\.$#'
+			identifier: mantinely.legacyTableWrite
+			count: 1
+			path: src/Legacy/Admin/order_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT \* FROM order_items WHERE order_id \= ''" \. \$o\[''id''\] \. "''" \(\#f58fb72b\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/order_list.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT \* FROM order_notes WHERE order_id \= ''" \. \$orderId \. "'' ORDER BY created_at DESC" \(\#84cfd9bc\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/order_notes.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT id, status, customer_id FROM orders WHERE id \= ''" \. \$orderId \. "''" \(\#0e5dd58d\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/order_notes.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …created_at\) VALUES \(''" \. \$orderId \. "'', ''" \. \\auth_login_name\(\) \. "'', ''" … \(\#10ca1333\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/order_notes.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT id, status FROM orders WHERE id IN \(" \. \$idList \. "\)" \(\#a58168e0\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/orders.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "UPDATE orders SET status \= ''cancelled'' WHERE id IN \(" \. \$idList \. "\) AND status \!\= ''delivered''" \(\#b695a678\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/orders.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "UPDATE orders SET status \= ''paid'' WHERE id IN \(" \. \$idList \. "\) AND status \= ''confirmed''" \(\#2aa2ba86\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/orders.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "UPDATE orders SET status \= ''shipped'' WHERE id IN \(" \. \$idList \. "\) AND status \= ''paid''" \(\#fa580328\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/orders.php
+
+		-
+			message: '#^Do not write table orders from legacy code\: "UPDATE orders SET status \= ''cancelled'' WHERE id IN \(" \. \$idList \. "\) AND status \!\= ''delivered''" \(\#b695a678\); use the domain \(aggregate methods, commands and events\) instead\.$#'
+			identifier: mantinely.legacyTableWrite
+			count: 1
+			path: src/Legacy/Admin/orders.php
+
+		-
+			message: '#^Do not write table orders from legacy code\: "UPDATE orders SET status \= ''paid'' WHERE id IN \(" \. \$idList \. "\) AND status \= ''confirmed''" \(\#2aa2ba86\); use the domain \(aggregate methods, commands and events\) instead\.$#'
+			identifier: mantinely.legacyTableWrite
+			count: 1
+			path: src/Legacy/Admin/orders.php
+
+		-
+			message: '#^Do not write table orders from legacy code\: "UPDATE orders SET status \= ''shipped'' WHERE id IN \(" \. \$idList \. "\) AND status \= ''paid''" \(\#fa580328\); use the domain \(aggregate methods, commands and events\) instead\.$#'
+			identifier: mantinely.legacyTableWrite
+			count: 1
+			path: src/Legacy/Admin/orders.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT \* FROM products WHERE id \= ''" \. \$id \. "''" \(\#efca7123\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/product_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT id FROM products WHERE sku \= ''" \. \$produkt\[''sku''\] \. "'' AND id \!\= ''" \. \$produkt\[''id''\] \. "''… \(\#fab0dedd\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/product_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT price_cents FROM products WHERE id \= ''" \. \$produkt\[''id''\] \. "''" \(\#2f8fc148\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/product_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "UPDATE products SET" \. " sku \= ''" \. \$produkt\[''sku''\] \. "''," \. " name \= " \. \$db\-\>quote\(\$produ… \(\#927f4e67\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/product_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …created_at\) VALUES \(" \. "''" \. \$produkt\[''id''\] \. "'', ''" \. \$produkt\[''sku''\] \. "'', " \. \$d… \(\#acef0644\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/product_edit.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT COUNT\(\*\) FROM customers WHERE created_at \>\= ''" \. \$od \. "'' AND created_at \<\= ''" \. \$do \. " 23\:… \(\#1cdab1bb\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/stats.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …" WHERE o\.placed_at \>\= ''" \. \$od \. " 00\:00\:00'' AND o\.placed_at \<\= ''" \. \$… \(\#37ef5a10\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/stats.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …" WHERE o\.placed_at \>\= ''" \. \$od \. "'' AND o\.placed_at \<\= ''" \. \$do \. " 23… \(\#c3b2598c\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/stats.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …WHERE placed_at \>\= ''" \. \$od \. "'' AND placed_at \<\= ''" \. \$do \. " 23\:5… \(\#3053bb45\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/stats.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …AND o\.placed_at \>\= ''" \. \$od90 \. "'' GROUP BY i\.product_id" \(\#32261f02\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/stock_report.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "UPDATE suppliers SET name \= ''" \. \\db_escape_old\(\$nazev\) \. "'', email \= ''" \. \\db_escape_old\(\$emai… \(\#8a804c5e\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/suppliers.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …ico, created_at\) VALUES \(''" \. \\db_escape_old\(\$nazev\) \. "'', ''" \. \\db_escape_old\(\$email\) \. "'',… \(\#95bcf0f9\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/suppliers.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …WHERE o\.id \= ''" \. \$oid \. "''" \(\#49bfcb53\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/unpaid_orders.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …created_at\) VALUES \(''" \. \$oid \. "'', ''" \. \\auth_login_name\(\) \. "'', ''Od… \(\#cbf5bef8\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/Admin/unpaid_orders.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "SELECT email FROM customers WHERE id \= ''" \. \$o\[''customer_id''\] \. "''" \(\#b9eb8e32\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/cron.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: "UPDATE orders SET status \= ''cancelled'' WHERE id \= ''" \. \$o\[''id''\] \. "'' AND status \= ''confirmed''" \(\#624d2209\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/cron.php
+
+		-
+			message: '#^Do not concatenate values into SQL\: …AND placed_at \< ''" \. \$cronLimit \. "''" \(\#3f69e97d\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/cron.php
+
+		-
+			message: '#^Do not write table orders from legacy code\: "UPDATE orders SET status \= ''cancelled'' WHERE id \= ''" \. \$o\[''id''\] \. "'' AND status \= ''confirmed''" \(\#624d2209\); use the domain \(aggregate methods, commands and events\) instead\.$#'
+			identifier: mantinely.legacyTableWrite
+			count: 1
+			path: src/Legacy/cron.php
+
+		-
+			message: '#^Do not concatenate values into SQL in CronRunner\:\:jobAuditCleanup\(\)\: "DELETE FROM audit_log WHERE created_at \< ''" \. \$limit \. "''" \(\#d9d3ac3a\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/CronRunner.php
+
+		-
+			message: '#^Do not concatenate values into SQL in CustomerExport\:\:rowsWithSpent\(\)\: …o WHERE o\.customer_id \= ''" \. \$r\[''id''\] \. "'' AND o\.status \!\= ''cancelled''" \(\#0a02fdcf\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/CustomerExport.php
+
+		-
+			message: '#^Do not concatenate values into SQL in InvoiceHelper\:\:issue\(\)\: "SELECT \* FROM orders WHERE id \= ''" \. \$orderId \. "''" \(\#83f38a63\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/InvoiceHelper.php
+
+		-
+			message: '#^Do not concatenate values into SQL in InvoiceHelper\:\:issue\(\)\: "SELECT id FROM invoices WHERE order_id \= ''" \. \$orderId \. "''" \(\#1b4a18df\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/InvoiceHelper.php
+
+		-
+			message: '#^Do not concatenate values into SQL in InvoiceHelper\:\:issue\(\)\: …currency\) VALUES \(''" \. \$orderId \. "'', ''" \. \$number \. "'', ''" \. date\(''Y\-m… \(\#36e0798e\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/InvoiceHelper.php
+
+		-
+			message: '#^Do not concatenate values into SQL in InvoiceHelper\:\:items\(\)\: …WHERE i\.order_id \= ''" \. \$orderId \. "'' ORDER BY i\.id" \(\#508775da\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/InvoiceHelper.php
+
+		-
+			message: '#^Do not concatenate values into SQL in InvoiceHelper\:\:nextNumber\(\)\: "SELECT MAX\(number\) AS m FROM invoices WHERE number LIKE ''" \. \$prefix \. "%%''" \(\#03883532\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/InvoiceHelper.php
+
+		-
+			message: '#^Do not concatenate values into SQL in StockReport\:\:orphanReservations\(\)\: "SELECT status FROM orders WHERE id \= ''" \. \$orderId \. "''" \(\#444f44ab\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/StockReport.php
+
+		-
+			message: '#^Do not concatenate values into SQL in StockReport\:\:reservations\(\)\: "SELECT reservations FROM stock_items WHERE product_id \= ''" \. \$productId \. "''" \(\#e52af4b1\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/StockReport.php
+
+		-
+			message: '#^Do not concatenate values into SQL in StockReport\:\:setOnHand\(\)\: "UPDATE stock_items SET on_hand \= " \. \(int\) \$qty \. " WHERE product_id \= ''" \. \$productId \. "''" \(\#f7afbbe8\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/StockReport.php
+
+		-
+			message: '#^Do not write table stock_items from legacy code in StockReport\:\:setOnHand\(\)\: "UPDATE stock_items SET on_hand \= " \. \(int\) \$qty \. " WHERE product_id \= ''" \. \$productId \. "''" \(\#f7afbbe8\); use the domain \(aggregate methods, commands and events\) instead\.$#'
+			identifier: mantinely.legacyTableWrite
+			count: 1
+			path: src/Legacy/lib/StockReport.php
+
+		-
+			message: '#^Do not concatenate values into SQL in auth_login\(\)\: "SELECT \* FROM admin_users WHERE login \= ''" \. \$login \. "'' AND password_md5 \= ''" \. \\md5\(\(stri… \(\#e7e29093\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/auth.php
+
+		-
+			message: '#^Do not concatenate values into SQL in settings_get\(\)\: "SELECT value FROM settings WHERE name \= ''" \. \$name \. "''" \(\#e860096f\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/config.php
+
+		-
+			message: '#^Do not concatenate values into SQL in settings_set\(\)\: "INSERT INTO settings \(name, value\) VALUES \(''" \. \$name \. "'', " \. \\db_escape\(\$value\) \. "\)" \(\#4a4263bd\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/config.php
+
+		-
+			message: '#^Do not concatenate values into SQL in settings_set\(\)\: "SELECT name FROM settings WHERE name \= ''" \. \$name \. "''" \(\#30da9b87\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/config.php
+
+		-
+			message: '#^Do not concatenate values into SQL in settings_set\(\)\: "UPDATE settings SET value \= " \. \\db_escape\(\$value\) \. " WHERE name \= ''" \. \$name \. "''" \(\#39a1dc92\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/config.php
+
+		-
+			message: '#^Do not concatenate values into SQL in db_insert\(\)\: "INSERT INTO " \. \$table \. " \(" \. \\implode\('', '', \$cols\) \. "\) VAL… \(\#7d9c6a37\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/db.php
+
+		-
+			message: '#^Do not concatenate values into SQL in db_update\(\)\: "UPDATE " \. \$table \. " SET " \. \\implode\('', '', \$sets\) \. " W… \(\#819dceb9\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/db.php
+
+		-
+			message: '#^Do not concatenate values into SQL in customer_name\(\)\: "SELECT name, email FROM customers WHERE id \= ''" \. \$customerId \. "''" \(\#e9af1a80\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/functions.php
+
+		-
+			message: '#^Do not concatenate values into SQL in order_currency\(\)\: "SELECT currency FROM orders WHERE id \= ''" \. \$orderId \. "''" \(\#d8f9e017\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/functions.php
+
+		-
+			message: '#^Do not concatenate values into SQL in order_total\(\)\: …WHERE order_id \= ''" \. \$orderId \. "''" \(\#97f84222\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/functions.php
+
+		-
+			message: '#^Do not concatenate values into SQL in order_total_after_discount\(\)\: "SELECT discount_amount_in_cents FROM orders WHERE id \= ''" \. \$orderId \. "''" \(\#82adbd68\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/functions.php
+
+		-
+			message: '#^Do not concatenate values into SQL in product_name\(\)\: "SELECT name FROM products WHERE id \= ''" \. \$productId \. "''" \(\#bdd835c7\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/functions.php
+
+		-
+			message: '#^Do not concatenate values into SQL in newsletter_enqueue\(\)\: …sent_at\) VALUES \(''" \. \$customerId \. "'', ''" \. \$email \. "'', " \. \$db\-\>quote\(… \(\#bb1f627a\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/mail.php
+
+		-
+			message: '#^Do not concatenate values into SQL in report_paid_count\(\)\: …o\.placed_at\) \= ''" \. \$month \. "''" \(\#9b58dce7\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/report.php
+
+		-
+			message: '#^Do not concatenate values into SQL in dailyRevenue\(\)\: …AND date\(o\.placed_at\) \= ''" \. \$day \. "''" \(\#91ce7f2c\); use \$db\-\>quote\(\) or a cast\.$#'
+			identifier: mantinely.sqlConcatenation
+			count: 1
+			path: src/Legacy/lib/revenue.php

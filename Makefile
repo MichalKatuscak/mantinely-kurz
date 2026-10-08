@@ -1,5 +1,5 @@
 # Všechny kontroly projektu spouští jeden příkaz: make check
-.PHONY: check check-changed test test-domain infection infection-full phpstan
+.PHONY: check check-changed test test-domain infection infection-full phpstan phpstan-legacy
 
 # Mutační testy běží jen na řádcích změněných od posledního tagu cvičení
 # (mNN-start). Jiný základ: make check INFECTION_BASE=main
@@ -8,7 +8,7 @@ INFECTION_BASE ?= $(shell git describe --tags --abbrev=0 --match 'm[0-9][0-9]-st
 PHPSTAN ?= vendor/bin/phpstan
 PHPSTAN_FLAGS ?=
 
-check: test infection phpstan
+check: test infection phpstan phpstan-legacy
 
 test:
 	vendor/bin/phpunit --no-progress
@@ -34,12 +34,26 @@ phpstan:
 	@bin/console cache:warmup --quiet
 	@$(PHPSTAN) analyse --no-progress --error-format=raw --memory-limit=1G $(PHPSTAN_FLAGS) && echo "PHPStan: bez chyb"
 
+# Stará administrace: jen pravidla na nebezpečné vzory (zápis do orders/stock_items,
+# hodnoty přilepené do SQL). Staré výskyty jsou v baseline, hlásí se jen nové.
+phpstan-legacy:
+	@$(PHPSTAN) analyse -c phpstan-legacy.neon --no-progress --error-format=raw --memory-limit=1G $(PHPSTAN_FLAGS) && echo "PHPStan (stará administrace): bez nových nebezpečných vzorů"
+
 # Rychlá kontrola po editaci: PHPStan jen na změněné a nové soubory. Volají ji hooky
 # všech nástrojů. Chyby jdou na stderr a make při chybě končí kódem 2, takže je agent
-# dostane zpátky jako zpětnou vazbu.
+# dostane zpátky jako zpětnou vazbu. Změněné soubory staré administrace kontroluje
+# phpstan-legacy.neon (jen nebezpečné vzory, staré výskyty v baseline).
 check-changed:
-	@files=$$( { git diff --name-only --diff-filter=d HEAD; git ls-files --others --exclude-standard; } \
-		| grep -E '^(src|tests|tools)/.*\.php$$' | grep -v '^src/Legacy/' | sort -u ); \
-	if [ -z "$$files" ]; then exit 0; fi; \
-	bin/console cache:warmup --quiet; \
-	$(PHPSTAN) analyse --no-progress --error-format=raw --memory-limit=1G $(PHPSTAN_FLAGS) $$files 1>&2
+	@changed=$$( { git diff --name-only --diff-filter=d HEAD; git ls-files --others --exclude-standard; } \
+		| grep -E '^(src|tests|tools)/.*\.php$$' | sort -u ); \
+	files=$$(echo "$$changed" | grep -v '^src/Legacy/'); \
+	legacy=$$(echo "$$changed" | grep '^src/Legacy/' | grep -v '^src/Legacy/templates/'); \
+	status=0; \
+	if [ -n "$$legacy" ]; then \
+		$(PHPSTAN) analyse -c phpstan-legacy.neon --no-progress --error-format=raw --memory-limit=1G $(PHPSTAN_FLAGS) $$legacy 1>&2 || status=2; \
+	fi; \
+	if [ -n "$$files" ]; then \
+		bin/console cache:warmup --quiet; \
+		$(PHPSTAN) analyse --no-progress --error-format=raw --memory-limit=1G $(PHPSTAN_FLAGS) $$files 1>&2 || status=2; \
+	fi; \
+	exit $$status

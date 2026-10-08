@@ -80,6 +80,7 @@
         }
     },
     "require-dev": {
+        "ergebnis/phpstan-rules": "^2.14",
         "infection/infection": "^0.35.6",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.2",

@@ -18,3 +18,8 @@ parameters:
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
     doctrine:
         objectManagerLoader: tests/object-manager.php
+    # Z ergebnis/phpstan-rules jen zákaz komentářů, které chybu umlčí.
+    ergebnis:
+        allRules: false
+        noPhpstanIgnore:
+            enabled: true
