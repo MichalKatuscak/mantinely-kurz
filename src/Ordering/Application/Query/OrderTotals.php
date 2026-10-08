@@ -30,9 +30,9 @@ final readonly class OrderTotals
             if ($order->currency !== $currency) {
                 continue;
             }
-            $itemsTotal += $order->totalAmount()->getAmountInCents();
-            $discounts += $order->discount->getAmountInCents();
-            $paid += $order->paidAmount()->getAmountInCents();
+            $itemsTotal += $order->totalAmount()->amountInCents;
+            $discounts += $order->discount->amountInCents;
+            $paid += $order->paidAmount()->amountInCents;
         }
 
         return new self(

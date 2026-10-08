@@ -85,7 +85,7 @@ final class OrderTest extends TestCase
         $order->changeItemQuantity($productId, 5);
 
         self::assertSame(5, $order->items[0]->quantity);
-        self::assertSame(1500_00, $order->totalAmount()->getAmountInCents());
+        self::assertSame(1500_00, $order->totalAmount()->amountInCents);
     }
 
     #[Test]
@@ -172,8 +172,8 @@ final class OrderTest extends TestCase
 
         $order->removeItem($mouse);
 
-        self::assertSame(600_00, $order->totalAmount()->getAmountInCents());
-        self::assertSame(500_00, $order->paidAmount()->getAmountInCents());
+        self::assertSame(600_00, $order->totalAmount()->amountInCents);
+        self::assertSame(500_00, $order->paidAmount()->amountInCents);
     }
 
     #[Test]
@@ -200,7 +200,7 @@ final class OrderTest extends TestCase
 
         $order->removeItem($mouse);
 
-        self::assertSame(0, $order->paidAmount()->getAmountInCents());
+        self::assertSame(0, $order->paidAmount()->amountInCents);
     }
 
     #[Test]
@@ -342,8 +342,8 @@ final class OrderTest extends TestCase
 
         $order->applyDiscount($this->czk(100_00));
 
-        self::assertSame(1000_00, $order->totalAmount()->getAmountInCents());
-        self::assertSame(900_00, $order->paidAmount()->getAmountInCents());
+        self::assertSame(1000_00, $order->totalAmount()->amountInCents);
+        self::assertSame(900_00, $order->paidAmount()->amountInCents);
     }
 
     #[Test]
@@ -351,7 +351,7 @@ final class OrderTest extends TestCase
     {
         $order = $this->orderWithItemsTotal(1000_00);
         $order->applyDiscount(new Money(100_00, Currency::CZK));
-        self::assertSame(100_00, $order->discount->getAmountInCents());
+        self::assertSame(100_00, $order->discount->amountInCents);
     }
 
     #[Test]
@@ -359,7 +359,7 @@ final class OrderTest extends TestCase
     {
         $order = $this->orderWithItemsTotal(1000_00);
         $order->applyDiscount(new Money(1000_00, Currency::CZK));
-        self::assertSame(0, $order->paidAmount()->getAmountInCents());
+        self::assertSame(0, $order->paidAmount()->amountInCents);
     }
 
     #[Test]

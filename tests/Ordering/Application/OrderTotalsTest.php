@@ -27,9 +27,9 @@ final class OrderTotalsTest extends TestCase
         ]);
 
         self::assertSame(2, $totals->count);
-        self::assertSame(1500_00, $totals->itemsTotal->getAmountInCents());
-        self::assertSame(100_00, $totals->discounts->getAmountInCents());
-        self::assertSame(1400_00, $totals->paid->getAmountInCents());
+        self::assertSame(1500_00, $totals->itemsTotal->amountInCents);
+        self::assertSame(100_00, $totals->discounts->amountInCents);
+        self::assertSame(1400_00, $totals->paid->amountInCents);
     }
 
     #[Test]
@@ -40,9 +40,9 @@ final class OrderTotalsTest extends TestCase
 
         $totals = OrderTotals::of([$this->order(1000_00, 0), $euroOrder]);
 
-        self::assertSame(1000_00, $totals->itemsTotal->getAmountInCents());
-        self::assertSame(0, $totals->discounts->getAmountInCents());
-        self::assertSame(1000_00, $totals->paid->getAmountInCents());
+        self::assertSame(1000_00, $totals->itemsTotal->amountInCents);
+        self::assertSame(0, $totals->discounts->amountInCents);
+        self::assertSame(1000_00, $totals->paid->amountInCents);
     }
 
     #[Test]
@@ -50,7 +50,7 @@ final class OrderTotalsTest extends TestCase
     {
         $sum = OrderTotals::sumOf([new Money(100_00, Currency::CZK), new Money(250_00, Currency::CZK)]);
 
-        self::assertSame(350_00, $sum->getAmountInCents());
+        self::assertSame(350_00, $sum->amountInCents);
     }
 
     private function order(int $itemsTotal, int $discount): Order

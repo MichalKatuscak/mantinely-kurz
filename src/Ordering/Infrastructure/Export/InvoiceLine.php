@@ -35,11 +35,11 @@ final readonly class InvoiceLine
 
     public function priceInCents(): int
     {
-        return $this->price->getAmountInCents();
+        return $this->price->amountInCents;
     }
 
     public function subtotalInCents(): int
     {
-        return $this->price->multiply($this->quantity)->getAmountInCents();
+        return $this->price->multiply($this->quantity)->amountInCents;
     }
 }

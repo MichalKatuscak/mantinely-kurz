@@ -36,8 +36,8 @@ final class OrderExportTest extends TestCase
         self::assertCount(3, $rows);
         self::assertSame(['300.00', '600.00', '1000.00', '100.00', '900.00'], array_slice($rows[1], 4));
         self::assertSame(['400.00', '400.00', '1000.00', '100.00', '900.00'], array_slice($rows[2], 4));
-        self::assertSame(1000_00, $order->totalAmount()->getAmountInCents());
-        self::assertSame(900_00, $order->paidAmount()->getAmountInCents());
+        self::assertSame(1000_00, $order->totalAmount()->amountInCents);
+        self::assertSame(900_00, $order->paidAmount()->amountInCents);
     }
 
     #[Test]
@@ -47,7 +47,7 @@ final class OrderExportTest extends TestCase
 
         self::assertSame(250_00, $line->priceInCents());
         self::assertSame(750_00, $line->subtotalInCents());
-        self::assertSame(250_00, $line->price->getAmountInCents());
+        self::assertSame(250_00, $line->price->amountInCents);
     }
 
     #[Test]
@@ -56,7 +56,7 @@ final class OrderExportTest extends TestCase
         $line = InvoiceLine::fromArray(['productId' => 'abc', 'quantity' => 2, 'price' => new Money(120_00, Currency::CZK)]);
 
         self::assertSame(2, $line->quantity);
-        self::assertSame(120_00, $line->price->getAmountInCents());
+        self::assertSame(120_00, $line->price->amountInCents);
         self::assertSame(240_00, $line->subtotalInCents());
     }
 }

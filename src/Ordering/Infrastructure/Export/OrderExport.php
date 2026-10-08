@@ -30,8 +30,8 @@ final class OrderExport
                     $line->quantity,
                     $this->format($line->priceInCents()),
                     $this->format($line->subtotalInCents()),
-                    $this->format($order->totalAmount()->getAmountInCents()),
-                    $this->format($order->discount->getAmountInCents()),
+                    $this->format($order->totalAmount()->amountInCents),
+                    $this->format($order->discount->amountInCents),
                     $this->format($this->cents($order->paidAmount())),
                 ], escape: '');
             }
