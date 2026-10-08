@@ -15,7 +15,8 @@ use Deptrac\Deptrac\Contract\Config\Ruleset;
  * by mohl sáhnout na StockItem z Inventory. Tady to Deptrac zakáže.
  *
  * Stará administrace (src/Legacy) smí do nového kódu jen příkazem Orderingu,
- * s ID a výjimkami, které příkaz hází. Žádná vrstva nového kódu nesmí na ni.
+ * s ID a výjimkami, které příkaz hází. Žádná vrstva nového kódu nesmí na ni,
+ * kromě protikorupční vrstvy LegacyAcl (src/<kontext>/Infrastructure/Legacy).
  *
  * Spouští se s --fail-on-uncovered: třída, která neleží v žádné vrstvě, je chyba.
  */
@@ -55,7 +56,11 @@ return static function (DeptracConfig $config): void {
                 DirectoryConfig::create('src/Ordering/Application/.*'),
             ),
             $orderingInfrastructure = Layer::withName('OrderingInfrastructure')->collectors(
-                DirectoryConfig::create('src/Ordering/Infrastructure/.*'),
+                DirectoryConfig::create('src/Ordering/Infrastructure/(?!Legacy/).*'),
+            ),
+            // Protikorupční vrstva: jediné místo nového kódu, které smí na src/Legacy.
+            $legacyAcl = Layer::withName('LegacyAcl')->collectors(
+                DirectoryConfig::create('src/[^/]+/Infrastructure/Legacy/.*'),
             ),
             $inventoryDomain = Layer::withName('InventoryDomain')->collectors(
                 DirectoryConfig::create('src/Inventory/Domain/(?!ValueObject/[^/]+Id[.]php).*'),
@@ -76,7 +81,7 @@ return static function (DeptracConfig $config): void {
             $identity = Layer::withName('Identity')->collectors(
                 DirectoryConfig::create('src/Identity/.*'),
             ),
-            // Stará administrace.
+            // Stará administrace. Nový kód na ni nesmí, jen protikorupční vrstva LegacyAcl.
             $legacy = Layer::withName('Legacy')->collectors(
                 DirectoryConfig::create('src/Legacy/.*'),
             ),
@@ -106,6 +111,8 @@ return static function (DeptracConfig $config): void {
             Ruleset::forLayer($identifiers)->accesses($vendor),
             Ruleset::forLayer($sharedKernel)->accesses($vendor),
             Ruleset::forLayer($identity)->accesses($identifiers, $vendor),
+            // Protikorupční vrstva: jediná z nového kódu smí na starou administraci.
+            Ruleset::forLayer($legacyAcl)->accesses($orderingApplication, $orderingDomain, $identifiers, $sharedKernel, $legacy, $persistence, $vendor),
             // Stará administrace jen příkazem: aplikační vrstva Orderingu, výjimky,
             // které příkaz hází, a ID. Doménu Orderingu ani Inventory přímo ne.
             Ruleset::forLayer($legacy)->accesses($orderingApplication, $orderingErrors, $identifiers, $vendor),

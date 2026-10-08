@@ -18,3 +18,4 @@
 /tests/Legacy/AuthRequireTest.php       @MichalKatuscak
 /tests/Legacy/SecurityFunctionsTest.php @MichalKatuscak
 /tests/PHPStan/                         @MichalKatuscak
+/tests/Legacy/__snapshots__/            @MichalKatuscak

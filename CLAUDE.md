@@ -25,7 +25,8 @@
 - Částky drž v haléřích jako int (`Money::$amountInCents`), měnu ber z enumu `Currency`
 - Bez výslovného zadání neměň chování ani signatury existujících metod (hlavně doménových: `Order`, `StockItem`), konfiguraci (`config/`, `*.neon`, `Makefile`) ani existující testy. Když bez toho úkol nejde, zastav se a řekni to.
 - Malé změny: jen to, co zadání žádá, bez úklidu a přestavby okolního kódu
-- `src/Legacy` bez zadání nerefaktorovat
+- `src/Legacy` bez zadání nerefaktorovat; mapa staré administrace: @docs/legacy-mapa.md
+- Snapshoty charakterizačních testů (`tests/Legacy/__snapshots__`) nepřepisuj; když se liší, zastav se a řekni to
 - Nový případ užití: skill `novy-pripad-uziti`
 
 ## Slovník

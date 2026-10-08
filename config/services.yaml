@@ -18,7 +18,7 @@ services:
             - '../src/Ordering/Application/Command/'
 
     App\Ordering\Domain\Repository\OrderRepository: '@App\Ordering\Infrastructure\Repository\DoctrineOrderRepository'
-    App\Ordering\Application\Port\ProductCatalog: '@App\Ordering\Infrastructure\Catalog\DbalProductCatalog'
+    App\Ordering\Application\Port\ProductCatalog: '@App\Ordering\Infrastructure\Legacy\LegacyProductCatalog'
 
     # ──────────────────────────────────────────────────
     # Ohraničený kontext Inventory

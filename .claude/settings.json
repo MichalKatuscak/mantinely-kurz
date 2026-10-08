@@ -38,7 +38,8 @@
       "Edit(./tests/Legacy/CsrfTest.php)",
       "Edit(./tests/Legacy/AuthRequireTest.php)",
       "Edit(./tests/Legacy/SecurityFunctionsTest.php)",
-      "Edit(./tests/PHPStan/**)"
+      "Edit(./tests/PHPStan/**)",
+      "Edit(./tests/Legacy/__snapshots__/**)"
     ]
   },
   "hooks": {

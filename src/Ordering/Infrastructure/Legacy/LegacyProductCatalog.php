@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Ordering\Infrastructure\Catalog;
+namespace App\Ordering\Infrastructure\Legacy;
 
 use App\Ordering\Application\Port\CatalogProduct;
 use App\Ordering\Application\Port\ProductCatalog;
@@ -12,9 +12,11 @@ use App\SharedKernel\Domain\Money;
 use Doctrine\DBAL\Connection;
 
 /**
- * Čte tabulku products, kterou spravuje stará administrace (src/Legacy).
+ * Protikorupční vrstva nad katalogem staré administrace (src/Legacy, tabulka products).
+ * Překládá řádky legacy tabulky na CatalogProduct. Jediné místo v Orderingu, které
+ * smí na src/Legacy (pravidlo LegacyAcl v deptrac.php).
  */
-final readonly class DbalProductCatalog implements ProductCatalog
+final readonly class LegacyProductCatalog implements ProductCatalog
 {
     public function __construct(
         private Connection $connection,
