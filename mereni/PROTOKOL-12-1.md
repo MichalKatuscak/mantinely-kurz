@@ -91,6 +91,14 @@ zůstane v každém běhu uložený s příponou `-1` a zapíšu ho zvlášť (k
 kolik vrácení peněz vynechalo a řeklo to). Hodnocení ještě nezačalo, výsledné diffy
 první fáze jsem neprocházel, jen závěrečné zprávy a počty změněných souborů.
 
+**Doplněk ke změně (8. 10. 2026, před hodnocením):** mezi fázemi WSL při spuštění smazal
+`/tmp`, kde ležely kopie aplikace. První pokus o druhou zprávu tak u 14 běhů skončil dřív,
+než se zpráva odeslala, a u `r1-opus` a `r3-opus` proběhl v kopii, která se zrovna mazala.
+Kopie jsem obnovil na stejných cestách ze stejného tagu a diffu první fáze (u každého běhu
+ověřeno, že výsledný diff je shodný). Relace `r1-opus` a `r3-opus` jsem zkrátil zpět na stav
+po první fázi; neplatný pokus je uložený v `neplatny-pokus-2/` těch běhů. Pak dostalo všech
+16 běhů druhou zprávu znovu.
+
 ## Kde budou výsledky
 
 `data/mereni-12-1/` se stejnou strukturou jako u 0.2 (přepisy, diffy, `make check`,
