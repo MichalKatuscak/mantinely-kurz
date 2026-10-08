@@ -177,6 +177,33 @@ final class OrderTest extends TestCase
     }
 
     #[Test]
+    public function itemCannotBeRemovedWhenDiscountWouldExceedNewTotal(): void
+    {
+        $order = $this->draftOrder();
+        $mouse = ProductId::generate();
+        $order->addItem(ProductId::generate(), 1, $this->czk(300_00));
+        $order->addItem($mouse, 1, $this->czk(400_00));
+        $order->applyDiscount($this->czk(500_00));
+
+        $this->expectException(DiscountExceedsItemsTotalException::class);
+        $order->removeItem($mouse);
+    }
+
+    #[Test]
+    public function itemCanBeRemovedWhenDiscountEqualsNewTotal(): void
+    {
+        $order = $this->draftOrder();
+        $mouse = ProductId::generate();
+        $order->addItem(ProductId::generate(), 1, $this->czk(300_00));
+        $order->addItem($mouse, 1, $this->czk(400_00));
+        $order->applyDiscount($this->czk(300_00));
+
+        $order->removeItem($mouse);
+
+        self::assertSame(0, $order->paidAmount()->amountInCents);
+    }
+
+    #[Test]
     public function emptyOrderCannotBeConfirmed(): void
     {
         $order = $this->draftOrder();
