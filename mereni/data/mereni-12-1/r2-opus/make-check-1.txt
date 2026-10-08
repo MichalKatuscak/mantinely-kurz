@@ -1,0 +1,43 @@
+vendor/bin/phpunit --no-progress
+PHPUnit 13.4.1 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /tmp/tmp.AcWaMrZ9Cm/aplikace/phpunit.dist.xml
+
+Time: 00:04.172, Memory: 149.00 MB
+
+[30;42mOK (115 tests, 217 assertions)[0m
+Infection: žádné změněné řádky v src/ od m12-start
+Note: Using configuration file /tmp/tmp.AcWaMrZ9Cm/aplikace/phpstan.neon.
+PHPStan: bez chyb
+PHPStan (stará administrace): bez nových nebezpečných vzorů
+
+ [OK] Rector is done!                                                           
+
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              362  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+
+ [OK] The container was linted successfully: all services are injected with     
+      values that are compatible with their type declarations.                  
+
+
+Mapping
+-------
+
+ [OK] The mapping files are correct.                                            
+
+Database
+--------
+
+ [SKIPPED] The database was not checked for synchronicity.
+make check exit=0

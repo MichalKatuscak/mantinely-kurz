@@ -1,0 +1,21 @@
+r3-opus hotovo
+r1-opus hotovo
+r2-opus hotovo
+r4-opus hotovo
+r5-opus hotovo
+r6-opus hotovo
+r7-opus hotovo
+r9-opus hotovo
+r8-opus hotovo
+r12-sonnet hotovo
+r11-sonnet hotovo
+r10-opus hotovo
+r15-haiku hotovo
+r13-sonnet hotovo
+r14-haiku hotovo
+review: diff nejde aplikovat
+r16-haiku hotovo
+r14-haiku hotovo
+r15-haiku hotovo
+r13-sonnet hotovo
+r16-haiku hotovo

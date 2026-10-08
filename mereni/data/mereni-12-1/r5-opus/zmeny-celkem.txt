@@ -1,0 +1,8 @@
+ src/Legacy/Admin/OrderController.php               |  50 ++++++++
+ src/Legacy/Http/LegacyFrontController.php          |   1 +
+ src/Legacy/templates/orders/detail.php             |   8 ++
+ src/Ordering/Application/Command/CancelOrder.php   |  15 +++
+ .../Application/Handler/CancelOrderHandler.php     |  35 ++++++
+ tests/Acceptance/Legacy/CancelOrderTest.php        | 133 +++++++++++++++++++++
+ .../Application/CancelOrderHandlerTest.php         | 131 ++++++++++++++++++++
+ 7 files changed, 373 insertions(+)

@@ -1,0 +1,158 @@
+diff --git a/src/Legacy/Admin/OrderController.php b/src/Legacy/Admin/OrderController.php
+index 4c8a41f..027188d 100644
+--- a/src/Legacy/Admin/OrderController.php
++++ b/src/Legacy/Admin/OrderController.php
+@@ -157,4 +157,53 @@ class OrderController extends BaseController
+ 
+         return $this->detailAction();
+     }
++
++    /**
++     * Storno objednavky: zakaznik dostane zpatky zaplacenou castku a zbozi se vrati na sklad.
++     */
++    public function cancelAction()
++    {
++        global $db;
++        legacy_db();
++        auth_require('obchod');
++        if (is_post()) {
++            csrf_check();
++        }
++
++        $id = get_param('id');
++        $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
++        if ($order === null) {
++            return $this->notFound('Objednávka ' . $id . ' neexistuje');
++        }
++
++        if (is_post()) {
++            $reason = $this->post('reason', '');
++
++            try {
++                legacy_command(new \App\Ordering\Application\Command\CancelOrder(
++                    \App\Ordering\Domain\ValueObject\OrderId::fromString($id),
++                    $reason
++                ));
++            } catch (\App\Ordering\Domain\Exception\InvalidOrderStateTransitionException $e) {
++                flash('Objednávka v tomto stavu se nedá stornovat (odeslaná ani doručená ne)', 'error');
++
++                return $this->redirect(admin_url('order', array('id' => $id)));
++            }
++
++            flash('Objednávka stornována, zákazníkovi bude vrácena zaplacená částka');
++
++            return $this->redirect(admin_url('order', array('id' => $id)));
++        }
++
++        $customer = $db->one("SELECT * FROM customers WHERE id = " . $db->quote($order['customer_id']));
++        $sum = (int) $db->value("SELECT COALESCE(SUM(quantity * unit_price_amount_in_cents), 0) FROM order_items WHERE order_id = " . $db->quote($id));
++        $toPay = max(0, $sum - (int) $order['discount_amount_in_cents']);
++
++        return $this->renderLayout('orders/cancel', array(
++            'order'    => $order,
++            'customer' => $customer,
++            'sum'      => $sum,
++            'toPay'    => $toPay,
++        ), 'Storno objednávky ' . $id);
++    }
+ }
+diff --git a/src/Legacy/templates/orders/cancel.php b/src/Legacy/templates/orders/cancel.php
+new file mode 100644
+index 0000000..e1b5cd3
+--- /dev/null
++++ b/src/Legacy/templates/orders/cancel.php
+@@ -0,0 +1,29 @@
++<?php
++/**
++ * Storno objednavky.
++ * Promenne: $order, $customer, $sum, $toPay
++ */
++?>
++<h1>Storno objednávky <?php echo h($order['id']); ?></h1>
++
++<p class="warn">
++    Stornováním se objednávka vrátí do stavu Zrušeno. Zboží se vrátí na sklad a zákazník obdrží vrácení zaplacené částky.
++</p>
++
++<table class="grid" style="width:auto">
++    <tr><th>Stav</th><td class="state-<?php echo h($order['status']); ?>"><?php echo h(order_state_label($order['status'])); ?></td></tr>
++    <tr><th>Zákazník</th><td><?php echo h($customer ? $customer['name'] : $order['customer_id']); ?></td></tr>
++    <tr><th>K úhradě</th><td><?php echo format_price($toPay, $order['currency']); ?></td></tr>
++</table>
++
++<form method="post"><?php echo csrf_field(); ?>
++    <input type="hidden" name="id" value="<?php echo h($order['id']); ?>">
++    <p>
++        <label>Důvod storna (volitelně):</label><br>
++        <textarea name="reason" rows="3" cols="50"></textarea>
++    </p>
++    <p>
++        <input type="submit" value="Stornovat objednávku">
++        <a href="<?php echo h(admin_url('order', array('id' => $order['id']))); ?>">Zrušit</a>
++    </p>
++</form>
+diff --git a/src/Legacy/templates/orders/detail.php b/src/Legacy/templates/orders/detail.php
+index baf6a73..82ffb5a 100644
+--- a/src/Legacy/templates/orders/detail.php
++++ b/src/Legacy/templates/orders/detail.php
+@@ -59,6 +59,9 @@
+ <p>
+     <a href="<?php echo h(admin_url('order_edit', array('id' => $order['id']))); ?>">Změnit stav / slevu</a> |
+     <a href="<?php echo h(admin_url('order_notes', array('order' => $order['id']))); ?>">Poznámky (<?php echo count($notes); ?>)</a>
++    <?php if (in_array($order['status'], array('draft', 'confirmed', 'paid'))) { ?>
++    | <a href="<?php echo h(admin_url('order_cancel', array('id' => $order['id']))); ?>">Stornovat</a>
++    <?php } ?>
+ </p>
+ 
+ <h2>Poznámky</h2>
+diff --git a/src/Ordering/Application/Command/CancelOrder.php b/src/Ordering/Application/Command/CancelOrder.php
+new file mode 100644
+index 0000000..2fa7072
+--- /dev/null
++++ b/src/Ordering/Application/Command/CancelOrder.php
+@@ -0,0 +1,15 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Command;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++
++final readonly class CancelOrder
++{
++    public function __construct(
++        public OrderId $orderId,
++        public string $reason = '',
++    ) {}
++}
+diff --git a/src/Ordering/Application/Handler/CancelOrderHandler.php b/src/Ordering/Application/Handler/CancelOrderHandler.php
+new file mode 100644
+index 0000000..c936ae8
+--- /dev/null
++++ b/src/Ordering/Application/Handler/CancelOrderHandler.php
+@@ -0,0 +1,24 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Handler;
++
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Domain\Repository\OrderRepository;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++#[AsMessageHandler(bus: 'command.bus')]
++final readonly class CancelOrderHandler
++{
++    public function __construct(
++        private OrderRepository $orders,
++    ) {}
++
++    public function __invoke(CancelOrder $command): void
++    {
++        $order = $this->orders->get($command->orderId);
++        $order->cancel($command->reason, new \DateTimeImmutable());
++        $this->orders->save($order);
++    }
++}

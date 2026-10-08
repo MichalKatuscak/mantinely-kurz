@@ -1,0 +1,84 @@
+vendor/bin/phpunit --no-progress
+PHPUnit 13.4.1 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /tmp/tmp.V0G8EuXTm6/aplikace/phpunit.dist.xml
+
+Time: 00:03.975, Memory: 149.00 MB
+
+[30;42mOK (115 tests, 217 assertions)[0m
+
+    ____      ____          __  _
+   /  _/___  / __/__  _____/ /_(_)___  ____
+   / // __ \/ /_/ _ \/ ___/ __/ / __ \/ __ \
+ _/ // / / / __/  __/ /__/ /_/ / /_/ / / / /
+/___/_/ /_/_/  \___/\___/\__/_/\____/_/ /_/
+
+#StandWithUkraine
+
+Infection - PHP Mutation Testing Framework version 0.35.6
+
+[notice] You are running Infection with PCOV enabled.
+[notice] Running Infection with 1 thread.
+
+Running initial tests with PHPUnit version 13.4.1
+
+.: killed by tests, A: killed by SA, M: escaped, U: uncovered
+E: fatal error, X: syntax error, T: timed out, S: skipped, I: ignored
+
+
+Generate mutants...
+
+Processing source code files...
+
+
+0 mutations were generated:
+       0 mutants were killed by Test Framework
+
+Metrics:
+         Mutation Code Coverage: 0%
+         Covered Code MSI: 0%
+
+No mutations were generated for the selected code covered by tests.
+
+
+Please note that some mutants will inevitably be harmless (i.e. false positives).
+
+Generated Reports:
+         - /tmp/tmp.V0G8EuXTm6/aplikace/var/infection/infection.log
+         - /tmp/tmp.V0G8EuXTm6/aplikace/var/infection/summary.log
+
+Time: 2s. Memory: 20.00MB. Threads: 1
+Note: Using configuration file /tmp/tmp.V0G8EuXTm6/aplikace/phpstan.neon.
+PHPStan: bez chyb
+PHPStan (stará administrace): bez nových nebezpečných vzorů
+
+ [OK] Rector is done!                                                           
+
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+
+ [OK] The container was linted successfully: all services are injected with     
+      values that are compatible with their type declarations.                  
+
+
+Mapping
+-------
+
+ [OK] The mapping files are correct.                                            
+
+Database
+--------
+
+ [SKIPPED] The database was not checked for synchronicity.
+make check exit=0

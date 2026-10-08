@@ -1,0 +1,314 @@
+diff --git a/src/Legacy/Admin/OrderController.php b/src/Legacy/Admin/OrderController.php
+index 4c8a41f..77e85f9 100644
+--- a/src/Legacy/Admin/OrderController.php
++++ b/src/Legacy/Admin/OrderController.php
+@@ -157,4 +157,45 @@ class OrderController extends BaseController
+ 
+         return $this->detailAction();
+     }
++
++    /**
++     * Storno z detailu objednavky (2026).
++     *
++     * Stornuje novy e-shop (CancelOrder): ten hlida prechod stavu a vyda
++     * OrderCancelled, na ktere sklad uvolni rezervace.
++     */
++    public function cancelAction()
++    {
++        global $db;
++        legacy_db();
++        auth_require('obchod');
++        if (is_post()) {
++            csrf_check();
++        }
++
++        $id = get_param('id');
++        $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
++        if ($order === null) {
++            return $this->notFound('Objednávka ' . $id . ' neexistuje');
++        }
++        if (!is_post()) {
++            return $this->redirect(admin_url('order', array('id' => $id)));
++        }
++
++        try {
++            legacy_command(new \App\Ordering\Application\Command\CancelOrder(
++                \App\Ordering\Domain\ValueObject\OrderId::fromString($id),
++                trim((string) $this->post('reason')),
++                new \DateTimeImmutable()
++            ));
++        } catch (\App\Ordering\Domain\Exception\InvalidOrderStateTransitionException $e) {
++            flash('Odeslanou ani doručenou objednávku stornovat nejde', 'error');
++
++            return $this->detailAction();
++        }
++
++        flash('Objednávka stornována');
++
++        return $this->detailAction();
++    }
+ }
+diff --git a/src/Legacy/Http/LegacyFrontController.php b/src/Legacy/Http/LegacyFrontController.php
+index d06d8ee..0f0a0db 100644
+--- a/src/Legacy/Http/LegacyFrontController.php
++++ b/src/Legacy/Http/LegacyFrontController.php
+@@ -109,6 +109,7 @@ class LegacyFrontController
+ 
+         // akce, ktere meni objednavku prikazem noveho e-shopu (2026)
+         'order_item_quantity'=> array(OrderController::class, 'changeItemQuantityAction'),
++        'order_cancel'       => array(OrderController::class, 'cancelAction'),
+     );
+ 
+     public function __invoke(Request $request, string $page = 'dashboard', #[CurrentUser] ?UserInterface $user = null): Response
+diff --git a/src/Legacy/templates/orders/detail.php b/src/Legacy/templates/orders/detail.php
+index baf6a73..1771dd9 100644
+--- a/src/Legacy/templates/orders/detail.php
++++ b/src/Legacy/templates/orders/detail.php
+@@ -61,6 +61,13 @@
+     <a href="<?php echo h(admin_url('order_notes', array('order' => $order['id']))); ?>">Poznámky (<?php echo count($notes); ?>)</a>
+ </p>
+ 
++<?php if (in_array($order['status'], array('draft', 'confirmed', 'paid'))) { ?>
++<form method="post" action="<?php echo h(admin_url('order_cancel', array('id' => $order['id']))); ?>"><?php echo csrf_field(); ?>
++    <input type="text" name="reason" placeholder="Důvod storna">
++    <input type="submit" value="Stornovat">
++</form>
++<?php } ?>
++
+ <h2>Poznámky</h2>
+ <?php foreach ($notes as $n) { ?>
+     <p><strong><?php echo h($n['author']); ?></strong>, <?php echo format_date($n['created_at'], true); ?>:<br><?php echo nl2br(h($n['note'])); ?></p>
+diff --git a/src/Ordering/Application/Command/CancelOrder.php b/src/Ordering/Application/Command/CancelOrder.php
+new file mode 100644
+index 0000000..0e59845
+--- /dev/null
++++ b/src/Ordering/Application/Command/CancelOrder.php
+@@ -0,0 +1,16 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Command;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++
++final readonly class CancelOrder
++{
++    public function __construct(
++        public OrderId $orderId,
++        public string $reason,
++        public \DateTimeImmutable $when,
++    ) {}
++}
+diff --git a/src/Ordering/Application/Handler/CancelOrderHandler.php b/src/Ordering/Application/Handler/CancelOrderHandler.php
+new file mode 100644
+index 0000000..613383c
+--- /dev/null
++++ b/src/Ordering/Application/Handler/CancelOrderHandler.php
+@@ -0,0 +1,24 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Handler;
++
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Domain\Repository\OrderRepository;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++#[AsMessageHandler(bus: 'command.bus')]
++final readonly class CancelOrderHandler
++{
++    public function __construct(
++        private OrderRepository $orders,
++    ) {}
++
++    public function __invoke(CancelOrder $command): void
++    {
++        $order = $this->orders->get($command->orderId);
++        $order->cancel($command->reason, $command->when);
++        $this->orders->save($order);
++    }
++}
+diff --git a/tests/Acceptance/Legacy/CancelOrderTest.php b/tests/Acceptance/Legacy/CancelOrderTest.php
+new file mode 100644
+index 0000000..7eca212
+--- /dev/null
++++ b/tests/Acceptance/Legacy/CancelOrderTest.php
+@@ -0,0 +1,87 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Tests\Acceptance\Legacy;
++
++use App\Identity\Infrastructure\Security\DemoCustomerProvider;
++use App\Inventory\Domain\Repository\StockItemRepository;
++use App\Ordering\Domain\Model\Order;
++use App\Ordering\Domain\Repository\OrderRepository;
++use App\Ordering\Domain\ValueObject\CustomerId;
++use App\Ordering\Domain\ValueObject\OrderId;
++use App\Ordering\Domain\ValueObject\OrderStatus;
++use App\Ordering\Domain\ValueObject\ProductId;
++use App\SharedKernel\Domain\Currency;
++use App\SharedKernel\Domain\Money;
++use App\Tests\Support\Catalog;
++use App\Tests\Support\TestDatabase;
++use Doctrine\DBAL\Connection;
++use Doctrine\ORM\EntityManagerInterface;
++use PHPUnit\Framework\Attributes\Test;
++use Symfony\Bundle\FrameworkBundle\KernelBrowser;
++use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
++
++/**
++ * Storno ze staré administrace jde přes doménu: stav, důvod a uvolněné rezervace.
++ */
++final class CancelOrderTest extends WebTestCase
++{
++    private KernelBrowser $client;
++
++    protected function setUp(): void
++    {
++        TestDatabase::reset();
++        // stará administrace drží spojení v globální proměnné
++        $GLOBALS['db'] = null;
++        $this->client = self::createClient();
++        $this->client->disableReboot();
++        Catalog::seed(self::getContainer()->get(Connection::class));
++        $this->client->loginUser(
++            self::getContainer()->get(DemoCustomerProvider::class)->loadUserByIdentifier('sprava@example.com'),
++        );
++    }
++
++    #[Test]
++    public function paidOrderIsCancelledFromOrderDetail(): void
++    {
++        $keyboard = ProductId::fromString(Catalog::KEYBOARD);
++        $order = Order::place(OrderId::generate(), CustomerId::generate());
++        $order->addItem($keyboard, 2, new Money(300_00, Currency::CZK));
++        $order->confirm();
++        $order->markPaid();
++        self::getContainer()->get(OrderRepository::class)->save($order);
++
++        $this->client->request('GET', '/admin/legacy/order?id='.$order->id->value);
++        $this->client->submitForm('Stornovat', ['reason' => 'Zákazník si to rozmyslel']);
++
++        self::assertSelectorTextContains('.flash', 'Objednávka stornována');
++        self::getContainer()->get(EntityManagerInterface::class)->clear();
++        $cancelled = self::getContainer()->get(OrderRepository::class)->get($order->id);
++        self::assertSame(OrderStatus::Cancelled, $cancelled->status);
++        self::assertSame('Zákazník si to rozmyslel', $cancelled->cancellationNote);
++        self::assertSame(10, self::getContainer()->get(StockItemRepository::class)->get($keyboard)->available());
++    }
++
++    #[Test]
++    public function shippedOrderCannotBeCancelled(): void
++    {
++        $order = Order::place(OrderId::generate(), CustomerId::generate());
++        $order->addItem(ProductId::fromString(Catalog::KEYBOARD), 1, new Money(300_00, Currency::CZK));
++        $order->confirm();
++        $order->markPaid();
++        $order->ship();
++        self::getContainer()->get(OrderRepository::class)->save($order);
++
++        $token = $this->client->request('GET', '/admin/legacy/orders')->filter('input[name="_csrf"]')->first()->attr('value');
++        $this->client->request(
++            'POST',
++            '/admin/legacy/order_cancel?id='.$order->id->value,
++            ['reason' => '', '_csrf' => $token],
++        );
++
++        self::assertSelectorTextContains('.flash.error', 'stornovat nejde');
++        self::getContainer()->get(EntityManagerInterface::class)->clear();
++        self::assertSame(OrderStatus::Shipped, self::getContainer()->get(OrderRepository::class)->get($order->id)->status);
++    }
++}
+diff --git a/tests/Ordering/Application/CancelOrderHandlerTest.php b/tests/Ordering/Application/CancelOrderHandlerTest.php
+new file mode 100644
+index 0000000..8369fc3
+--- /dev/null
++++ b/tests/Ordering/Application/CancelOrderHandlerTest.php
+@@ -0,0 +1,83 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Tests\Ordering\Application;
++
++use App\Inventory\Domain\Repository\StockItemRepository;
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Application\Handler\CancelOrderHandler;
++use App\Ordering\Domain\Exception\InvalidOrderStateTransitionException;
++use App\Ordering\Domain\Model\Order;
++use App\Ordering\Domain\Repository\OrderRepository;
++use App\Ordering\Domain\ValueObject\CustomerId;
++use App\Ordering\Domain\ValueObject\OrderId;
++use App\Ordering\Domain\ValueObject\OrderStatus;
++use App\Ordering\Domain\ValueObject\ProductId;
++use App\SharedKernel\Domain\Currency;
++use App\SharedKernel\Domain\Money;
++use App\Tests\Support\Catalog;
++use App\Tests\Support\TestDatabase;
++use Doctrine\DBAL\Connection;
++use Doctrine\ORM\EntityManagerInterface;
++use PHPUnit\Framework\Attributes\CoversClass;
++use PHPUnit\Framework\Attributes\Test;
++use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
++
++#[CoversClass(CancelOrderHandler::class)]
++final class CancelOrderHandlerTest extends KernelTestCase
++{
++    protected function setUp(): void
++    {
++        TestDatabase::reset();
++        self::bootKernel();
++        Catalog::seed(self::getContainer()->get(Connection::class));
++    }
++
++    #[Test]
++    public function paidOrderIsCancelledAndItsGoodsReturnToStock(): void
++    {
++        $orders = self::getContainer()->get(OrderRepository::class);
++        $stockItems = self::getContainer()->get(StockItemRepository::class);
++        $keyboard = ProductId::fromString(Catalog::KEYBOARD);
++        $order = Order::place(OrderId::generate(), CustomerId::generate());
++        $order->addItem($keyboard, 3, new Money(500_00, Currency::CZK));
++        $order->confirm();
++        $order->markPaid();
++        $orders->save($order);
++        self::assertSame(7, $stockItems->get($keyboard)->available());
++
++        self::getContainer()->get(CancelOrderHandler::class)(
++            new CancelOrder($order->id, 'Zákazník si to rozmyslel', new \DateTimeImmutable('2026-10-08 10:00')),
++        );
++
++        self::getContainer()->get(EntityManagerInterface::class)->clear();
++        $cancelled = $orders->get($order->id);
++        self::assertSame(OrderStatus::Cancelled, $cancelled->status);
++        self::assertSame('Zákazník si to rozmyslel', $cancelled->cancellationNote);
++        self::assertSame(10, $stockItems->get($keyboard)->available());
++    }
++
++    #[Test]
++    public function shippedOrderStaysShipped(): void
++    {
++        $orders = self::getContainer()->get(OrderRepository::class);
++        $order = Order::place(OrderId::generate(), CustomerId::generate());
++        $order->addItem(ProductId::fromString(Catalog::KEYBOARD), 1, new Money(500_00, Currency::CZK));
++        $order->confirm();
++        $order->markPaid();
++        $order->ship();
++        $orders->save($order);
++
++        try {
++            self::getContainer()->get(CancelOrderHandler::class)(
++                new CancelOrder($order->id, '', new \DateTimeImmutable()),
++            );
++            self::fail('Expected InvalidOrderStateTransitionException');
++        } catch (InvalidOrderStateTransitionException) {
++        }
++
++        self::getContainer()->get(EntityManagerInterface::class)->clear();
++        self::assertSame(OrderStatus::Shipped, $orders->get($order->id)->status);
++    }
++}

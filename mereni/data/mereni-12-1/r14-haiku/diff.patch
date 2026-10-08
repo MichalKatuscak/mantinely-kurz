@@ -1,0 +1,130 @@
+diff --git a/src/Legacy/Admin/order_edit.php b/src/Legacy/Admin/order_edit.php
+index e4ad017..28cb561 100644
+--- a/src/Legacy/Admin/order_edit.php
++++ b/src/Legacy/Admin/order_edit.php
+@@ -13,12 +13,15 @@ global $db;
+ legacy_db();
+ auth_require('obchod');
+ 
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Domain\ValueObject\OrderId;
++
+ $id = get_param('id');
+ if ($id == '') {
+     $id = post_param('id');
+ }
+ 
+-$order = $db->one("SELECT * FROM orders WHERE id = '" . $id . "'");
++$order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
+ if ($order === null) {
+     echo '<p class="err">Objednávka nenalezena.</p>';
+     return;
+@@ -29,6 +32,23 @@ $msg = '';
+ 
+ if (is_post()) {
+     csrf_check();
++
++    // --- storno (novym prikazem) ---
++    if (post_param('cancel') != '') {
++        $reason = post_param('cancel_reason');
++        try {
++            legacy_command(new CancelOrder(
++                OrderId::fromString($id),
++                $reason
++            ));
++            $msg .= 'Objednávka stornována. Zboží bylo vráceno na sklad. ';
++            cache_delete('dashboard_stats');
++            $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
++        } catch (\App\Ordering\Domain\Exception\InvalidOrderStateTransitionException $e) {
++            $errors[] = 'Objednávku v tomto stavu nelze stornovat.';
++        }
++    }
++
+     $newStatus = post_param('status');
+     $discount = post_param('discount');
+ 
+@@ -57,7 +77,6 @@ if (is_post()) {
+                         send_mail($c['email'], 'Vaše objednávka byla odeslána', "Dobrý den,\n\nvaše objednávka " . $id . " byla právě odeslána.\n");
+                     }
+                 }
+-                // TODO: pri 'cancelled' uvolnit rezervace ve skladu (cron to taky nedela)
+                 $msg .= 'Stav změněn na ' . order_state_label($newStatus) . '. ';
+             }
+         }
+@@ -89,7 +108,7 @@ if (is_post()) {
+     cache_delete('dashboard_stats');
+ 
+     // znovu nacist
+-    $order = $db->one("SELECT * FROM orders WHERE id = '" . $id . "'");
++    $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
+ }
+ 
+ $items = $db->query("SELECT i.*, p.name FROM order_items i LEFT JOIN products p ON p.id = i.product_id WHERE i.order_id = '" . $id . "'");
+@@ -122,6 +141,16 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ <p><input type="submit" value="Uložit"></p>
+ </form>
+ 
++<?php if ($order['status'] != 'cancelled') { ?>
++<form method="post" style="margin-top: 2em; padding: 1em; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
++    <?php echo csrf_field(); ?>
++    <input type="hidden" name="id" value="<?php echo h($order['id']); ?>">
++    <p><strong>Storno objednávky</strong> (vrátí zboží na sklad):</p>
++    <p><textarea name="cancel_reason" rows="3" cols="50" placeholder="Důvod storna (volitelně)"></textarea></p>
++    <p><input type="submit" name="cancel" value="Stornovat" onclick="return confirm('Opravdu stornovat objednávku? Zboží bude vráceno na sklad.');"></p>
++</form>
++<?php } ?>
++
+ <h2>Položky</h2>
+ <table class="grid">
+ <?php foreach ($items as $it) { ?>
+diff --git a/src/Ordering/Application/Command/CancelOrder.php b/src/Ordering/Application/Command/CancelOrder.php
+new file mode 100644
+index 0000000..2fa7072
+--- /dev/null
++++ b/src/Ordering/Application/Command/CancelOrder.php
+@@ -0,0 +1,15 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Command;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++
++final readonly class CancelOrder
++{
++    public function __construct(
++        public OrderId $orderId,
++        public string $reason = '',
++    ) {}
++}
+diff --git a/src/Ordering/Application/Handler/CancelOrderHandler.php b/src/Ordering/Application/Handler/CancelOrderHandler.php
+new file mode 100644
+index 0000000..c936ae8
+--- /dev/null
++++ b/src/Ordering/Application/Handler/CancelOrderHandler.php
+@@ -0,0 +1,24 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Handler;
++
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Domain\Repository\OrderRepository;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++#[AsMessageHandler(bus: 'command.bus')]
++final readonly class CancelOrderHandler
++{
++    public function __construct(
++        private OrderRepository $orders,
++    ) {}
++
++    public function __invoke(CancelOrder $command): void
++    {
++        $order = $this->orders->get($command->orderId);
++        $order->cancel($command->reason, new \DateTimeImmutable());
++        $this->orders->save($order);
++    }
++}

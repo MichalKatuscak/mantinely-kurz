@@ -1,0 +1,11 @@
+ M src/Legacy/Admin/OrderController.php
+ M src/Legacy/Http/LegacyFrontController.php
+ M src/Legacy/templates/orders/detail.php
+ M src/Ordering/Domain/Model/Order.php
+?? migrations/Version20261008123348.php
+?? src/Ordering/Application/Command/CancelOrder.php
+?? src/Ordering/Application/Handler/CancelOrderHandler.php
+?? src/Ordering/Domain/Event/RefundRequested.php
+?? tests/Acceptance/Legacy/CancelOrderTest.php
+?? tests/Ordering/Application/CancelOrderHandlerTest.php
+?? tests/Ordering/Domain/CancelWithRefundTest.php

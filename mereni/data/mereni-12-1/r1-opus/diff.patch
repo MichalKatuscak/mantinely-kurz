@@ -1,0 +1,594 @@
+diff --git a/migrations/Version20261008123348.php b/migrations/Version20261008123348.php
+new file mode 100644
+index 0000000..00af10a
+--- /dev/null
++++ b/migrations/Version20261008123348.php
+@@ -0,0 +1,35 @@
++<?php
++
++declare(strict_types=1);
++
++namespace DoctrineMigrations;
++
++use Doctrine\DBAL\Schema\Schema;
++use Doctrine\Migrations\AbstractMigration;
++
++/**
++ * Auto-generated Migration: Please modify to your needs!
++ */
++final class Version20261008123348 extends AbstractMigration
++{
++    public function getDescription(): string
++    {
++        return '';
++    }
++
++    public function up(Schema $schema): void
++    {
++        // this up() migration is auto-generated, please modify it to your needs
++        $this->addSql('ALTER TABLE orders ADD COLUMN refund_amount_in_cents INTEGER DEFAULT 0 NOT NULL');
++    }
++
++    public function down(Schema $schema): void
++    {
++        // this down() migration is auto-generated, please modify it to your needs
++        $this->addSql('CREATE TEMPORARY TABLE __temp__orders AS SELECT status, placed_at, cancellation_note, id, customer_id, currency, discount_amount_in_cents, discount_currency FROM orders');
++        $this->addSql('DROP TABLE orders');
++        $this->addSql('CREATE TABLE orders (status VARCHAR(255) NOT NULL, placed_at DATETIME DEFAULT NULL, cancellation_note CLOB DEFAULT NULL, id CHAR(36) NOT NULL, customer_id CHAR(36) NOT NULL, currency VARCHAR(255) NOT NULL, discount_amount_in_cents INTEGER NOT NULL, discount_currency VARCHAR(255) NOT NULL, PRIMARY KEY (id))');
++        $this->addSql('INSERT INTO orders (status, placed_at, cancellation_note, id, customer_id, currency, discount_amount_in_cents, discount_currency) SELECT status, placed_at, cancellation_note, id, customer_id, currency, discount_amount_in_cents, discount_currency FROM __temp__orders');
++        $this->addSql('DROP TABLE __temp__orders');
++    }
++}
+diff --git a/src/Legacy/Admin/OrderController.php b/src/Legacy/Admin/OrderController.php
+index 4c8a41f..98a0dfe 100644
+--- a/src/Legacy/Admin/OrderController.php
++++ b/src/Legacy/Admin/OrderController.php
+@@ -157,4 +157,45 @@ class OrderController extends BaseController
+ 
+         return $this->detailAction();
+     }
++
++    /**
++     * Storno z detailu objednavky (2026).
++     *
++     * Storno dela novy e-shop (CancelOrder): hlida stav, u zaplacene objednavky
++     * zaznamena castku k vraceni (penize vraci obchod rucne) a sklad uvolni
++     * rezervace. Tady se jen ukaze vysledek.
++     */
++    public function cancelAction()
++    {
++        global $db;
++        legacy_db();
++        auth_require('obchod');
++        if (is_post()) {
++            csrf_check();
++        }
++
++        $id = get_param('id');
++        $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
++        if ($order === null) {
++            return $this->notFound('Objednávka ' . $id . ' neexistuje');
++        }
++        if (!is_post()) {
++            return $this->redirect(admin_url('order', array('id' => $id)));
++        }
++
++        try {
++            legacy_command(new \App\Ordering\Application\Command\CancelOrder(
++                \App\Ordering\Domain\ValueObject\OrderId::fromString($id),
++                trim((string) $this->post('reason'))
++            ));
++        } catch (\App\Ordering\Domain\Exception\InvalidOrderStateTransitionException $e) {
++            flash('Odeslanou ani doručenou objednávku stornovat nejde', 'error');
++
++            return $this->detailAction();
++        }
++
++        flash('Objednávka stornována');
++
++        return $this->detailAction();
++    }
+ }
+diff --git a/src/Legacy/Http/LegacyFrontController.php b/src/Legacy/Http/LegacyFrontController.php
+index d06d8ee..0f0a0db 100644
+--- a/src/Legacy/Http/LegacyFrontController.php
++++ b/src/Legacy/Http/LegacyFrontController.php
+@@ -109,6 +109,7 @@ class LegacyFrontController
+ 
+         // akce, ktere meni objednavku prikazem noveho e-shopu (2026)
+         'order_item_quantity'=> array(OrderController::class, 'changeItemQuantityAction'),
++        'order_cancel'       => array(OrderController::class, 'cancelAction'),
+     );
+ 
+     public function __invoke(Request $request, string $page = 'dashboard', #[CurrentUser] ?UserInterface $user = null): Response
+diff --git a/src/Legacy/templates/orders/detail.php b/src/Legacy/templates/orders/detail.php
+index baf6a73..88ce75e 100644
+--- a/src/Legacy/templates/orders/detail.php
++++ b/src/Legacy/templates/orders/detail.php
+@@ -54,8 +54,22 @@
+     <tr><td colspan="4" class="num">Mezisoučet</td><td class="num"><?php echo format_price($sum, $order['currency']); ?></td></tr>
+     <tr><td colspan="4" class="num">Sleva</td><td class="num">−<?php echo format_price($order['discount_amount_in_cents'], $order['discount_currency']); ?></td></tr>
+     <tr><td colspan="4" class="num"><strong>K úhradě</strong></td><td class="num"><strong><?php echo format_price($toPay, $order['currency']); ?></strong></td></tr>
++<?php if ((int) $order['refund_amount_in_cents'] > 0) { ?>
++    <tr><td colspan="4" class="num"><strong>Vrátit zákazníkovi</strong> <span class="hint">(po stornu, vrací obchod ručně)</span></td><td class="num"><strong><?php echo format_price($order['refund_amount_in_cents'], $order['currency']); ?></strong></td></tr>
++<?php } ?>
+ </table>
+ 
++<?php if (in_array($order['status'], array('draft', 'confirmed', 'paid'))) { ?>
++<h2>Storno</h2>
++<form method="post" action="<?php echo h(admin_url('order_cancel', array('id' => $order['id']))); ?>" onsubmit="return confirm('Opravdu stornovat objednávku?');"><?php echo csrf_field(); ?>
++    <label>Důvod <input type="text" name="reason" size="40"></label>
++    <?php if ($order['status'] == 'paid') { ?>
++        <span class="hint">Zákazník dostane zpět <?php echo format_price($toPay, $order['currency']); ?>, zboží se vrátí na sklad.</span>
++    <?php } ?>
++    <input type="submit" value="Stornovat">
++</form>
++<?php } ?>
++
+ <p>
+     <a href="<?php echo h(admin_url('order_edit', array('id' => $order['id']))); ?>">Změnit stav / slevu</a> |
+     <a href="<?php echo h(admin_url('order_notes', array('order' => $order['id']))); ?>">Poznámky (<?php echo count($notes); ?>)</a>
+diff --git a/src/Ordering/Application/Command/CancelOrder.php b/src/Ordering/Application/Command/CancelOrder.php
+new file mode 100644
+index 0000000..9c54a8c
+--- /dev/null
++++ b/src/Ordering/Application/Command/CancelOrder.php
+@@ -0,0 +1,15 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Command;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++
++final readonly class CancelOrder
++{
++    public function __construct(
++        public OrderId $orderId,
++        public string $reason,
++    ) {}
++}
+diff --git a/src/Ordering/Application/Handler/CancelOrderHandler.php b/src/Ordering/Application/Handler/CancelOrderHandler.php
+new file mode 100644
+index 0000000..a19c933
+--- /dev/null
++++ b/src/Ordering/Application/Handler/CancelOrderHandler.php
+@@ -0,0 +1,28 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Handler;
++
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Domain\Repository\OrderRepository;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++/**
++ * Storno: zaplacená částka se zaznamená k vrácení, rezervace na skladě
++ * uvolní Inventory po události OrderCancelled.
++ */
++#[AsMessageHandler(bus: 'command.bus')]
++final readonly class CancelOrderHandler
++{
++    public function __construct(
++        private OrderRepository $orders,
++    ) {}
++
++    public function __invoke(CancelOrder $command): void
++    {
++        $order = $this->orders->get($command->orderId);
++        $order->cancelWithRefund($command->reason, new \DateTimeImmutable());
++        $this->orders->save($order);
++    }
++}
+diff --git a/src/Ordering/Domain/Event/RefundRequested.php b/src/Ordering/Domain/Event/RefundRequested.php
+new file mode 100644
+index 0000000..642b776
+--- /dev/null
++++ b/src/Ordering/Domain/Event/RefundRequested.php
+@@ -0,0 +1,22 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Domain\Event;
++
++use App\Ordering\Domain\ValueObject\CustomerId;
++use App\Ordering\Domain\ValueObject\OrderId;
++use App\SharedKernel\Domain\Money;
++
++/**
++ * Zákazník má dostat zpět zaplacenou částku. Peníze vrací obchod ručně.
++ */
++final readonly class RefundRequested
++{
++    public function __construct(
++        public OrderId $orderId,
++        public CustomerId $customerId,
++        public Money $amount,
++        public \DateTimeImmutable $occurredAt,
++    ) {}
++}
+diff --git a/src/Ordering/Domain/Model/Order.php b/src/Ordering/Domain/Model/Order.php
+index dd6faa2..ac56758 100644
+--- a/src/Ordering/Domain/Model/Order.php
++++ b/src/Ordering/Domain/Model/Order.php
+@@ -13,6 +13,7 @@ use App\Ordering\Domain\Event\OrderItemRemoved;
+ use App\Ordering\Domain\Event\OrderPaid;
+ use App\Ordering\Domain\Event\OrderPlaced;
+ use App\Ordering\Domain\Event\OrderShipped;
++use App\Ordering\Domain\Event\RefundRequested;
+ use App\Ordering\Domain\Exception\CurrencyMismatchException;
+ use App\Ordering\Domain\Exception\DiscountExceedsItemsTotalException;
+ use App\Ordering\Domain\Exception\EmptyOrderException;
+@@ -63,6 +64,16 @@ final class Order extends AggregateRoot
+     #[ORM\Embedded(class: Money::class, columnPrefix: 'discount_')]
+     public private(set) Money $discount;
+ 
++    // Částka, kterou má obchod po stornu vrátit zákazníkovi (vrací ručně), vždy
++    // v měně objednávky. Výchozí 0 kvůli řádkům, které do orders zapisuje stará
++    // administrace bez tohoto sloupce.
++    #[ORM\Column(options: ['default' => 0])]
++    private int $refundAmountInCents = 0;
++
++    public Money $refund {
++        get => new Money($this->refundAmountInCents, $this->currency);
++    }
++
+     private function __construct(
+         #[ORM\Id]
+         #[ORM\Column(type: 'order_id')]
+@@ -246,6 +257,22 @@ final class Order extends AggregateRoot
+         $this->record(new OrderCancelled($this->id, $this->customerId, $reason, $when));
+     }
+ 
++    /**
++     * Storno, po kterém zákazník dostane zpět, co zaplatil. U nezaplacené
++     * objednávky není co vracet, storno proběhne bez vrácení.
++     */
++    public function cancelWithRefund(string $reason, \DateTimeImmutable $when): void
++    {
++        // Stornovaná objednávka už zaplacená není, opakované storno peníze nevrací.
++        $wasPaid = $this->status === OrderStatus::Paid;
++        $this->cancel($reason, $when);
++
++        if ($wasPaid) {
++            $this->refundAmountInCents = $this->paidAmount()->amountInCents;
++            $this->record(new RefundRequested($this->id, $this->customerId, $this->refund, $when));
++        }
++    }
++
+     public function isOwnedBy(CustomerId $customerId): bool
+     {
+         return $this->customerId->equals($customerId);
+diff --git a/tests/Acceptance/Legacy/CancelOrderTest.php b/tests/Acceptance/Legacy/CancelOrderTest.php
+new file mode 100644
+index 0000000..f175b41
+--- /dev/null
++++ b/tests/Acceptance/Legacy/CancelOrderTest.php
+@@ -0,0 +1,132 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Tests\Acceptance\Legacy;
++
++use App\Identity\Infrastructure\Security\DemoCustomerProvider;
++use App\Inventory\Domain\Repository\StockItemRepository;
++use App\Ordering\Domain\Model\Order;
++use App\Ordering\Domain\Repository\OrderRepository;
++use App\Ordering\Domain\ValueObject\CustomerId;
++use App\Ordering\Domain\ValueObject\OrderId;
++use App\Ordering\Domain\ValueObject\OrderStatus;
++use App\Ordering\Domain\ValueObject\ProductId;
++use App\SharedKernel\Domain\Currency;
++use App\SharedKernel\Domain\Money;
++use App\Tests\Support\Catalog;
++use App\Tests\Support\TestDatabase;
++use Doctrine\DBAL\Connection;
++use Doctrine\ORM\EntityManagerInterface;
++use PHPUnit\Framework\Attributes\Test;
++use Symfony\Bundle\FrameworkBundle\KernelBrowser;
++use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
++
++/**
++ * Storno ve staré administraci: zákazník dostane zpět zaplacenou částku
++ * (zaznamenanou k ručnímu vrácení) a zboží se vrátí na sklad.
++ */
++final class CancelOrderTest extends WebTestCase
++{
++    private KernelBrowser $client;
++
++    protected function setUp(): void
++    {
++        TestDatabase::reset();
++        // stará administrace drží spojení v globální proměnné
++        $GLOBALS['db'] = null;
++        $this->client = self::createClient();
++        $this->client->disableReboot();
++        Catalog::seed(self::getContainer()->get(Connection::class));
++    }
++
++    #[Test]
++    public function paidOrderIsCancelledFromOrderDetail(): void
++    {
++        $this->loginAs('obchod@example.com');
++        $order = $this->paidOrder();
++
++        $this->client->request('GET', '/admin/legacy/order?id='.$order->id->value);
++        $this->client->submitForm('Stornovat', ['reason' => 'Zákazník si to rozmyslel']);
++
++        self::assertSelectorTextContains('.flash', 'Objednávka stornována');
++        self::assertSelectorTextContains('body', 'Vrátit zákazníkovi');
++        self::getContainer()->get(EntityManagerInterface::class)->clear();
++        $cancelled = self::getContainer()->get(OrderRepository::class)->get($order->id);
++        self::assertSame(OrderStatus::Cancelled, $cancelled->status);
++        self::assertSame('Zákazník si to rozmyslel', $cancelled->cancellationNote);
++        self::assertTrue($cancelled->refund->equals(new Money(500_00, Currency::CZK)));
++        self::assertSame(
++            10,
++            self::getContainer()->get(StockItemRepository::class)->get(ProductId::fromString(Catalog::KEYBOARD))->available(),
++        );
++    }
++
++    #[Test]
++    public function shippedOrderStaysUnchanged(): void
++    {
++        $this->loginAs('obchod@example.com');
++        $order = $this->paidOrder();
++        $order->ship();
++        self::getContainer()->get(OrderRepository::class)->save($order);
++
++        $this->client->request('POST', '/admin/legacy/order_cancel?id='.$order->id->value, ['reason' => '', '_csrf' => $this->csrfToken()]);
++
++        self::assertSelectorTextContains('.flash.error', 'stornovat nejde');
++        self::getContainer()->get(EntityManagerInterface::class)->clear();
++        $unchanged = self::getContainer()->get(OrderRepository::class)->get($order->id);
++        self::assertSame(OrderStatus::Shipped, $unchanged->status);
++        self::assertSame(0, $unchanged->refund->amountInCents);
++    }
++
++    #[Test]
++    public function warehouseRoleCannotCancel(): void
++    {
++        $this->loginAs('sklad@example.com');
++        $order = $this->paidOrder();
++
++        $this->client->request('POST', '/admin/legacy/order_cancel?id='.$order->id->value, ['reason' => '', '_csrf' => $this->csrfToken()]);
++
++        self::assertResponseStatusCodeSame(403);
++        self::getContainer()->get(EntityManagerInterface::class)->clear();
++        self::assertSame(OrderStatus::Paid, self::getContainer()->get(OrderRepository::class)->get($order->id)->status);
++    }
++
++    #[Test]
++    public function cancelWithoutCsrfTokenIsRejected(): void
++    {
++        $this->loginAs('obchod@example.com');
++        $order = $this->paidOrder();
++
++        $this->client->request('POST', '/admin/legacy/order_cancel?id='.$order->id->value, ['reason' => '']);
++
++        self::assertResponseStatusCodeSame(403);
++        self::getContainer()->get(EntityManagerInterface::class)->clear();
++        self::assertSame(OrderStatus::Paid, self::getContainer()->get(OrderRepository::class)->get($order->id)->status);
++    }
++
++    private function paidOrder(): Order
++    {
++        // klávesnice 2 × 300 Kč, sleva 100 Kč: zaplaceno 500 Kč
++        $order = Order::place(OrderId::generate(), CustomerId::generate());
++        $order->addItem(ProductId::fromString(Catalog::KEYBOARD), 2, new Money(300_00, Currency::CZK));
++        $order->applyDiscount(new Money(100_00, Currency::CZK));
++        $order->confirm();
++        $order->markPaid();
++        self::getContainer()->get(OrderRepository::class)->save($order);
++
++        return $order;
++    }
++
++    private function loginAs(string $email): void
++    {
++        $this->client->loginUser(
++            self::getContainer()->get(DemoCustomerProvider::class)->loadUserByIdentifier($email),
++        );
++    }
++
++    private function csrfToken(): ?string
++    {
++        return $this->client->request('GET', '/admin/legacy/orders')->filter('input[name="_csrf"]')->first()->attr('value');
++    }
++}
+diff --git a/tests/Ordering/Application/CancelOrderHandlerTest.php b/tests/Ordering/Application/CancelOrderHandlerTest.php
+new file mode 100644
+index 0000000..c5dd4e1
+--- /dev/null
++++ b/tests/Ordering/Application/CancelOrderHandlerTest.php
+@@ -0,0 +1,62 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Tests\Ordering\Application;
++
++use App\Inventory\Domain\Repository\StockItemRepository;
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Application\Handler\CancelOrderHandler;
++use App\Ordering\Domain\Model\Order;
++use App\Ordering\Domain\Repository\OrderRepository;
++use App\Ordering\Domain\ValueObject\CustomerId;
++use App\Ordering\Domain\ValueObject\OrderId;
++use App\Ordering\Domain\ValueObject\OrderStatus;
++use App\Ordering\Domain\ValueObject\ProductId;
++use App\SharedKernel\Domain\Currency;
++use App\SharedKernel\Domain\Money;
++use App\Tests\Support\Catalog;
++use App\Tests\Support\TestDatabase;
++use Doctrine\DBAL\Connection;
++use Doctrine\ORM\EntityManagerInterface;
++use PHPUnit\Framework\Attributes\CoversClass;
++use PHPUnit\Framework\Attributes\Test;
++use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
++use Symfony\Component\Messenger\MessageBusInterface;
++
++#[CoversClass(CancelOrderHandler::class)]
++final class CancelOrderHandlerTest extends KernelTestCase
++{
++    protected function setUp(): void
++    {
++        TestDatabase::reset();
++        self::bootKernel();
++        Catalog::seed(self::getContainer()->get(Connection::class));
++    }
++
++    #[Test]
++    public function paidOrderIsCancelledRefundedAndStockReturned(): void
++    {
++        $orders = self::getContainer()->get(OrderRepository::class);
++        $stockItems = self::getContainer()->get(StockItemRepository::class);
++        $keyboard = ProductId::fromString(Catalog::KEYBOARD);
++
++        $order = Order::place(OrderId::generate(), CustomerId::generate());
++        $order->addItem($keyboard, 2, new Money(300_00, Currency::CZK));
++        $order->applyDiscount(new Money(100_00, Currency::CZK));
++        $order->confirm();
++        $order->markPaid();
++        $orders->save($order);
++        self::assertSame(8, $stockItems->get($keyboard)->available());
++
++        self::getContainer()->get(MessageBusInterface::class)
++            ->dispatch(new CancelOrder($order->id, 'Zákazník si to rozmyslel'));
++
++        self::getContainer()->get(EntityManagerInterface::class)->clear();
++        $cancelled = $orders->get($order->id);
++        self::assertSame(OrderStatus::Cancelled, $cancelled->status);
++        self::assertSame('Zákazník si to rozmyslel', $cancelled->cancellationNote);
++        self::assertTrue($cancelled->refund->equals(new Money(500_00, Currency::CZK)));
++        self::assertSame(10, $stockItems->get($keyboard)->available());
++    }
++}
+diff --git a/tests/Ordering/Domain/CancelWithRefundTest.php b/tests/Ordering/Domain/CancelWithRefundTest.php
+new file mode 100644
+index 0000000..116868f
+--- /dev/null
++++ b/tests/Ordering/Domain/CancelWithRefundTest.php
+@@ -0,0 +1,117 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Tests\Ordering\Domain;
++
++use App\Ordering\Domain\Event\OrderCancelled;
++use App\Ordering\Domain\Event\RefundRequested;
++use App\Ordering\Domain\Exception\InvalidOrderStateTransitionException;
++use App\Ordering\Domain\Model\Order;
++use App\Ordering\Domain\ValueObject\CustomerId;
++use App\Ordering\Domain\ValueObject\OrderId;
++use App\Ordering\Domain\ValueObject\OrderStatus;
++use App\Ordering\Domain\ValueObject\ProductId;
++use App\SharedKernel\Domain\Currency;
++use App\SharedKernel\Domain\Money;
++use PHPUnit\Framework\Attributes\CoversClass;
++use PHPUnit\Framework\Attributes\Test;
++use PHPUnit\Framework\TestCase;
++
++#[CoversClass(Order::class)]
++final class CancelWithRefundTest extends TestCase
++{
++    #[Test]
++    public function paidOrderRefundsPaidAmount(): void
++    {
++        $order = $this->paidOrder();
++        $order->releaseEvents();
++        $when = new \DateTimeImmutable('2026-10-08 10:00');
++
++        $order->cancelWithRefund('Zákazník si to rozmyslel', $when);
++
++        self::assertSame(OrderStatus::Cancelled, $order->status);
++        self::assertSame('Zákazník si to rozmyslel', $order->cancellationNote);
++        // 2 × 300 Kč − sleva 100 Kč
++        self::assertTrue($order->refund->equals(new Money(500_00, Currency::CZK)));
++
++        $events = $order->releaseEvents();
++        self::assertCount(2, $events);
++        self::assertInstanceOf(OrderCancelled::class, $events[0]);
++        self::assertInstanceOf(RefundRequested::class, $events[1]);
++        self::assertTrue($events[1]->orderId->equals($order->id));
++        self::assertTrue($events[1]->customerId->equals($order->customerId));
++        self::assertTrue($events[1]->amount->equals(new Money(500_00, Currency::CZK)));
++        self::assertSame($when, $events[1]->occurredAt);
++    }
++
++    #[Test]
++    public function unpaidOrderIsCancelledWithoutRefund(): void
++    {
++        $order = $this->confirmedOrder();
++        $order->releaseEvents();
++
++        $order->cancelWithRefund('', new \DateTimeImmutable());
++
++        self::assertSame(OrderStatus::Cancelled, $order->status);
++        self::assertSame(0, $order->refund->amountInCents);
++        $events = $order->releaseEvents();
++        self::assertCount(1, $events);
++        self::assertInstanceOf(OrderCancelled::class, $events[0]);
++    }
++
++    #[Test]
++    public function secondCancelDoesNotRefundAgain(): void
++    {
++        $order = $this->paidOrder();
++        $order->cancelWithRefund('', new \DateTimeImmutable());
++        $order->releaseEvents();
++
++        $order->cancelWithRefund('', new \DateTimeImmutable());
++
++        self::assertSame(500_00, $order->refund->amountInCents);
++        self::assertSame([], $order->releaseEvents());
++    }
++
++    #[Test]
++    public function shippedOrderCannotBeCancelledNorRefunded(): void
++    {
++        $order = $this->paidOrder();
++        $order->ship();
++
++        try {
++            $order->cancelWithRefund('', new \DateTimeImmutable());
++            self::fail('Expected InvalidOrderStateTransitionException');
++        } catch (InvalidOrderStateTransitionException) {
++        }
++
++        self::assertSame(OrderStatus::Shipped, $order->status);
++        self::assertSame(0, $order->refund->amountInCents);
++    }
++
++    #[Test]
++    public function newOrderHasNothingToRefund(): void
++    {
++        $order = Order::place(OrderId::generate(), CustomerId::generate(), Currency::EUR);
++
++        self::assertTrue($order->refund->equals(Money::zero(Currency::EUR)));
++    }
++
++    private function confirmedOrder(): Order
++    {
++        $order = Order::place(OrderId::generate(), CustomerId::generate());
++        $order->addItem(ProductId::generate(), 2, new Money(300_00, Currency::CZK));
++        $order->applyDiscount(new Money(100_00, Currency::CZK));
++        $order->confirm();
++
++        return $order;
++    }
++
++    private function paidOrder(): Order
++    {
++        $order = $this->confirmedOrder();
++        $order->markPaid();
++
++        return $order;
++    }
++}

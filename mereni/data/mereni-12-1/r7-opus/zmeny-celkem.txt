@@ -1,0 +1,11 @@
+ migrations/Version20261008124158.php               |  35 +++++++
+ src/Legacy/Admin/OrderController.php               |  46 +++++++++
+ src/Legacy/Http/LegacyFrontController.php          |   1 +
+ src/Legacy/templates/orders/detail.php             |  10 ++
+ src/Ordering/Application/Command/CancelOrder.php   |  15 +++
+ .../Application/Handler/CancelOrderHandler.php     |  24 +++++
+ src/Ordering/Domain/Model/Order.php                |  16 ++++
+ tests/Acceptance/Legacy/CancelOrderTest.php        |  95 ++++++++++++++++++
+ .../Application/CancelOrderHandlerTest.php         |  60 ++++++++++++
+ tests/Ordering/Domain/OrderRefundTest.php          | 106 +++++++++++++++++++++
+ 10 files changed, 408 insertions(+)

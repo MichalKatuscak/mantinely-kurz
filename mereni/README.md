@@ -130,10 +130,31 @@ a vlastním zadáním. Měřte víc běhů, jeden běh nic neříká.
 
 ## Měření z lekce 12.1
 
-Stejný tiket na tagu `m12-start` se všemi mantinely. Protokol jsem zapsal před prvním
-během do `PROTOKOL-12-1.md`, výsledky přibudou do `data/mereni-12-1/`. `beh.sh` od té
-doby klonuje jen poslední commit výchozího tagu (`--depth 1`); pro `m00-start`, který má
-jediný commit, se tím nic nemění.
+Stejný tiket na tagu `m12-start` se všemi mantinely, 16 běhů (10× Opus 5.5, 3× Sonnet 5.5,
+3× Haiku 4.5), 8. 10. 2026. Protokol jsem zapsal před prvním během (`PROTOKOL-12-1.md`),
+změnu po první fázi i obě poznámky najdete tamtéž. Data, hodnocení, průřez a review jsou
+v `data/mereni-12-1/`, souhrn v `data/mereni-12-1/VYSLEDKY.md`.
+
+| typ chyby (ve výsledném kódu) | 0.2 | 12.1 |
+|---|---|---|
+| T1 Akce storna není chráněná (CSRF / role) | 16 / 4 z 16 | 0 / 0 z 16 |
+| T2 SQL injection | 5 z 16 | 0 z 16 (1× zastavená během běhu) |
+| T3 Storno obchází doménu | 6 z 16 | 0 z 16 |
+| T4 Změnil, co neměl | 10 z 16 | 1 z 16 (4× zastavil hook) |
+| testy zelené | 16 z 16 | 16 z 16 |
+
+V první fázi se 7 běhů zastavilo a zeptalo, jak vrátit peníze, protože v aplikaci nemají
+na co navázat; proto dostaly všechny běhy stejnou druhou zprávu zadavatele. Zadání po ní
+splnilo 13 z 16 běhů, tři běhy Haiku ne a všechny tři tvrdily opak. Prošla i chyba nového
+typu, na kterou mantinely nemířily: sleva vyšší než součet položek shodí storno zaplacené
+objednávky chybou 500. Našlo ji jen review v čistém kontextu. Ukázkový běh podle pravidla
+z protokolu je `r1-opus`, jeho výsledek je tag `m12-end`.
+
+`beh.sh` od tohoto měření klonuje jen poslední commit výchozího tagu (`--depth 1`); pro
+`m00-start`, který má jediný commit, se tím nic nemění. Druhou zprávu posílá
+`skripty/pokracovani.sh`. U `r1-opus` a `r3-opus` je v `neplatny-pokus-2/` přepis neplatného
+pokusu o druhou zprávu (stream ze `claude -p`); surový soubor relace Claude Code nezveřejňuji,
+obsahuje interní metadata nástroje.
 
 ## Přepisy
 
