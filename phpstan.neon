@@ -6,6 +6,7 @@ parameters:
     paths:
         - src
         - tests
+        - tools
     excludePaths:
         # Stará administrace se zatím neanalyzuje (modul 10).
         - src/Legacy
