@@ -1,0 +1,20 @@
+# Konfigurace kontrol a hlídací testy se mění jen se schválením vlastníka (ochrana
+# větve main s povinným review od Code Owners se zapíná v nastavení repozitáře na GitHubu).
+/phpstan.neon                           @MichalKatuscak
+/phpstan-baseline.neon                  @MichalKatuscak
+/phpstan-legacy.neon                    @MichalKatuscak
+/phpstan-legacy-baseline.neon           @MichalKatuscak
+/deptrac.php                            @MichalKatuscak
+/deptrac.baseline.yaml                  @MichalKatuscak
+/rector.php                             @MichalKatuscak
+/infection.json5                        @MichalKatuscak
+/phpunit.dist.xml                       @MichalKatuscak
+/Makefile                               @MichalKatuscak
+/tools/                                 @MichalKatuscak
+/.claude/settings.json                  @MichalKatuscak
+/.claude/hooks/                         @MichalKatuscak
+/.github/                               @MichalKatuscak
+/tests/Legacy/CsrfTest.php              @MichalKatuscak
+/tests/Legacy/AuthRequireTest.php       @MichalKatuscak
+/tests/Legacy/SecurityFunctionsTest.php @MichalKatuscak
+/tests/PHPStan/                         @MichalKatuscak

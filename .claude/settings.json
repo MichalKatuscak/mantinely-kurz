@@ -1,5 +1,58 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(make check)",
+      "Bash(make check-changed)",
+      "Bash(make phpstan-legacy)",
+      "Bash(make test-domain)",
+      "Bash(vendor/bin/phpunit:*)",
+      "Bash(bin/console debug:*)"
+    ],
+    "ask": [
+      "Bash(composer require:*)",
+      "Bash(git push:*)",
+      "Bash(bin/console doctrine:migrations:migrate:*)",
+      "Bash(bin/console secrets:list --reveal:*)",
+      "Bash(bin/console secrets:reveal:*)",
+      "Bash(bin/console debug:container --env-vars:*)"
+    ],
+    "deny": [
+      "Read(./.env.local)",
+      "Read(./.env.*.local)",
+      "Read(./config/secrets/*/*.decrypt.private.php)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Edit(./phpstan.neon)",
+      "Edit(./phpstan-baseline.neon)",
+      "Edit(./phpstan-legacy.neon)",
+      "Edit(./phpstan-legacy-baseline.neon)",
+      "Edit(./deptrac.php)",
+      "Edit(./deptrac.baseline.yaml)",
+      "Edit(./Makefile)",
+      "Edit(./rector.php)",
+      "Edit(./infection.json5)",
+      "Edit(./phpunit.dist.xml)",
+      "Edit(./.github/workflows/**)",
+      "Edit(./.claude/settings.json)",
+      "Edit(./.claude/hooks/**)",
+      "Edit(./tests/Legacy/CsrfTest.php)",
+      "Edit(./tests/Legacy/AuthRequireTest.php)",
+      "Edit(./tests/Legacy/SecurityFunctionsTest.php)",
+      "Edit(./tests/PHPStan/**)"
+    ]
+  },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "php \"$CLAUDE_PROJECT_DIR/.claude/hooks/existujici-testy.php\""
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
