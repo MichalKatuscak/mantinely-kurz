@@ -1,0 +1,6 @@
+měsíc                   tržba
+bez objednávek          0,00 Kč
+se slevou               1 200,00 Kč
+se stornem              800,00 Kč
+přelom roku (prosinec)  400,00 Kč
+přelom roku (leden)     250,00 Kč

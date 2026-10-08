@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>Report měsíčních tržeb</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 13px; margin: 20px; }
+        h1 { font-size: 20px; margin-bottom: 0; }
+        .generated { color: #777; margin-top: 2px; }
+        table.report { border-collapse: collapse; margin-top: 15px; min-width: 400px; }
+        table.report td { border: 1px solid #ccc; padding: 4px 8px; }
+        table.report td.value { text-align: right; font-weight: bold; }
+        .noprint { margin-top: 20px; }
+        @media print { .noprint { display: none; } }
+    </style>
+</head>
+<body>
+<div class="report-header">
+    <h1>Report měsíčních tržeb</h1>
+    <p class="generated">vygenerováno D. M. RRRR</p>
+</div>
+
+<form method="get" class="noprint">
+    Měsíc: <input type="text" name="month" value="2025-11" size="8" placeholder="RRRR-MM">
+    <input type="submit" value="Zobrazit">
+</form>
+
+<table class="report">
+    <tr>
+        <td>Měsíc</td>
+        <td class="value">listopad 2025</td>
+    </tr>
+    <tr>
+        <td>Počet zaplacených objednávek</td>
+        <td class="value">0</td>
+    </tr>
+    <tr>
+        <td>Tržby celkem (CZK)</td>
+        <td class="value">0,00</td>
+    </tr>
+</table>
+
+<p class="note">Započteny jsou pouze zaplacené objednávky. Ceny v cizí měně přepočteny kurzem z tabulky kurzů.</p>
+
+<p class="noprint"><a href="javascript:window.print()">Vytisknout</a></p>
+</body>
+</html>
