@@ -1,0 +1,41 @@
+diff --git a/src/Ordering/Infrastructure/Export/OrderExport.php b/src/Ordering/Infrastructure/Export/OrderExport.php
+index 1bf3889..d3720fd 100644
+--- a/src/Ordering/Infrastructure/Export/OrderExport.php
++++ b/src/Ordering/Infrastructure/Export/OrderExport.php
+@@ -5,6 +5,7 @@ declare(strict_types=1);
+ namespace App\Ordering\Infrastructure\Export;
+ 
+ use App\Ordering\Domain\Model\Order;
++use App\Ordering\Util\MoneyHelper;
+ use App\SharedKernel\Domain\Money;
+ 
+ /**
+@@ -47,7 +48,7 @@ final class OrderExport
+ 
+     private function format(int $cents): string
+     {
+-        return number_format($cents / 100, 2, '.', '');
++        return MoneyHelper::format($cents);
+     }
+ 
+     private function cents(Money $money): int
+diff --git a/src/Ordering/Util/MoneyHelper.php b/src/Ordering/Util/MoneyHelper.php
+new file mode 100644
+index 0000000..0be920d
+--- /dev/null
++++ b/src/Ordering/Util/MoneyHelper.php
+@@ -0,0 +1,14 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Util;
++
++// Porušení 3: nová třída v adresáři, který žádná vrstva v deptrac.php nezná.
++final class MoneyHelper
++{
++    public static function format(int $cents): string
++    {
++        return number_format($cents / 100, 2, '.', '');
++    }
++}

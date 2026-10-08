@@ -18,12 +18,15 @@ test:
 test-domain:
 	vendor/bin/phpunit --no-progress --testsuite domain
 
+# Změněné řádky, ve kterých Infection nenajde nic k mutaci (třeba jen volání),
+# práh MSI neshodí.
 infection:
 	@if git diff --quiet $(INFECTION_BASE) -- src; then \
 		echo "Infection: žádné změněné řádky v src/ od $(INFECTION_BASE)"; \
 	else \
 		vendor/bin/infection --git-diff-lines --git-diff-base=$(INFECTION_BASE) \
-			--threads=1 --no-progress --show-mutations --min-covered-msi=80; \
+			--threads=1 --no-progress --show-mutations --min-covered-msi=80 \
+			--ignore-msi-with-no-mutations; \
 	fi
 
 # Celý běh Infection (CI jednou týdně).

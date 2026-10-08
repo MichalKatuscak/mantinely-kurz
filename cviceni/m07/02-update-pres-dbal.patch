@@ -1,0 +1,54 @@
+diff --git a/src/Ordering/Application/Command/CancelOrder.php b/src/Ordering/Application/Command/CancelOrder.php
+new file mode 100644
+index 0000000..2fa7072
+--- /dev/null
++++ b/src/Ordering/Application/Command/CancelOrder.php
+@@ -0,0 +1,15 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Command;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++
++final readonly class CancelOrder
++{
++    public function __construct(
++        public OrderId $orderId,
++        public string $reason = '',
++    ) {}
++}
+diff --git a/src/Ordering/Application/Handler/CancelOrderHandler.php b/src/Ordering/Application/Handler/CancelOrderHandler.php
+new file mode 100644
+index 0000000..40a4ff9
+--- /dev/null
++++ b/src/Ordering/Application/Handler/CancelOrderHandler.php
+@@ -0,0 +1,27 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Handler;
++
++use App\Ordering\Application\Command\CancelOrder;
++use Doctrine\DBAL\Connection;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++// Porušení 2: aplikační vrstva mění stav objednávky přímým UPDATE přes spojení
++// s databází. Pravidla PHPStanu pro starou administraci ho nevidí, agregát se obejde.
++#[AsMessageHandler(bus: 'command.bus')]
++final readonly class CancelOrderHandler
++{
++    public function __construct(
++        private Connection $connection,
++    ) {}
++
++    public function __invoke(CancelOrder $command): void
++    {
++        $this->connection->executeStatement(
++            'UPDATE orders SET status = ? WHERE id = ?',
++            ['cancelled', $command->orderId->value],
++        );
++    }
++}

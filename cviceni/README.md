@@ -13,3 +13,17 @@ Deptrac (modul 7). Zpátky: `git checkout -- . && git clean -fd src tests`.
   zápisem do `orders` a `stock_items` (`src/Legacy/lib/OrderCancellation.php`,
   `StockReport::releaseReservations()`). Proti diffu běhu se liší jen hlavičky (čísla
   řádků, hashe), přidané a odebrané řádky jsou stejné.
+
+## Modul 7: čtyři porušení hranic
+
+Každé porušení je samostatný patch. Nasazuje se přes `git apply`, vrací přes `git apply -R`.
+
+| Patch | Porušení |
+|---|---|
+| `m07/01-handler-vola-stockitem.patch` | handler storna z Orderingu načte `StockItem` z Inventory a uvolní rezervaci sám |
+| `m07/02-update-pres-dbal.patch` | aplikační vrstva pošle `UPDATE orders` přes `Doctrine\DBAL\Connection`; pravidla PHPStanu pro starou administraci ho nevidí, hlídají jen `src/Legacy` |
+| `m07/03-trida-mimo-vrstvy.patch` | nová třída `src/Ordering/Util/MoneyHelper.php` v adresáři, který žádná vrstva nezná |
+| `m07/04-legacy-vola-sklad.patch` | stará administrace si vezme repozitář skladu (`StockItemRepository`) a rezervace objednávky uvolní sama, bez příkazu a bez SQL |
+
+Na všech čtyřech patchích projdou testy i PHPStan. `make check` s Deptracem
+(`--fail-on-uncovered`) má selhat na každém z nich.
