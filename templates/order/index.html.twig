@@ -16,7 +16,7 @@
         </thead>
         <tbody>
             {% for order in orders %}
-                <tr>
+                <tr data-paid-cents="{{ order.paidAmount.getAmountInCents }}">
                     <td><a href="{{ path('order_detail', {id: order.id.value}) }}">{{ order.id.value }}</a></td>
                     <td>{{ order.status.value }}</td>
                     <td>{{ order.paidAmount|money }}</td>
@@ -25,5 +25,10 @@
                 <tr><td colspan="3">Zatím žádné objednávky.</td></tr>
             {% endfor %}
         </tbody>
+        <tfoot>
+            <tr><th colspan="2">Celkem zaplaceno ({{ totals.count }})</th><td>{{ totals.paid|money }}</td></tr>
+        </tfoot>
     </table>
+
+    <p><a href="{{ path('order_export') }}">Stáhnout CSV</a></p>
 {% endblock %}

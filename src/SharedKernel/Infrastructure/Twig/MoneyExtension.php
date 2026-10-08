@@ -22,7 +22,7 @@ final class MoneyExtension
 
         return sprintf(
             '%s %s',
-            number_format($money->amountInCents / 100, 2, ',', ' '),
+            number_format($money->getAmountInCents() / 100, 2, ',', ' '),
             $symbol,
         );
     }

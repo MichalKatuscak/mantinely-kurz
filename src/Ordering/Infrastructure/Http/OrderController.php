@@ -11,11 +11,13 @@ use App\Ordering\Application\Command\PayOrder;
 use App\Ordering\Application\Command\PlaceOrder;
 use App\Ordering\Application\Command\RemoveOrderItem;
 use App\Ordering\Application\Port\ProductCatalog;
+use App\Ordering\Application\Query\OrderTotals;
 use App\Ordering\Domain\Model\Order;
 use App\Ordering\Domain\Repository\OrderRepository;
 use App\Ordering\Domain\ValueObject\CustomerId;
 use App\Ordering\Domain\ValueObject\OrderId;
 use App\Ordering\Domain\ValueObject\ProductId;
+use App\Ordering\Infrastructure\Export\OrderExport;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,9 +38,22 @@ final class OrderController extends AbstractController
     #[Route('', name: 'order_index', methods: ['GET'])]
     public function index(): Response
     {
+        $orders = $this->orders->findByCustomer($this->customerId());
+
         return $this->render('order/index.html.twig', [
-            'orders' => $this->orders->findByCustomer($this->customerId()),
+            'orders' => $orders,
+            'totals' => OrderTotals::of($orders),
         ]);
+    }
+
+    #[Route('/export.csv', name: 'order_export', methods: ['GET'])]
+    public function export(OrderExport $export): Response
+    {
+        return new Response(
+            $export->toCsv($this->orders->findByCustomer($this->customerId())),
+            Response::HTTP_OK,
+            ['Content-Type' => 'text/csv; charset=UTF-8'],
+        );
     }
 
     #[Route('', name: 'order_place', methods: ['POST'])]

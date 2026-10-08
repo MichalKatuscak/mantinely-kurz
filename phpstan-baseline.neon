@@ -1,2 +1,67 @@
 parameters:
 	ignoreErrors:
+		-
+			message: '#^Binary operation "\+\=" between \(float\|int\) and mixed results in an error\.$#'
+			identifier: assignOp.invalid
+			count: 1
+			path: src/Ordering/Application/Query/OrderTotals.php
+
+		-
+			message: '#^Cannot call method getAmountInCents\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Ordering/Application/Query/OrderTotals.php
+
+		-
+			message: '#^Cannot access property \$currency on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Ordering/Infrastructure/Export/InvoiceLine.php
+
+		-
+			message: '#^Cannot call method getAmountInCents\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Ordering/Infrastructure/Export/InvoiceLine.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 1
+			path: src/Ordering/Infrastructure/Export/InvoiceLine.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: src/Ordering/Infrastructure/Export/InvoiceLine.php
+
+		-
+			message: '#^Parameter \#1 \$amountInCents of class App\\SharedKernel\\Domain\\Money constructor expects int, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Ordering/Infrastructure/Export/InvoiceLine.php
+
+		-
+			message: '#^Parameter \#2 \$currency of class App\\SharedKernel\\Domain\\Money constructor expects App\\SharedKernel\\Domain\\Currency, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Ordering/Infrastructure/Export/InvoiceLine.php
+
+		-
+			message: '#^Cannot call method getAmountInCents\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Ordering/Infrastructure/Export/OrderExport.php
+
+		-
+			message: '#^Method App\\Ordering\\Infrastructure\\Export\\OrderExport\:\:cents\(\) has parameter \$money with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Ordering/Infrastructure/Export/OrderExport.php
+
+		-
+			message: '#^Method App\\Ordering\\Infrastructure\\Export\\OrderExport\:\:cents\(\) should return int but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Ordering/Infrastructure/Export/OrderExport.php

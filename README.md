@@ -52,3 +52,6 @@ události v minulém čase bez přípony, `Money` v haléřích s enumem `Curren
   který vrací kopii položek; Doctrine mapuje soukromou kolekci `lines`.
 - **Katalog zboží** čte tabulku `products` staré administrace přes port
   `ProductCatalog`; vlastní katalog kniha neřeší.
+- **Přežitek `Money::getAmountInCents()`** (od `m06-start` do `m06-end`). Kniha čte
+  `$money->amountInCents`. Getter s 32 voláními, z toho pět na proměnných bez typu, je tu
+  záměrně: lekce 6.3 na něm ukazuje vlastní pravidlo pro Rector a v `m06-end` getter mizí.
