@@ -13,6 +13,7 @@ auth_require('ucetni');
 $zprava = '';
 
 if (is_post()) {
+    csrf_check();
     $kurzy = post_param('rate', array());
     if (is_array($kurzy)) {
         foreach ($kurzy as $mena => $kurz) {
@@ -40,7 +41,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
 ?>
 <h1>Kurzy měn</h1>
 <?php if ($zprava != '') { ?><p class="msg"><?php echo h($zprava); ?></p><?php } ?>
-<form method="post">
+<form method="post"><?php echo csrf_field(); ?>
 <table class="grid" style="width:auto">
     <tr><th>Měna</th><th>Kurz (Kč za 1 jednotku)</th><th>Změněno</th></tr>
 <?php foreach ($kurzy as $k) { ?>

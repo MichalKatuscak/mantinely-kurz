@@ -40,6 +40,7 @@ class InvoiceController extends BaseController
 
     public function issueAction()
     {
+        auth_require('ucetni');
         $orderId = get_param('order');
         $id = InvoiceHelper::issue($orderId);
         if ($id === false) {

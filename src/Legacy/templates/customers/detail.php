@@ -15,10 +15,10 @@
 </table>
 <p><a href="<?php echo h(admin_url('customer_edit', array('id' => $customer['id']))); ?>">Upravit</a></p>
 
-<form method="post" action="<?php echo h(admin_url('customer_anonymize')); ?>" onsubmit="return confirm('Anonymizovat? Nelze vrátit.')" style="display:inline">
+<form method="post" action="<?php echo h(admin_url('customer_anonymize')); ?>" onsubmit="return confirm('Anonymizovat? Nelze vrátit.')" style="display:inline"><?php echo csrf_field(); ?>
     <input type="hidden" name="id" value="<?php echo h($customer['id']); ?>"><input type="submit" value="Anonymizovat (GDPR)">
 </form>
-<form method="post" action="<?php echo h(admin_url('customer_delete')); ?>" onsubmit="return confirm('Smazat?')" style="display:inline">
+<form method="post" action="<?php echo h(admin_url('customer_delete')); ?>" onsubmit="return confirm('Smazat?')" style="display:inline"><?php echo csrf_field(); ?>
     <input type="hidden" name="id" value="<?php echo h($customer['id']); ?>"><input type="submit" value="Smazat">
 </form>
 

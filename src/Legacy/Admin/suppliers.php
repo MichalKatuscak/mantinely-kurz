@@ -10,6 +10,7 @@ auth_require('sklad');
 $zprava = '';
 
 if (is_post()) {
+    csrf_check();
     $akce = post_param('akce');
     if ($akce == 'ulozit') {
         $sid = (int) post_param('id', 0);
@@ -50,7 +51,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
     <tr><th>Název</th><th>E-mail</th><th>IČO</th><th class="num">Produktů</th><th></th></tr>
 <?php foreach ($dodavatele as $d) { ?>
     <tr>
-        <form method="post">
+        <form method="post"><?php echo csrf_field(); ?>
         <td><input type="hidden" name="akce" value="ulozit"><input type="hidden" name="id" value="<?php echo (int) $d['id']; ?>"><input type="text" name="name" value="<?php echo h($d['name']); ?>"></td>
         <td><input type="text" name="email" value="<?php echo h($d['email']); ?>"></td>
         <td><input type="text" name="ico" value="<?php echo h($d['ico']); ?>" size="10"></td>
@@ -60,7 +61,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
     </tr>
 <?php } ?>
     <tr>
-        <form method="post">
+        <form method="post"><?php echo csrf_field(); ?>
         <td><input type="hidden" name="akce" value="ulozit"><input type="text" name="name" placeholder="nový dodavatel"></td>
         <td><input type="text" name="email"></td>
         <td><input type="text" name="ico" size="10"></td>
@@ -71,7 +72,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
 </table>
 
 <h2>Import ceníku (rozpracováno)</h2>
-<form method="post">
+<form method="post"><?php echo csrf_field(); ?>
     <input type="hidden" name="akce" value="import">
     <textarea name="csv" rows="6" cols="70" placeholder="sku;název;cena"></textarea><br>
     <input type="submit" value="Načíst">

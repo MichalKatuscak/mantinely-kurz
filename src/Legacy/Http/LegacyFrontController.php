@@ -21,11 +21,14 @@ use App\Legacy\Admin\ProductController;
 use App\Legacy\Admin\ReportController;
 use App\Legacy\Admin\StockController;
 use App\Legacy\Admin\UserController;
+use App\Legacy\lib\AccessDenied;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class LegacyFrontController
 {
@@ -34,6 +37,17 @@ class LegacyFrontController
         private MessageBusInterface $commandBus,
     ) {
     }
+
+    /**
+     * Role Symfony uzivatele -> role stare administrace (admin_users.role).
+     * Prvni nalezena vyhrava; personal bez nich smi jen stranky s auth_require() bez role.
+     */
+    private static $roles = array(
+        'ROLE_ADMIN'  => 'admin',
+        'ROLE_OBCHOD' => 'obchod',
+        'ROLE_UCETNI' => 'ucetni',
+        'ROLE_SKLAD'  => 'sklad',
+    );
 
     /**
      * Povolene stranky: page => array(trida, metoda) nebo nazev souboru v Admin/.
@@ -98,7 +112,7 @@ class LegacyFrontController
         'order_item_quantity'=> array(OrderController::class, 'changeItemQuantityAction'),
     );
 
-    public function __invoke(Request $request, string $page = 'dashboard'): Response
+    public function __invoke(Request $request, string $page = 'dashboard', #[CurrentUser] ?UserInterface $user = null): Response
     {
         require_once __DIR__ . '/../bootstrap.php';
 
@@ -111,6 +125,10 @@ class LegacyFrontController
         $_POST = $request->request->all();
         $_REQUEST = array_merge($_GET, $_POST);
         $_SERVER['REQUEST_METHOD'] = $request->getMethod();
+
+        // prihlaseny uzivatel pro auth_user()/auth_require() a token pro csrf_check()
+        $GLOBALS['LEGACY_USER'] = $user === null ? null : self::legacyUser($user);
+        $GLOBALS['LEGACY_CSRF_TOKEN'] = self::csrfToken($request);
 
         $GLOBALS['LEGACY_REDIRECT'] = null;
         $GLOBALS['LEGACY_STATUS'] = 200;
@@ -143,10 +161,15 @@ class LegacyFrontController
                 $this->includePage(__DIR__ . '/../Admin/' . $target);
                 $html = ob_get_clean();
             }
+        } catch (AccessDenied $e) {
+            // auth_require() nebo csrf_check(); driv die()
+            return new Response('<h1>403</h1><p>' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</p>', 403);
         } finally {
             while (ob_get_level() > $level) {
                 ob_end_clean();
             }
+            // uzivatel a token patri jen tomuto pozadavku
+            unset($GLOBALS['LEGACY_USER'], $GLOBALS['LEGACY_CSRF_TOKEN']);
         }
 
         if (!empty($GLOBALS['LEGACY_REDIRECT'])) {
@@ -160,6 +183,37 @@ class LegacyFrontController
         }
 
         return $response;
+    }
+
+    /**
+     * Symfony uzivatel ve tvaru radku admin_users, jak ho cte auth_user().
+     */
+    private static function legacyUser(UserInterface $user)
+    {
+        $role = '';
+        foreach (self::$roles as $symfonyRole => $legacyRole) {
+            if (in_array($symfonyRole, $user->getRoles(), true)) {
+                $role = $legacyRole;
+                break;
+            }
+        }
+
+        return array('id' => null, 'login' => $user->getUserIdentifier(), 'role' => $role);
+    }
+
+    /**
+     * Jeden CSRF token na session (viz lib/csrf.php).
+     */
+    private static function csrfToken(Request $request)
+    {
+        $session = $request->getSession();
+        $token = $session->get('legacy_csrf_token');
+        if (!is_string($token) || $token === '') {
+            $token = bin2hex(random_bytes(32));
+            $session->set('legacy_csrf_token', $token);
+        }
+
+        return $token;
     }
 
     /**

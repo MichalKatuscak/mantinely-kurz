@@ -33,6 +33,7 @@ if ($id != '') {
 $chyby = array();
 
 if (is_post()) {
+    csrf_check();
     $produkt['sku'] = strtoupper(post_param('sku'));
     $produkt['name'] = post_param('name');
     $produkt['description'] = post_param('description');
@@ -100,7 +101,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
 ?>
 <h1><?php echo h($pageTitle); ?></h1>
 <?php foreach ($chyby as $ch) { ?><p class="err"><?php echo h($ch); ?></p><?php } ?>
-<form method="post">
+<form method="post"><?php echo csrf_field(); ?>
 <input type="hidden" name="id" value="<?php echo h($produkt['id']); ?>">
 <table class="grid" style="width:auto">
     <tr><th>SKU</th><td><input type="text" name="sku" value="<?php echo h($produkt['sku']); ?>"></td></tr>

@@ -21,6 +21,7 @@ $znama = array(
 $zprava = '';
 
 if (is_post()) {
+    csrf_check();
     $hodnoty = post_param('settings', array());
     if (is_array($hodnoty)) {
         foreach ($hodnoty as $name => $value) {
@@ -57,7 +58,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
 ?>
 <h1>Nastavení</h1>
 <?php if ($zprava != '') { ?><p class="msg"><?php echo h($zprava); ?></p><?php } ?>
-<form method="post">
+<form method="post"><?php echo csrf_field(); ?>
 <table class="grid" style="width:auto">
 <?php foreach ($vsechna as $name => $value) { ?>
     <tr>

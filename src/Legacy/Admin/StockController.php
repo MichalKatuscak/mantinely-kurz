@@ -71,7 +71,9 @@ class StockController extends BaseController
      */
     public function inventoryAction()
     {
+        auth_require('sklad');
         if (is_post()) {
+            csrf_check();
             $qty = post_param('qty', array());
             if (is_array($qty)) {
                 foreach ($qty as $pid => $q) {

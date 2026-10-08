@@ -77,6 +77,8 @@ class CustomerController extends BaseController
     {
         global $db;
         legacy_db();
+        auth_require('obchod');
+        csrf_check();
         $id = post_param('id');
         if ($id == '') {
             return $this->redirect(admin_url('customers'));
@@ -101,6 +103,8 @@ class CustomerController extends BaseController
     {
         global $db;
         legacy_db();
+        auth_require('obchod');
+        csrf_check();
         $id = post_param('id');
         $db->exec("UPDATE customers SET email = 'anonym-" . substr(md5($id), 0, 8) . "@example.invalid', name = 'Anonymizováno', phone = '', note = '', newsletter = 0 WHERE id = '" . $id . "'");
         audit_log('customer', $id, 'anonymize');

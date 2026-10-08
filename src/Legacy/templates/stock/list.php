@@ -12,7 +12,7 @@ $inventory = isset($inventory) && $inventory;
     <a href="<?php echo h(admin_url('stock_inventory')); ?>">Inventura</a>
 </p>
 <?php } ?>
-<form method="post" action="<?php echo h(admin_url('stock_inventory')); ?>">
+<form method="post" action="<?php echo h(admin_url('stock_inventory')); ?>"><?php echo csrf_field(); ?>
 <table class="grid">
     <tr><th>SKU</th><th>Produkt</th><th class="num">Skladem</th><th class="num">Rezervováno</th><th class="num">Dostupné</th><?php if ($inventory) { ?><th>Nový stav</th><?php } ?></tr>
 <?php foreach ($rows as $r) { ?>

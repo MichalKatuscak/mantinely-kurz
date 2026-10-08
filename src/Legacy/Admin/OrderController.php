@@ -108,6 +108,10 @@ class OrderController extends BaseController
     {
         global $db;
         legacy_db();
+        auth_require('obchod');
+        if (is_post()) {
+            csrf_check();
+        }
 
         $id = get_param('id');
         $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
@@ -196,6 +200,10 @@ class OrderController extends BaseController
     {
         global $db;
         legacy_db();
+        auth_require('obchod');
+        if (is_post()) {
+            csrf_check();
+        }
 
         $id = get_param('id');
         $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));

@@ -11,6 +11,7 @@
 global $db;
 legacy_db();
 auth_require('obchod');
+csrf_check();
 
 $ids = isset($_POST['ids']) ? $_POST['ids'] : array();
 $action = isset($_POST['action']) ? (string) $_POST['action'] : '';

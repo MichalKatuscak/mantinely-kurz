@@ -5,7 +5,7 @@
   {% for order in orders %}
     <article>
       <h2>{{ order.id.value }}</h2>
-      <p>{{ order.cancellationNote|raw }}</p>
+      <p>{{ order.cancellationNote }}</p>
     </article>
   {% endfor %}
 {% endblock %}

@@ -22,6 +22,8 @@ class UserController extends BaseController
     {
         global $db;
         legacy_db();
+        auth_require('admin');
+        csrf_check();
 
         $id = (int) post_param('id', 0);
         $login = post_param('login');
@@ -59,6 +61,8 @@ class UserController extends BaseController
     {
         global $db;
         legacy_db();
+        auth_require('admin');
+        csrf_check();
         $id = (int) post_param('id', 0);
         // nesmi smazat sam sebe
         $me = auth_user();

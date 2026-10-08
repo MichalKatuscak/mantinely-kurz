@@ -28,6 +28,7 @@ $errors = array();
 $msg = '';
 
 if (is_post()) {
+    csrf_check();
     $newStatus = post_param('status');
     $discount = post_param('discount');
 
@@ -102,7 +103,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
 <?php if ($msg != '') { ?><p class="msg"><?php echo h($msg); ?></p><?php } ?>
 <?php foreach ($errors as $e) { ?><p class="err"><?php echo h($e); ?></p><?php } ?>
 
-<form method="post">
+<form method="post"><?php echo csrf_field(); ?>
 <input type="hidden" name="id" value="<?php echo h($order['id']); ?>">
 <table class="grid" style="width:auto">
     <tr><th>Zákazník</th><td><?php echo h(customer_name($order['customer_id'])); ?></td></tr>

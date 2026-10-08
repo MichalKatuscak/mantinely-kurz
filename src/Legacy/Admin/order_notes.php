@@ -20,6 +20,7 @@ if ($objednavka === null) {
 }
 
 if (is_post()) {
+    csrf_check();
     $text = post_param('note');
     if ($text != '') {
         $db->exec("INSERT INTO order_notes (order_id, author, note, created_at) VALUES ('" . $orderId . "', '"
@@ -42,7 +43,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
 <h1>Poznámky k objednávce <?php echo h($orderId); ?></h1>
 <p>Stav: <?php echo h(order_state_label($objednavka['status'])); ?>, zákazník: <?php echo h(customer_name($objednavka['customer_id'])); ?></p>
 
-<form method="post">
+<form method="post"><?php echo csrf_field(); ?>
     <input type="hidden" name="order" value="<?php echo h($orderId); ?>">
     <textarea name="note" rows="4" cols="70"></textarea><br>
     <input type="submit" value="Přidat poznámku">
@@ -51,7 +52,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
 <?php foreach ($poznamky as $p) { ?>
 <div style="border-bottom:1px solid #ddd;padding:5px 0">
     <strong><?php echo h($p['author']); ?></strong> – <?php echo format_date($p['created_at'], true); ?>
-    <form method="post" style="display:inline" onsubmit="return confirm('Smazat poznámku?')">
+    <form method="post" style="display:inline" onsubmit="return confirm('Smazat poznámku?')"><?php echo csrf_field(); ?>
         <input type="hidden" name="order" value="<?php echo h($orderId); ?>">
         <input type="hidden" name="delete" value="<?php echo (int) $p['id']; ?>">
         <input type="submit" value="×">

@@ -38,7 +38,7 @@
         <td><?php echo h($it['sku']); ?></td>
         <td class="num">
         <?php if ($order['status'] == 'draft') { ?>
-            <form method="post" action="<?php echo h(admin_url('order_item_quantity', array('id' => $order['id']))); ?>">
+            <form method="post" action="<?php echo h(admin_url('order_item_quantity', array('id' => $order['id']))); ?>"><?php echo csrf_field(); ?>
                 <input type="hidden" name="product" value="<?php echo h($it['product_id']); ?>">
                 <input type="number" name="quantity" value="<?php echo (int) $it['quantity']; ?>" min="1" style="width:4em">
                 <input type="submit" value="Změnit">
@@ -63,7 +63,7 @@
 
 <?php if (in_array($order['status'], array('draft', 'confirmed', 'paid'))) { ?>
 <form method="post" action="<?php echo h(admin_url('order_cancel', array('id' => $order['id']))); ?>"
-      onsubmit="return confirm('Opravdu stornovat objednávku? Zákazník dostane zpět zaplacenou částku a zboží se vrátí na sklad.');">
+      onsubmit="return confirm('Opravdu stornovat objednávku? Zákazník dostane zpět zaplacenou částku a zboží se vrátí na sklad.');"><?php echo csrf_field(); ?>
     Důvod storna: <input type="text" name="reason" size="40">
     <input type="submit" value="Stornovat objednávku">
 </form>

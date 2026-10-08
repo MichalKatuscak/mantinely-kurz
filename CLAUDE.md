@@ -20,6 +20,7 @@
 - Ordering a Inventory spolu mluví jen přes doménové události
 - Stav objednávky a skladu mění jen doména, i ze `src/Legacy` (command, ne SQL)
 - Každá hodnota v SQL přes `$db->quote()` nebo přetypování (`(int)`), nikdy vlepená proměnná
+- Akce, která mění data: POST formulář s `csrf_field()`, akce volá `auth_require('<role>')` a `csrf_check()` dřív, než něco zapíše
 - Události v minulém čase bez přípony `Event`, command na command busu bez přípony `Command`
 - Částky drž v haléřích jako int (`Money::$amountInCents`), měnu ber z enumu `Currency`
 - Bez výslovného zadání neměň chování ani signatury existujících metod (hlavně doménových: `Order`, `StockItem`), konfiguraci (`config/`, `*.neon`, `Makefile`) ani existující testy. Když bez toho úkol nejde, zastav se a řekni to.

@@ -66,6 +66,8 @@ class ProductController extends BaseController
     {
         global $db;
         legacy_db();
+        auth_require('obchod');
+        csrf_check();
         $ids = post_param('ids', array());
         $percent = (float) str_replace(',', '.', (string) post_param('percent', '0'));
         if (!is_array($ids) || count($ids) == 0 || $percent == 0) {
@@ -85,6 +87,7 @@ class ProductController extends BaseController
     {
         global $db;
         legacy_db();
+        auth_require('obchod');
         $id = get_param('id');
         $db->exec("UPDATE products SET active = 1 - active WHERE id = '" . $id . "'");
         audit_log('product', $id, 'toggle');

@@ -11,6 +11,7 @@ auth_require('obchod');
 $zprava = '';
 
 if (is_post()) {
+    csrf_check();
     $predmet = post_param('subject');
     $text = post_param('body');
     $test = post_param('test');
@@ -54,7 +55,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
 <p>Odběratelů: <strong><?php echo $odberatelu; ?></strong>, ve frontě: <strong><?php echo $fronta; ?></strong>, odesláno celkem: <?php echo $odeslano; ?>
 <?php if ($fronta > 0) { ?> | <a href="<?php echo h(admin_url('newsletter', array('smazat_frontu' => 1))); ?>" onclick="return confirm('Smazat neodeslané?')">smazat frontu</a><?php } ?></p>
 
-<form method="post">
+<form method="post"><?php echo csrf_field(); ?>
 <table class="grid" style="width:auto">
     <tr><th>Předmět</th><td><input type="text" name="subject" size="60"></td></tr>
     <tr><th>Text</th><td><textarea name="body" rows="12" cols="70">Dobrý den, {jmeno},

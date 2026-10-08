@@ -13,7 +13,7 @@
     <a href="<?php echo h(admin_url('product_edit')); ?>">+ nový produkt</a>
 </form>
 
-<form method="post" action="<?php echo h(admin_url('products_bulk_price')); ?>">
+<form method="post" action="<?php echo h(admin_url('products_bulk_price')); ?>"><?php echo csrf_field(); ?>
 <table class="grid">
     <tr><th></th><th>SKU</th><th>Název</th><th>Dodavatel</th><th class="num">Cena</th><th class="num">Skladem</th><th class="num">Rezervováno</th><th>Aktivní</th><th></th></tr>
 <?php foreach ($products as $p) { ?>

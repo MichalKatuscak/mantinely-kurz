@@ -24,11 +24,22 @@ final class DemoCustomerProvider implements UserProviderInterface
 
     public const string STAFF = '0192f0a0-1c3e-7c00-8c00-000000000003';
 
-    /** @var array<non-empty-string, array{string, list<string>}> */
+    public const string SALES = '0192f0a0-1c3e-7c00-8c00-000000000004';
+
+    public const string WAREHOUSE = '0192f0a0-1c3e-7c00-8c00-000000000005';
+
+    /**
+     * Personál má ROLE_STAFF (vstup do administrace) a roli staré administrace:
+     * ROLE_ADMIN, ROLE_OBCHOD, ROLE_SKLAD nebo ROLE_UCETNI (viz auth_require()).
+     *
+     * @var array<non-empty-string, array{string, list<string>}>
+     */
     private const array USERS = [
         'alice@example.com' => [self::ALICE, ['ROLE_CUSTOMER']],
         'bob@example.com' => [self::BOB, ['ROLE_CUSTOMER']],
-        'sprava@example.com' => [self::STAFF, ['ROLE_STAFF']],
+        'sprava@example.com' => [self::STAFF, ['ROLE_STAFF', 'ROLE_ADMIN']],
+        'obchod@example.com' => [self::SALES, ['ROLE_STAFF', 'ROLE_OBCHOD']],
+        'sklad@example.com' => [self::WAREHOUSE, ['ROLE_STAFF', 'ROLE_SKLAD']],
     ];
 
     public function loadUserByIdentifier(string $identifier): SecurityUser

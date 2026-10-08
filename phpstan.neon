@@ -8,10 +8,13 @@ parameters:
         - tests
         - tools
     excludePaths:
-        # Stará administrace se zatím neanalyzuje (modul 10).
-        - src/Legacy
-        # Ukázky pro testy pravidel obsahují chyby záměrně.
-        - tests/PHPStan/data
+        analyse:
+            # Stará administrace se zatím neanalyzuje (modul 10), jen se čte kvůli
+            # typům: testy volají její funkce (auth_require(), csrf_*()).
+            - src/Legacy
+        analyseAndScan:
+            # Ukázky pro testy pravidel obsahují chyby záměrně.
+            - tests/PHPStan/data
     tmpDir: var/cache/phpstan
     symfony:
         # Vzniká při bin/console cache:warmup, make check ho spouští před PHPStanem.

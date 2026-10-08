@@ -67,11 +67,19 @@ final class OrderCancelTest extends WebTestCase
         $order->ship();
         self::getContainer()->get(OrderRepository::class)->save($order);
 
-        $this->client->request('POST', '/admin/legacy/order_cancel?id='.$order->id->value);
+        $this->client->request('POST', '/admin/legacy/order_cancel?id='.$order->id->value, ['_csrf' => $this->token()]);
 
         self::assertSelectorTextContains('.flash.error', 'nelze stornovat');
         self::assertSame(OrderStatus::Shipped, $this->reloaded($order)->status);
         self::assertSame(8, $this->stock()->available());
+    }
+
+    private function token(): string
+    {
+        $token = $this->client->request('GET', '/admin/legacy/orders')->filter('input[name="_csrf"]')->first()->attr('value');
+        self::assertIsString($token);
+
+        return $token;
     }
 
     private function paidOrderWithDiscount(): Order

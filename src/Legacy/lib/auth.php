@@ -3,9 +3,12 @@
  * Prihlasovani do administrace.
  *
  * Hesla jsou MD5 (2014). FIXME: prejit na password_hash, az bude cas.
- * Od 2024 pred administraci stoji Symfony firewall, takze auth_require()
- * uz nic neblokuje – nechavame kvuli roli v session.
+ * Od 2024 pred administraci stoji Symfony firewall (prihlaseni, ROLE_STAFF).
+ * Prihlaseneho uzivatele s roli predava LegacyFrontController do
+ * $GLOBALS['LEGACY_USER'], auth_require() podle nej kontroluje roli.
  */
+
+use App\Legacy\lib\AccessDenied;
 
 function auth_login($login, $password)
 {
@@ -71,18 +74,22 @@ function auth_has_role($role)
     return $u['role'] == $role;
 }
 
+/**
+ * Pusti dal jen prihlaseneho uzivatele s roli $role (admin muze vsechno),
+ * jinak vyhodi AccessDenied (-> 403). Bez $role staci byt prihlaseny.
+ *
+ * Firewall pred /admin pousti jen ROLE_STAFF, roli stare administrace
+ * (admin, obchod, sklad, ucetni) prebira LegacyFrontController z roli
+ * Symfony uzivatele (ROLE_ADMIN, ROLE_OBCHOD, ...).
+ */
 function auth_require($role = null)
 {
-    // docasne vypnuto 2024, resi to firewall pred /admin – martin
-    return true;
-
-    /*
     if (auth_user() === null) {
-        header('Location: login.php');
-        exit;
+        throw new AccessDenied('Nepřihlášený uživatel');
     }
     if ($role !== null && !auth_has_role($role)) {
-        die('Nemáte oprávnění');
+        throw new AccessDenied('Nemáte oprávnění');
     }
-    */
+
+    return true;
 }

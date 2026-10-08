@@ -14,7 +14,7 @@
     <input type="submit" value="Filtrovat">
 </form>
 
-<form method="post" action="<?php echo h(admin_url('orders_bulk')); ?>" onsubmit="return confirm('Opravdu stornovat vybrané objednávky?')">
+<form method="post" action="<?php echo h(admin_url('orders_bulk')); ?>" onsubmit="return confirm('Opravdu stornovat vybrané objednávky?')"><?php echo csrf_field(); ?>
 <table class="grid">
     <tr>
         <th><input type="checkbox" onclick="var c=document.querySelectorAll('.chk');for(var i=0;i<c.length;i++)c[i].checked=this.checked"></th>

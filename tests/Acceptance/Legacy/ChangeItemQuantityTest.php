@@ -53,10 +53,11 @@ final class ChangeItemQuantityTest extends WebTestCase
         $orders->save($order);
 
         // akce: obsluha ve staré administraci změní množství na 3 kusy
+        $token = $this->client->request('GET', '/admin/legacy/orders')->filter('input[name="_csrf"]')->first()->attr('value');
         $this->client->request(
             'POST',
             '/admin/legacy/order_item_quantity?id='.$order->id->value,
-            ['product' => Catalog::KEYBOARD, 'quantity' => '3'],
+            ['product' => Catalog::KEYBOARD, 'quantity' => '3', '_csrf' => $token],
         );
 
         // ověření: chyba, množství i částky beze změny
