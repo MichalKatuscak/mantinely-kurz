@@ -10,6 +10,7 @@ use App\Ordering\Domain\Event\OrderItemAdded;
 use App\Ordering\Domain\Event\OrderPaid;
 use App\Ordering\Domain\Event\OrderPlaced;
 use App\Ordering\Domain\Exception\CurrencyMismatchException;
+use App\Ordering\Domain\Exception\DiscountExceedsItemsTotalException;
 use App\Ordering\Domain\Exception\EmptyOrderException;
 use App\Ordering\Domain\Exception\InvalidOrderStateTransitionException;
 use App\Ordering\Domain\Exception\InvalidQuantityException;
@@ -258,6 +259,22 @@ final class OrderTest extends TestCase
     }
 
     #[Test]
+    public function discountUpToItemsTotalIsAccepted(): void
+    {
+        $order = $this->orderWithItemsTotal(1000_00);
+        $order->applyDiscount(new Money(100_00, Currency::CZK));
+        self::assertSame(100_00, $order->discount->amountInCents);
+    }
+
+    #[Test]
+    public function discountAboveItemsTotalIsRejected(): void
+    {
+        $order = $this->orderWithItemsTotal(1000_00);
+        $this->expectException(DiscountExceedsItemsTotalException::class);
+        $order->applyDiscount(new Money(1100_00, Currency::CZK));
+    }
+
+    #[Test]
     public function discountCannotChangeAfterConfirmation(): void
     {
         $order = $this->confirmedOrder();
@@ -279,6 +296,14 @@ final class OrderTest extends TestCase
     private function draftOrder(): Order
     {
         return Order::place(OrderId::generate(), CustomerId::generate());
+    }
+
+    private function orderWithItemsTotal(int $amountInCents): Order
+    {
+        $order = $this->draftOrder();
+        $order->addItem(ProductId::generate(), 1, $this->czk($amountInCents));
+
+        return $order;
     }
 
     private function confirmedOrder(): Order
