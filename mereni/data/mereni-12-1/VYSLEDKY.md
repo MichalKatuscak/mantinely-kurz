@@ -102,3 +102,11 @@ Podle pravidla v protokolu: běh Opusu s nejvíc typy chyb ve výsledném diffu.
   Mantinely ve výchozím kódu jsou ale právě to, co se měří.
 - Výstup hooku po editaci (`make check-changed`) se do přepisů neukládá. Chyby, které zachytil a agent opravil, jde doložit jen nepřímo, z reakce agenta.
 - Mezi fázemi WSL smazal kopie aplikace. Kopie jsem obnovil ze stejného tagu a diffu první fáze, postup je popsaný v protokolu.
+
+## Oprava 9. 10. 2026
+
+Data, hodnocení, průřez a review zůstávají beze změny. Při revizi kurzu jsem v nich našel dvě chyby výkladu a jedno nadsazené číslo. Platí tahle oprava:
+
+- **T4 zastavený během běhu je 0, ne 4.** Ve všech čtyřech případech (r3, r6, r7, r11) hook `existujici-testy.php` zastavil Edit do `tests/Ordering/Domain/OrderTest.php`, kterým agent jen přidával nové testovací metody. Existující testy neměnil (`relace-2.jsonl`: r3 ř. 55, r6 ř. 83, r7 ř. 92, r11 ř. 66; `old_string` zůstává celý na konci `new_string`). Nový test je rozšíření, ne nevyžádaný zásah. Je to cena ochrany po celých souborech: hook zastaví i legitimní práci a testy skončí v novém souboru. Ve výsledném kódu se nic nemění, T4 zůstává 1 z 16.
+- **Chyba se slevou (sleva vyšší než součet → chyba 500) není nového typu.** V 0.2 ji ukázkový běh r3 napsal do zprávy, z 10 běhů Opusu ji 5 nahlásilo a 4 opravily změnou `paidAmount()` (započteno jako T4, `mereni-legacy-opus/prurez-zasahy-tvrzeni.md`). Review běhu r3 v detekci ji našlo taky. Ve 12.1 ji žádný běh neopravil a žádná závěrečná zpráva ji nezmínila. Správně: chyba typu, na který mantinely nemířily.
+- **Review chybu se slevou našlo v 10 ze 13 běhů, ne v 11 ze 13.** U r13 píše jen „částka může být záporná“ s chybným důsledkem (záznam záporné vratky místo výjimky), u r7 a r11 ji nenašlo. Stejně to uvádí `review/VYSLEDKY.md` („10 z 12 (r1-r12) a u r13 jako ‚částka může být záporná‘“).

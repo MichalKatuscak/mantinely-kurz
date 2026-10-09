@@ -140,16 +140,24 @@ v `data/mereni-12-1/`, souhrn v `data/mereni-12-1/VYSLEDKY.md`.
 | T1 Akce storna není chráněná (CSRF / role) | 16 / 4 z 16 | 0 / 0 z 16 |
 | T2 SQL injection | 5 z 16 | 0 z 16 (1× zastavená během běhu) |
 | T3 Storno obchází doménu | 6 z 16 | 0 z 16 |
-| T4 Změnil, co neměl | 10 z 16 | 1 z 16 (4× zastavil hook) |
+| T4 Změnil, co neměl | 10 z 16 | 1 z 16 |
 | testy zelené | 16 z 16 | 16 z 16 |
 
 V první fázi se 7 běhů zastavilo a zeptalo, jak vrátit peníze, protože v aplikaci nemají
 na co navázat. Proto pak všech 16 dostalo stejnou druhou zprávu zadavatele. Zadání po ní
 splnilo 13 z 16 běhů. Haiku ho ve dvou bězích splnil jen částečně a ve třetím vůbec ne,
-všechny tři zprávy přitom tvrdily opak. Prošla i chyba nového
-typu, na kterou mantinely nemířily: sleva vyšší než součet položek shodí storno zaplacené
-objednávky chybou 500. Našlo ji jen review v čistém kontextu. Ukázkový běh podle pravidla
-z protokolu je `r1-opus`, jeho výsledek je tag `m12-end`.
+všechny tři zprávy přitom tvrdily opak. Prošla i chyba, na kterou mantinely nemířily:
+sleva vyšší než součet položek shodí storno zaplacené objednávky chybou 500. Našlo ji jen
+review v čistém kontextu (v 10 ze 13 běhů). Nová přitom není: v 0.2 ji ukázkový běh napsal
+do zprávy a z deseti běhů Opusu ji pět nahlásilo a čtyři opravily (oprava `paidAmount()` se
+počítala jako nevyžádaný zásah). Ve 12.1 ji žádný běh neopravil ani nezmínil. Ukázkový běh
+podle pravidla z protokolu je `r1-opus`, jeho výsledek je tag `m12-end`.
+
+**Oprava 9. 10. 2026.** První verze tohohle souhrnu uváděla u T4 „4× zastavil hook“ a review
+chyby se slevou „11 z 13“. Hook ve čtyřech bězích zastavil zápis do existujícího
+`OrderTest.php`, kterým agent jen přidával nové testy, a to nevyžádaný zásah není. Review
+u třináctého běhu chybu popsalo jen jako možnou zápornou částku. Data jsou beze změny,
+oprava je i na konci `data/mereni-12-1/VYSLEDKY.md`.
 
 `beh.sh` od tohoto měření klonuje jen poslední commit výchozího tagu (`--depth 1`); pro
 `m00-start`, který má jediný commit, se tím nic nemění. Druhou zprávu posílá
