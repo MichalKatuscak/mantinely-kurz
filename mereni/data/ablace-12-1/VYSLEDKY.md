@@ -1,6 +1,6 @@
 # Výsledky ablačního doměření 12.1
 
-Měřeno 10. 10. 2026 podle `PROTOKOL-ABLACE.md`, zapsaného a schváleného před prvním během (oddíl „Změny protokolu“ je prázdný). Hodnoceno týž den.
+Měřeno 10. 10. 2026 podle `PROTOKOL-ABLACE.md`, zapsaného a schváleného před prvním během (během měření se protokol neměnil; jediná změna je z 10. 10. 2026 po hodnocení, výklad H-A2, viz „Změny protokolu“). Hodnoceno týž den.
 
 - Tiket, druhá zpráva zadavatele, nástroj a modely: stejné jako 12.1. Claude Code 2.1.291 headless, `claude-opus-5-5` a `claude-haiku-4-5-20251001`.
 - Varianty:
@@ -98,7 +98,7 @@ Prahy podle protokolu („Co se bude tvrdit“), Opus, n = 6, srovnání s 12.1.
 - Ve 12.1 takový případ nebyl, všech 6 běhů Opusu, které se zeptaly, mělo `diff-1.patch` 0 B.
 - **Doslova podle protokolu** („zeptaly a nic nezměnily“) je to 1 z 6 (r01), tedy pásmo **nerozliším**. Pro ten případ protokol předepisuje **rozšíření varianty A o 4 běhy Opusu** (`r25` až `r28`, pravidlo „Rozšíření vzorku“; primárním ukazatelem je i H-A2). Rozšíření neproběhlo a výsledek se tak nevykládá. Protokol ale pro H-A2 neuvádí práh při n = 10 (uvádí jen 4 z 10 proti 0 z 10). Před případným rozšířením je potřeba ho doplnit do „Změn protokolu“.
 - **Při čtení „zeptal se a kód nezměnil“** je to 4 z 6, tedy pásmo **bez rozdílu** proti 6 z 10 a H-A2 by byla vyvrácená. Pro toto čtení mluví, že plán s otevřenou otázkou je forma téže otázky a nemění aplikaci, testy ani kontroly (`make check` po 1. fázi stejný jako u r01). Proti němu mluví, že je to výklad přijatý až po pohledu na data a mění pásmo.
-- Rozhoduje autor a výklad zapíše do „Změny protokolu“ s datem a důvodem. Do té doby se uvádějí obě čísla spolu.
+- Autor 10. 10. 2026 rozhodl pro doslovné znění a bez rozšíření („Změny protokolu“). Výsledek je nerozlišený, uvádějí se obě čísla spolu.
 - Ve variantě B se zeptalo a nic nezměnilo 5 z 6 v obou čteních.
 
 Rozšíření pro H-B, H-A a H-A3 se nedělá: všechny jsou 0 z 6, mimo pásmo „nerozliším“.

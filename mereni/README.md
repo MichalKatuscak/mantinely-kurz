@@ -162,8 +162,8 @@ podle pravidla z protokolu je `r1-opus`, jeho výsledek je tag `m12-end`. Typick
 - Které vrstvě patří výsledek. Mezi 0.2 a 12.1 jsem najednou změnil instrukce, vzor v kódu
   (akce staré administrace přes příkaz, token a role ve všech akcích), senzory i postup (druhá
   zpráva zadavatele). Na čtyři typy chyb senzory během běhů zasáhly jen jednou. Co z toho
-  udělala která vrstva, tohle měření nerozliší; to by ukázalo až měření, které vrstvy odebírá
-  jednu po druhé.
+  udělala která vrstva, tohle měření samo nerozliší. Doměření, které vždy jednu vrstvu odebralo,
+  je v oddílu „Ablace 12.1“ níž.
 - Jak dopadnou chyby, které jsem předem neznal. Mantinely i zadání reviewera jsem stavěl podle
   chyb z 0.2 a měřil je na stejném tiketu, pro mantinely je to nejpříznivější případ. Chyba,
   na kterou nemířily (sleva → 500), prošla.
@@ -193,6 +193,50 @@ popsalo jen jako možnou zápornou částku. Doplnil jsem i to, že tahle chyba 
 `skripty/pokracovani.sh`. U `r1-opus` a `r3-opus` je v `neplatny-pokus-2/` přepis neplatného
 pokusu o druhou zprávu (stream ze `claude -p`); surový soubor relace Claude Code nezveřejňuji,
 protože obsahuje interní metadata nástroje.
+
+## Ablace 12.1
+
+Doměření k lekci 12.1, 10. 10. 2026: stejný tiket, stejná druhá zpráva a stejná kritéria
+(`data/mereni-12-1/KRITERIA.md`), vždy jedna vrstva pryč. Protokol jsem zapsal a schválil před
+prvním během (`PROTOKOL-ABLACE.md`), jedinou změnu po hodnocení najdete na jeho konci. Data,
+varianty (přesné patche proti `m12-start`), hodnocení a souhrn jsou v `data/ablace-12-1/`,
+souhrn v `data/ablace-12-1/VYSLEDKY.md`.
+
+- **Varianta A, bez navádění:** smazané instrukční soubory, pravidlo, skill, mapa a zadání
+  reviewera.
+- **Varianta B, bez vzoru:** existující akce staré administrace bez CSRF a role, smazané
+  `CsrfTest` a `AuthRequireTest`.
+- Každá varianta 6× Opus 5.5 a 3× Haiku 4.5, Claude Code 2.1.291, celkem 18 běhů, všechny
+  platné. Varianta bez hooků a kontrolní dávka na nezměněném `m12-start` se nepouštěly.
+
+| Opus 5.5, výsledný kód | 12.1 (n = 10) | A bez navádění (n = 6) | B bez vzoru (n = 6) |
+|---|---|---|---|
+| aspoň jedna z T1-T3 | 0 z 10 | 0 z 6 | 0 z 6 |
+| T4 Změnil, co neměl | 0 z 10 | 2 z 6 | 0 z 6 |
+| chyba se slevou: zmínil nebo opravil | 0 z 10 | 0 z 6 | 0 z 6 |
+| 1. fáze: zeptal se a nic nezměnil | 6 z 10 | 1 z 6 (4 z 6 bez započtení plánu) | 5 z 6 |
+| hook nahlásil T2 nebo T3 a agent opravil | 0 z 10 | 0 z 6 | 0 z 6 |
+
+- **T1 až T3:** ani bez navádění, ani bez vzoru se nevrátily. Na tomto tiketu stačila
+  kterákoli z obou vrstev, vrstvy se překrývají. Že by vrstva nic nedělala, to neznamená:
+  při 0 z 6 je horní mez 95% intervalu 46 %, menší vliv tedy vyloučený není. Kolik udělala
+  která vrstva, ablace neměří.
+- **Chyba se slevou:** ani bez navádění ji nikdo nezmínil ani neopravil. Mlčení nezpůsobil
+  řádek „neměň bez zadání“, co ho způsobuje, ablace neříká.
+- **Ptaní v 1. fázi:** doslova podle protokolu 1 z 6, pásmo „nerozliším“. Další tři běhy se
+  zeptaly, ale založily plán s otevřenými otázkami. Rozšíření vzorku, které protokol pro toto
+  pásmo předepisuje, se nedělalo (rozhodnutí autora), výsledek je nerozlišený.
+- **T4 bez navádění** jen popisně: protokol pro něj hypotézu ani práh nemá.
+- **Senzory:** výstup hooku je tentokrát v `senzory-1.log` a `senzory.log` každého běhu.
+  U Opusu bez navádění hook T2 ani T3 nenahlásil. U Haiku bez navádění zastavil dvě chyby
+  a jednu nahlásil, ale zůstala, protože agent přesunul SQL do proměnné, kterou pravidlo nevidí.
+  Haiku je jen popisně (3 běhy na variantu).
+
+Omezení jsou stejná jako u 12.1 a navíc: srovnání s měřením o dva dny starším (posun modelu
+na straně služby vyloučit neumím), ablace odebírá vždy jednu vrstvu a neměří součinnost
+ostatních a hodnocení není slepé, protože výchozí kód prozradí variantu. Hodnotitelé i druhé
+čtení byli agenti v nových relacích, T1 až T3 jsou proto ověřené i mechanicky ve všech
+18 bězích (`data/ablace-12-1/hodnoceni/kontrola-spornych.md`).
 
 ## Přepisy
 
