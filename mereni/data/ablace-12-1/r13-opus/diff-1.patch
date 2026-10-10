@@ -1,0 +1,51 @@
+diff --git a/docs/plany/storno.md b/docs/plany/storno.md
+new file mode 100644
+index 0000000..380149b
+--- /dev/null
++++ b/docs/plany/storno.md
+@@ -0,0 +1,45 @@
++# Plán: storno objednávky ve staré administraci
++
++**Tiket:** Ve staré administraci (src/Legacy) přidej u objednávky storno: zákazník dostane
++zpět zaplacenou částku a zboží se vrátí na sklad.
++
++## Co už je v kódu
++- `Order::cancel($reason, $when)` hlídá přechod stavu (`OrderStatus::allowedTransitions()`):
++  stornovat jde Draft, Confirmed a Paid, odeslanou ani doručenou objednávku ne. Opakované
++  storno nic neudělá. Zaznamená událost `OrderCancelled`.
++- `ReleaseReservationsHandler` (Inventory) na `OrderCancelled` uvolní všechny rezervace
++  objednávky. `StockItem::onHand` se při odeslání nesnižuje, takže „vrátit zboží na sklad“
++  u neodeslané objednávky znamená uvolnit rezervace, a to už se děje.
++- Chybí příkaz `CancelOrder` a jeho handler, akce staré administrace a tlačítko v detailu.
++- **Vrácení peněz v kódu není vůbec:** žádná platební brána, tabulka plateb ani refundace.
++  `PayOrder` jen přepne stav na Paid. V tajemstvích je jen `PAYMENT_API_KEY` bez klienta.
++
++## Rozhodnutí
++- Storno jde přes doménu: akce `order_cancel` pošle `CancelOrder` přes `legacy_command()`,
++  handler zavolá `Order::cancel()`. Žádné SQL na `orders` (na rozdíl od `orders.php`
++  a `cron.php`).
++- Pravidla hlídá `Order`; stará administrace jen přeloží výjimku na chybovou hlášku.
++- Role `obchod` (a `admin`), CSRF token, jako `order_item_quantity`.
++
++## Akceptační kritéria (návrh)
++1. Obsluha stornuje zaplacenou objednávku z detailu: stav Cancelled, důvod uložený,
++   rezervace uvolněné.
++2. Odeslanou nebo doručenou objednávku stornovat nejde: chyba, stav i rezervace zůstanou.
++3. U zaplacené objednávky se zákazníkovi vrátí `paidAmount()` (viz otevřená otázka 1).
++
++## Otevřené otázky
++1. **Jak se vrací peníze?** Bez rozhodnutí nejde kritérium 3 udělat. Možnosti:
++   a) Storno zaplacené objednávky zaznamená refundaci (událost `OrderRefunded`
++      s částkou `paidAmount()`) a peníze pošle člověk ručně / účetní. Kód peníze nehýbe.
++   b) Napojení na platební bránu (který poskytovatel, API, idempotence, co když refundace
++      selže, když storno už proběhlo).
++2. **Odeslané objednávky.** Doména storno po odeslání zakazuje (hromadné storno
++   v `orders.php` ho povoluje „když se balík vrátí“). Platí doména, tedy vrácení odeslaného
++   zboží (zvýšení `onHand`) je mimo rozsah?
++
++## Kroky (po každém commit, před commitem `make check`)
++1. Akceptační test kritéria 2 přes akci staré administrace
++   (`tests/Acceptance/Legacy/CancelOrderTest.php`). Červený.
++2. Příkaz `CancelOrder` a `CancelOrderHandler` (čas a důvod z příkazu).
++3. Akce `order_cancel` ve staré administraci a formulář s důvodem v detailu objednávky.
++4. Vrácení peněz podle odpovědi na otázku 1.

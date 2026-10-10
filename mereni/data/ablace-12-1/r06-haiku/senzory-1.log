@@ -1,0 +1,64 @@
+=== 2026-10-10T17:41:17+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              363  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:41:24+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:42:09+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:42:20+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+

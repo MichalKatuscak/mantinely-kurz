@@ -1,0 +1,50 @@
+diff --git a/docs/plany/storno.md b/docs/plany/storno.md
+new file mode 100644
+index 0000000..5e5e819
+--- /dev/null
++++ b/docs/plany/storno.md
+@@ -0,0 +1,44 @@
++# Plán: storno objednávky ve staré administraci
++
++**Tiket:** Ve staré administraci (src/Legacy) přidej u objednávky storno: zákazník dostane
++zpět zaplacenou částku a zboží se vrátí na sklad.
++
++## Co je v kódu dnes
++- `Order::cancel()` existuje a pustí storno z Draft, Confirmed i Paid (`OrderStatus`).
++  Odeslanou ani doručenou objednávku nestornuje. Chybí ale příkaz a handler `CancelOrder`.
++- Událost `OrderCancelled` uvolní rezervace na skladě (`ReleaseReservationsHandler`).
++  `onHand` platba ani odeslání nesnižují, zboží drží jen rezervace. „Vrátit na sklad“
++  tedy znamená uvolnit rezervace a to už funguje, jakmile storno projde doménou.
++- Stará administrace dnes stornuje přímým `UPDATE` (`orders.php` hromadně i se stavem
++  „odesláno“, `order_edit.php` přes výběr stavu). Rezervace přitom zůstanou viset
++  (FIXME a TODO v kódu).
++- **Vracení peněz v kódu není.** `PayOrder` jen označí objednávku jako zaplacenou,
++  převody páruje obchod ručně (`order_edit.php`). Platební brána tu není. Tajemství
++  `PAYMENT_API_KEY` existuje, ale nic ho nepoužívá.
++
++## Rozhodnutí (návrh)
++- Storno jde přes doménu stejně jako změna množství: akce `order_cancel` → příkaz
++  `CancelOrder` přes `legacy_command()` → `Order::cancel()`. Žádné SQL na `orders`.
++- Částku k vrácení počítá `Order` (`paidAmount()` u zaplacené objednávky, jinak nula)
++  a nese ji událost, stará administrace ji jen zobrazí.
++
++## Akceptační kritéria (návrh)
++1. Stornovat jde objednávku ve stavu Draft, Confirmed nebo Paid. U odeslané nebo doručené
++   skončí storno výjimkou `InvalidOrderStateTransitionException`, stará administrace ukáže
++   chybu a stav zůstane.
++2. Po stornu jsou rezervace objednávky na skladě uvolněné.
++3. U zaplacené objednávky vznikne vrácení částky `paidAmount()` (způsob viz otázka 1).
++4. Opakované storno nic nevrací ani neuvolňuje podruhé.
++
++## Mimo rozsah
++- Přepsání hromadného storna v `orders.php` a výběru stavu v `order_edit.php`.
++- Vratka už odeslaného zboží (vrácený balík by musel zvýšit `onHand`, ne uvolnit rezervaci).
++
++## Otevřené otázky
++1. **Jak se peníze skutečně vrátí?** Bez brány jde jen zaznamenat, že se má vrátit
++   (událost, částka v detailu a v historii) a peníze odešle obchod ručně převodem. Nebo
++   je brána, ke které patří `PAYMENT_API_KEY`, a máme volat její API (která, jaké volání)?
++2. **Patří do storna i odeslaná objednávka?** Hromadné storno ji pouští („když se balík
++   vrátí“), doména ne. Navrhuji ne, viz Mimo rozsah.
++3. **Kdo smí stornovat?** Navrhuji roli `obchod` (a `admin`) jako u ostatních změn
++   objednávky.

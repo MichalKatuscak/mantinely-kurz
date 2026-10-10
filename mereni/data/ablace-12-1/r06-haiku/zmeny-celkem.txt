@@ -1,0 +1,6 @@
+ migrations/Version20261010154514.php               |  36 ++++++
+ src/Legacy/Admin/order_edit.php                    | 130 ++++++++++++++-------
+ src/Ordering/Application/Command/CancelOrder.php   |  15 +++
+ .../Application/Handler/CancelOrderHandler.php     |  31 +++++
+ src/Ordering/Domain/Model/Order.php                |  12 ++
+ 5 files changed, 180 insertions(+), 44 deletions(-)

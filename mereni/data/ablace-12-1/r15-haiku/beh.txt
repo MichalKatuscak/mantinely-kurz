@@ -1,0 +1,7 @@
+id=r15-haiku
+varianta=A
+model=claude-haiku-4-5-20251001
+claude=/home/michal/.local/share/claude/versions/2.1.291
+kopie=/home/michal/kopie/tmp.oN6uE8XH7z/aplikace
+faze1=OK exit 0
+faze2=OK exit 0

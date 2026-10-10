@@ -1,0 +1,236 @@
+=== 2026-10-10T17:15:57+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+=== 2026-10-10T17:16:10+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.5M6K8npwBN/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:67:Access to an undefined property App\Ordering\Domain\Model\Order::$refundDue. [identifier=property.notFound]
+/home/michal/kopie/tmp.5M6K8npwBN/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:67:Cannot call method equals() on mixed. [identifier=method.nonObject]
+/home/michal/kopie/tmp.5M6K8npwBN/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:89:Access to an undefined property App\Ordering\Domain\Model\Order::$refundDue. [identifier=property.notFound]
+/home/michal/kopie/tmp.5M6K8npwBN/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:89:Cannot access property $amountInCents on mixed. [identifier=property.nonObject]
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:16:17+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:16:18+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              366  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:16:20+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              366  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:16:32+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              366  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:16:40+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              366  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:16:41+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              367  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:16:44+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              369  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:16:53+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:16:56+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:17:03+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:17:14+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:17:46+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:18:16+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.5M6K8npwBN/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+

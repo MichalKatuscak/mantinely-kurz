@@ -1,0 +1,335 @@
+=== 2026-10-10T18:31:57+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:33:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:45:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:46:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:55:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:67:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:80:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T18:32:02+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:33:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:45:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:46:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:55:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:67:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:80:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              363  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T18:32:03+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:33:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:45:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:46:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:55:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:67:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:80:Call to an undefined method App\Ordering\Domain\Model\Order::refundDue(). [identifier=method.notFound]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              363  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T18:32:05+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:32:10+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:33:18+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Application/CancelOrderHandlerTest.php:29:Class App\Ordering\Application\Handler\CancelOrderHandler not found. [identifier=class.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Application/CancelOrderHandlerTest.php:50:Instantiated class App\Ordering\Application\Command\CancelOrder not found. [identifier=class.notFound]
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Application/CancelOrderHandlerTest.php:72:Instantiated class App\Ordering\Application\Command\CancelOrder not found. [identifier=class.notFound]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T18:33:19+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.9b8oFbzerR/aplikace/tests/Ordering/Application/CancelOrderHandlerTest.php:29:Class App\Ordering\Application\Handler\CancelOrderHandler not found. [identifier=class.notFound]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              366  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T18:33:22+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              368  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:33:55+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              368  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:34:04+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              368  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:34:06+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              368  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:34:15+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              368  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:34:20+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              371  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:34:27+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              371  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:34:32+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.9b8oFbzerR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              371  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+

@@ -1,0 +1,6 @@
+ M src/Legacy/Admin/order_edit.php
+ M src/Legacy/Admin/orders.php
+ M src/Legacy/templates/orders/list.php
+?? src/Ordering/Application/Command/CancelOrder.php
+?? src/Ordering/Application/Handler/CancelOrderHandler.php
+?? tests/Acceptance/Legacy/CancelOrderTest.php

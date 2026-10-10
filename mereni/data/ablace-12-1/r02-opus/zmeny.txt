@@ -1,0 +1,8 @@
+ M src/Legacy/Admin/OrderController.php
+ M src/Legacy/Http/LegacyFrontController.php
+ M src/Legacy/templates/orders/detail.php
+?? docs/plany/storno.md
+?? src/Ordering/Application/Command/CancelOrder.php
+?? src/Ordering/Application/Handler/CancelOrderHandler.php
+?? tests/Acceptance/Legacy/CancelOrderTest.php
+?? tests/Ordering/Application/CancelOrderHandlerTest.php

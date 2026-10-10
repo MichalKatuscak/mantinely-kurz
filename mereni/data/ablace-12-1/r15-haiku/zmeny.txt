@@ -1,0 +1,2 @@
+ M src/Legacy/templates/orders/detail.php
+?? src/Ordering/Infrastructure/EventHandler/

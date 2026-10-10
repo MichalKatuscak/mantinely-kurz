@@ -1,0 +1,464 @@
+=== 2026-10-10T17:44:39+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+?:?:Internal error: Unknown named parameter $nullable while analysing file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/src/Ordering/Domain/Model/Order.php
+
+Run PHPStan with -v option and post the stack trace to:
+https://github.com/phpstan/phpstan/issues/new?template=Bug_report.yaml
+
+⚠️  Result is incomplete because of severe errors. ⚠️
+   Fix these errors first and then re-run PHPStan
+   to get all reported errors.
+
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              368  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:44:47+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              368  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:45:04+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              369  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:45:11+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              370  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:45:39+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              371  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:45:58+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              371  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:46:25+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              371  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:46:55+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              371  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:46:59+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:47:17+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.CjXYsnz66O/aplikace/src/Ordering/Domain/Model/Order.php:306:Property App\Ordering\Domain\Model\Order::$refundedAmount in isset() is not nullable nor uninitialized. [identifier=isset.initializedProperty]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              375  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:47:22+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.CjXYsnz66O/aplikace/src/Ordering/Domain/Model/Order.php:307:Property App\Ordering\Domain\Model\Order::$refundedAmount on left side of ??= is not nullable nor uninitialized. [identifier=nullCoalesce.initializedProperty]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              375  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:47:29+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              375  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:47:34+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              374  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:49:46+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              374  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:49:52+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+?:?:Internal error: Unknown named parameter $nullable while analysing file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/src/Ordering/Domain/Model/Order.php
+
+Run PHPStan with -v option and post the stack trace to:
+https://github.com/phpstan/phpstan/issues/new?template=Bug_report.yaml
+
+⚠️  Result is incomplete because of severe errors. ⚠️
+   Fix these errors first and then re-run PHPStan
+   to get all reported errors.
+
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              374  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:50:00+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.CjXYsnz66O/aplikace/src/Ordering/Domain/Model/Order.php:35:Duplicate definition of column 'refunded_amount_in_cents' on entity 'App\Ordering\Domain\Model\Order' in a field or discriminator column mapping. [identifier=doctrine.mapping]
+/home/michal/kopie/tmp.CjXYsnz66O/aplikace/src/Ordering/Domain/Model/Order.php:69:Property App\Ordering\Domain\Model\Order::$refundedAmountDefault is never read, only written. [identifier=property.onlyWritten]
+/home/michal/kopie/tmp.CjXYsnz66O/aplikace/src/Ordering/Domain/Model/Order.php:72:Property App\Ordering\Domain\Model\Order::$refundedCurrencyDefault is never read, only written. [identifier=property.onlyWritten]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              376  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:50:10+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              374  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:50:15+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.CjXYsnz66O/aplikace/src/Ordering/Domain/Model/Order.php:307:Property App\Ordering\Domain\Model\Order::$refundedAmount on left side of ??= is not nullable nor uninitialized. [identifier=nullCoalesce.initializedProperty]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              375  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:50:22+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.CjXYsnz66O/aplikace/src/Ordering/Domain/Model/Order.php:307:Property App\Ordering\Domain\Model\Order::$refundedAmount in isset() is not nullable nor uninitialized. [identifier=isset.initializedProperty]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              375  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:50:28+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:50:33+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:50:37+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.CjXYsnz66O/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              371  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+

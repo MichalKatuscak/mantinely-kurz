@@ -231,4 +231,4 @@ Limit: ve 12.1 posunulo 16 běhů (plus autorova další práce) pětihodinové 
 
 ## Změny protokolu
 
-(zatím žádné)
+- **10. 10. 2026, po hodnocení (autor):** H-A2 se vykládá doslova podle znění protokolu: „zeptal se a nic nezměnil“ znamená prázdný `diff-1`, plán v `docs/plany/` se počítá jako změna. Varianta A tak má 1 z 6, pásmo „nerozliším“. Rozšíření o 4 běhy Opusu, které protokol pro toto pásmo předepisuje, se nedělá: autor rozhodl, že výsledek se podá jako nerozlišený, s oběma čísly (1 z 6 doslova, 4 z 6 bez započtení plánu). Výklad bez plánu vznikl až po pohledu na data, proto není hlavní.

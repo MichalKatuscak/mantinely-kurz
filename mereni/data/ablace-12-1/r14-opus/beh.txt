@@ -1,0 +1,7 @@
+id=r14-opus
+varianta=B
+model=claude-opus-5-5
+claude=/home/michal/.local/share/claude/versions/2.1.291
+kopie=/home/michal/kopie/tmp.9b8oFbzerR/aplikace
+faze1=OK exit 0
+faze2=OK exit 0

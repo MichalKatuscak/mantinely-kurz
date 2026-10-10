@@ -1,0 +1,441 @@
+diff --git a/config/services.yaml b/config/services.yaml
+index e39b0a7..7365aaf 100644
+--- a/config/services.yaml
++++ b/config/services.yaml
+@@ -18,6 +18,7 @@ services:
+             - '../src/Ordering/Application/Command/'
+ 
+     App\Ordering\Domain\Repository\OrderRepository: '@App\Ordering\Infrastructure\Repository\DoctrineOrderRepository'
++    App\Ordering\Domain\Repository\RefundRepository: '@App\Ordering\Infrastructure\Repository\DoctrineRefundRepository'
+     App\Ordering\Application\Port\ProductCatalog: '@App\Ordering\Infrastructure\Legacy\LegacyProductCatalog'
+ 
+     # ──────────────────────────────────────────────────
+diff --git a/migrations/Version20261010000000.php b/migrations/Version20261010000000.php
+new file mode 100644
+index 0000000..0dedd8a
+--- /dev/null
++++ b/migrations/Version20261010000000.php
+@@ -0,0 +1,28 @@
++<?php
++
++declare(strict_types=1);
++
++namespace DoctrineMigrations;
++
++use Doctrine\DBAL\Schema\Schema;
++use Doctrine\Migrations\AbstractMigration;
++
++final class Version20261010000000 extends AbstractMigration
++{
++    public function getDescription(): string
++    {
++        return 'Add refunds table for tracking order cancellations and refunds';
++    }
++
++    public function up(Schema $schema): void
++    {
++        $this->addSql('CREATE TABLE refunds (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, order_id CHAR(36) NOT NULL, amount_in_cents INTEGER NOT NULL, currency VARCHAR(255) NOT NULL, reason CLOB DEFAULT NULL, created_at DATETIME NOT NULL)');
++        $this->addSql('CREATE INDEX idx_refunds_order ON refunds (order_id)');
++        $this->addSql('CREATE INDEX idx_refunds_created ON refunds (created_at)');
++    }
++
++    public function down(Schema $schema): void
++    {
++        $this->addSql('DROP TABLE refunds');
++    }
++}
+diff --git a/src/Legacy/Admin/OrderController.php b/src/Legacy/Admin/OrderController.php
+index 4c8a41f..0c0ea7e 100644
+--- a/src/Legacy/Admin/OrderController.php
++++ b/src/Legacy/Admin/OrderController.php
+@@ -70,11 +70,12 @@ class OrderController extends BaseController
+             return $this->notFound('Objednávka ' . $id . ' neexistuje');
+         }
+ 
+-        $items = $db->query("SELECT i.*, p.name, p.sku FROM order_items i LEFT JOIN products p ON p.id = i.product_id WHERE i.order_id = '" . $id . "' ORDER BY i.id");
+-        $customer = $db->one("SELECT * FROM customers WHERE id = '" . $order['customer_id'] . "'");
+-        $notes = $db->query("SELECT * FROM order_notes WHERE order_id = '" . $id . "' ORDER BY created_at DESC");
+-        $invoice = $db->one("SELECT * FROM invoices WHERE order_id = '" . $id . "'");
+-        $history = $db->query("SELECT * FROM audit_log WHERE entity = 'order' AND entity_id = '" . $id . "' ORDER BY created_at DESC LIMIT 50");
++        $items = $db->query("SELECT i.*, p.name, p.sku FROM order_items i LEFT JOIN products p ON p.id = i.product_id WHERE i.order_id = " . $db->quote($id) . " ORDER BY i.id");
++        $customer = $db->one("SELECT * FROM customers WHERE id = " . $db->quote($order['customer_id']));
++        $notes = $db->query("SELECT * FROM order_notes WHERE order_id = " . $db->quote($id) . " ORDER BY created_at DESC");
++        $invoice = $db->one("SELECT * FROM invoices WHERE order_id = " . $db->quote($id));
++        $history = $db->query("SELECT * FROM audit_log WHERE entity = 'order' AND entity_id = " . $db->quote($id) . " ORDER BY created_at DESC LIMIT 50");
++        $refunds = $db->query("SELECT * FROM refunds WHERE order_id = " . $db->quote($id) . " ORDER BY created_at DESC");
+ 
+         $sum = 0;
+         foreach ($items as $it) {
+@@ -88,6 +89,7 @@ class OrderController extends BaseController
+             'notes'    => $notes,
+             'invoice'  => $invoice,
+             'history'  => $history,
++            'refunds'  => $refunds,
+             'sum'      => $sum,
+             'toPay'    => max(0, $sum - (int) $order['discount_amount_in_cents']),
+         ), 'Objednávka ' . $id);
+@@ -157,4 +159,44 @@ class OrderController extends BaseController
+ 
+         return $this->detailAction();
+     }
++
++    /**
++     * Storno objednavky se vrácením peněz a návratem zboží na sklad.
++     */
++    public function cancelAction()
++    {
++        global $db;
++        legacy_db();
++        auth_require('obchod');
++
++        $id = get_param('id');
++        $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
++        if ($order === null) {
++            return $this->notFound('Objednávka ' . $id . ' neexistuje');
++        }
++
++        if (is_post()) {
++            csrf_check();
++            $reason = $this->post('reason', '');
++
++            try {
++                legacy_command(new \App\Ordering\Application\Command\CancelOrder(
++                    \App\Ordering\Domain\ValueObject\OrderId::fromString($id),
++                    $reason
++                ));
++            } catch (\App\Ordering\Domain\Exception\InvalidOrderStateTransitionException $e) {
++                flash('Objednávku nelze stornovat z aktuálního stavu', 'error');
++
++                return $this->detailAction();
++            }
++
++            flash('Objednávka stornována, zakazník dostane zpět zaplatenu částku a zboží se vrátilo na sklad');
++
++            return $this->detailAction();
++        }
++
++        return $this->renderLayout('orders/cancel', array(
++            'order' => $order,
++        ), 'Storno objednávky ' . $id);
++    }
+ }
+diff --git a/src/Legacy/Admin/orders.php b/src/Legacy/Admin/orders.php
+index b307f16..22406d4 100644
+--- a/src/Legacy/Admin/orders.php
++++ b/src/Legacy/Admin/orders.php
+@@ -27,13 +27,20 @@ $idList = ids_to_sql($ids);
+ if ($action == 'storno') {
+     // stornovat lze cokoliv krome dorucenych (2017: i odeslane, kdyz se balik vrati)
+     $before = $db->query("SELECT id, status FROM orders WHERE id IN (" . $idList . ")");
+-    $n = $db->exec("UPDATE orders SET status = 'cancelled' WHERE id IN (" . $idList . ") AND status != 'delivered'");
++    $n = 0;
+     foreach ($before as $b) {
+-        if ($b['status'] != 'delivered') {
+-            audit_log('order', $b['id'], 'storno', array('from' => $b['status'], 'bulk' => true));
++        if ($b['status'] != 'delivered' && $b['status'] != 'cancelled') {
++            try {
++                legacy_command(new \App\Ordering\Application\Command\CancelOrder(
++                    \App\Ordering\Domain\ValueObject\OrderId::fromString($b['id']),
++                    'Hromadné storno'
++                ));
++                $n++;
++            } catch (\App\Ordering\Domain\Exception\InvalidOrderStateTransitionException $e) {
++                // Objednávka již je v nesprávném stavu pro storno, přeskočíme ji
++            }
+         }
+     }
+-    // FIXME: rezervace ve skladu zustanou viset, viz StockReport::orphanReservations()
+     flash('Stornováno objednávek: ' . $n);
+ } elseif ($action == 'paid') {
+     $n = $db->exec("UPDATE orders SET status = 'paid' WHERE id IN (" . $idList . ") AND status = 'confirmed'");
+diff --git a/src/Legacy/Http/LegacyFrontController.php b/src/Legacy/Http/LegacyFrontController.php
+index d06d8ee..fd87fc4 100644
+--- a/src/Legacy/Http/LegacyFrontController.php
++++ b/src/Legacy/Http/LegacyFrontController.php
+@@ -61,6 +61,7 @@ class LegacyFrontController
+         'report_top'         => array(ReportController::class, 'topAction'),
+         'orders'             => array(OrderController::class, 'listAction'),
+         'order'              => array(OrderController::class, 'detailAction'),
++        'order_cancel'       => array(OrderController::class, 'cancelAction'),
+         'customer_orders'    => array(OrderController::class, 'byCustomerAction'),
+         'customers'          => array(CustomerController::class, 'listAction'),
+         'customer'           => array(CustomerController::class, 'detailAction'),
+diff --git a/src/Legacy/templates/orders/cancel.php b/src/Legacy/templates/orders/cancel.php
+new file mode 100644
+index 0000000..8085570
+--- /dev/null
++++ b/src/Legacy/templates/orders/cancel.php
+@@ -0,0 +1,27 @@
++<?php
++/**
++ * Storno objednavky.
++ * Promenne: $order
++ */
++?>
++<h1>Storno objednávky <?php echo h($order['id']); ?></h1>
++
++<form method="post"><?php echo csrf_field(); ?>
++<table class="grid" style="width:auto">
++    <tr><th>Objednávka</th><td><?php echo h($order['id']); ?></td></tr>
++    <tr><th>Stav</th><td><?php echo h(order_state_label($order['status'])); ?></td></tr>
++    <tr><th>Důvod storna</th><td><textarea name="reason" rows="5" cols="50" placeholder="Např: zákazník žádá vrácení, chyba v objednávce..."></textarea></td></tr>
++</table>
++<p>
++    <input type="submit" value="Stornovat">
++    <a href="<?php echo h(admin_url('order', array('id' => $order['id']))); ?>">« zpět</a>
++</p>
++</form>
++
++<p class="info">
++    <strong>Co se stane po stornování:</strong><br>
++    – Objednávka bude označena jako stornovaná<br>
++    – Zakazník dostane vrácenu zaplatenu částku<br>
++    – Všechno zboží se vrátí na sklad<br>
++    – Rezervace budou uvolněny
++</p>
+diff --git a/src/Legacy/templates/orders/detail.php b/src/Legacy/templates/orders/detail.php
+index baf6a73..94d7157 100644
+--- a/src/Legacy/templates/orders/detail.php
++++ b/src/Legacy/templates/orders/detail.php
+@@ -8,6 +8,9 @@
+ 
+ <table class="grid" style="width:auto">
+     <tr><th>Stav</th><td class="state-<?php echo h($order['status']); ?>"><?php echo h(order_state_label($order['status'])); ?></td></tr>
++    <?php if ($order['status'] == 'cancelled' && !empty($order['cancellation_note'])) { ?>
++    <tr><th>Důvod storna</th><td><?php echo nl2br(h($order['cancellation_note'])); ?></td></tr>
++    <?php } ?>
+     <tr><th>Datum objednání</th><td><?php echo format_date($order['placed_at'], true); ?></td></tr>
+     <tr><th>Měna</th><td><?php echo h($order['currency']); ?></td></tr>
+     <tr><th>Zákazník</th><td>
+@@ -59,6 +62,9 @@
+ <p>
+     <a href="<?php echo h(admin_url('order_edit', array('id' => $order['id']))); ?>">Změnit stav / slevu</a> |
+     <a href="<?php echo h(admin_url('order_notes', array('order' => $order['id']))); ?>">Poznámky (<?php echo count($notes); ?>)</a>
++    <?php if (in_array($order['status'], array('draft', 'confirmed', 'paid'))) { ?>
++        | <a href="<?php echo h(admin_url('order_cancel', array('id' => $order['id']))); ?>">Stornovat</a>
++    <?php } ?>
+ </p>
+ 
+ <h2>Poznámky</h2>
+@@ -72,3 +78,17 @@
+     <tr><td><?php echo format_date($hrow['created_at'], true); ?></td><td><?php echo h($hrow['action']); ?></td><td><code><?php echo h($hrow['payload']); ?></code></td></tr>
+ <?php } ?>
+ </table>
++
++<?php if (!empty($refunds)) { ?>
++<h2>Vrácené částky</h2>
++<table class="grid">
++    <tr><th>Datum</th><th class="num">Částka</th><th>Důvod</th></tr>
++<?php foreach ($refunds as $r) { ?>
++    <tr>
++        <td><?php echo format_date($r['created_at'], true); ?></td>
++        <td class="num"><?php echo format_price($r['amount_in_cents'], $r['currency']); ?></td>
++        <td><?php echo h($r['reason']); ?></td>
++    </tr>
++<?php } ?>
++</table>
++<?php } ?>
+diff --git a/src/Ordering/Application/Command/CancelOrder.php b/src/Ordering/Application/Command/CancelOrder.php
+new file mode 100644
+index 0000000..2fa7072
+--- /dev/null
++++ b/src/Ordering/Application/Command/CancelOrder.php
+@@ -0,0 +1,15 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Command;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++
++final readonly class CancelOrder
++{
++    public function __construct(
++        public OrderId $orderId,
++        public string $reason = '',
++    ) {}
++}
+diff --git a/src/Ordering/Application/EventHandler/RecordRefundHandler.php b/src/Ordering/Application/EventHandler/RecordRefundHandler.php
+new file mode 100644
+index 0000000..1e645f8
+--- /dev/null
++++ b/src/Ordering/Application/EventHandler/RecordRefundHandler.php
+@@ -0,0 +1,43 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\EventHandler;
++
++use App\Ordering\Domain\Event\OrderCancelled;
++use App\Ordering\Domain\Model\Refund;
++use App\Ordering\Domain\Repository\OrderRepository;
++use App\Ordering\Domain\Repository\RefundRepository;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++/**
++ * Stornovaná objednávka zaznamenává vrácení peněz.
++ */
++#[AsMessageHandler(bus: 'event.bus')]
++final readonly class RecordRefundHandler
++{
++    public function __construct(
++        private OrderRepository $orders,
++        private RefundRepository $refunds,
++    ) {}
++
++    public function __invoke(OrderCancelled $event): void
++    {
++        $order = $this->orders->find($event->orderId);
++        if ($order === null) {
++            return;
++        }
++
++        $refundAmount = $order->paidAmount();
++        if ($refundAmount->amountInCents > 0) {
++            $refund = new Refund(
++                orderId: $event->orderId,
++                amountInCents: $refundAmount->amountInCents,
++                currency: $refundAmount->currency,
++                reason: $event->reason === '' ? null : $event->reason,
++                createdAt: $event->occurredAt,
++            );
++            $this->refunds->save($refund);
++        }
++    }
++}
+diff --git a/src/Ordering/Application/Handler/CancelOrderHandler.php b/src/Ordering/Application/Handler/CancelOrderHandler.php
+new file mode 100644
+index 0000000..248bb19
+--- /dev/null
++++ b/src/Ordering/Application/Handler/CancelOrderHandler.php
+@@ -0,0 +1,25 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Handler;
++
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Domain\Exception\OrderNotFoundException;
++use App\Ordering\Domain\Repository\OrderRepository;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++#[AsMessageHandler(bus: 'command.bus')]
++final readonly class CancelOrderHandler
++{
++    public function __construct(
++        private OrderRepository $orders,
++    ) {}
++
++    public function __invoke(CancelOrder $command): void
++    {
++        $order = $this->orders->get($command->orderId);
++        $order->cancel($command->reason, new \DateTimeImmutable());
++        $this->orders->save($order);
++    }
++}
+diff --git a/src/Ordering/Domain/Model/Refund.php b/src/Ordering/Domain/Model/Refund.php
+new file mode 100644
+index 0000000..f1e3dbe
+--- /dev/null
++++ b/src/Ordering/Domain/Model/Refund.php
+@@ -0,0 +1,38 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Domain\Model;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++use App\SharedKernel\Domain\Currency;
++use App\SharedKernel\Domain\Money;
++use Doctrine\ORM\Mapping as ORM;
++
++#[ORM\Entity]
++#[ORM\Table(name: 'refunds')]
++final class Refund
++{
++    #[ORM\Id]
++    #[ORM\GeneratedValue]
++    #[ORM\Column]
++    private ?int $id = null;
++
++    public function __construct(
++        #[ORM\Column(type: 'order_id')]
++        public readonly OrderId $orderId,
++        #[ORM\Column]
++        public readonly int $amountInCents,
++        #[ORM\Column(enumType: Currency::class)]
++        public readonly Currency $currency,
++        #[ORM\Column(type: 'text', nullable: true)]
++        public readonly ?string $reason,
++        #[ORM\Column]
++        public readonly \DateTimeImmutable $createdAt,
++    ) {}
++
++    public function amount(): Money
++    {
++        return new Money($this->amountInCents, $this->currency);
++    }
++}
+diff --git a/src/Ordering/Domain/Repository/RefundRepository.php b/src/Ordering/Domain/Repository/RefundRepository.php
+new file mode 100644
+index 0000000..e9fa3a1
+--- /dev/null
++++ b/src/Ordering/Domain/Repository/RefundRepository.php
+@@ -0,0 +1,16 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Domain\Repository;
++
++use App\Ordering\Domain\Model\Refund;
++use App\Ordering\Domain\ValueObject\OrderId;
++
++interface RefundRepository
++{
++    public function save(Refund $refund): void;
++
++    /** @return list<Refund> */
++    public function findByOrder(OrderId $orderId): array;
++}
+diff --git a/src/Ordering/Infrastructure/Repository/DoctrineRefundRepository.php b/src/Ordering/Infrastructure/Repository/DoctrineRefundRepository.php
+new file mode 100644
+index 0000000..28e45bb
+--- /dev/null
++++ b/src/Ordering/Infrastructure/Repository/DoctrineRefundRepository.php
+@@ -0,0 +1,31 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Infrastructure\Repository;
++
++use App\Ordering\Domain\Model\Refund;
++use App\Ordering\Domain\Repository\RefundRepository;
++use App\Ordering\Domain\ValueObject\OrderId;
++use Doctrine\ORM\EntityManagerInterface;
++use Symfony\Component\DependencyInjection\Attribute\Autowire;
++
++final readonly class DoctrineRefundRepository implements RefundRepository
++{
++    public function __construct(
++        #[Autowire(service: 'doctrine.orm.default_entity_manager')]
++        private EntityManagerInterface $em,
++    ) {}
++
++    public function save(Refund $refund): void
++    {
++        $this->em->persist($refund);
++        $this->em->flush();
++    }
++
++    public function findByOrder(OrderId $orderId): array
++    {
++        return $this->em->getRepository(Refund::class)
++            ->findBy(['orderId' => $orderId]);
++    }
++}

@@ -1,0 +1,8 @@
+ src/Legacy/Admin/order_cancel.php                  | 126 +++++++++++++++++++++
+ src/Legacy/Admin/order_edit.php                    |  12 +-
+ src/Legacy/Admin/orders.php                        |  14 ++-
+ src/Legacy/templates/orders/detail.php             |   6 +
+ src/Ordering/Application/Command/CancelOrder.php   |  15 +++
+ .../Application/Handler/CancelOrderHandler.php     |  24 ++++
+ .../EventHandler/AddCancellationNoteHandler.php    |  33 ++++++
+ 7 files changed, 226 insertions(+), 4 deletions(-)

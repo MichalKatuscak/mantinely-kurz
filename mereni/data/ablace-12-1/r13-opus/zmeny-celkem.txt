@@ -1,0 +1,11 @@
+ docs/plany/storno.md                               |  47 +++++++
+ migrations/Version20261010120000.php               |  34 +++++
+ src/Legacy/Admin/OrderController.php               |  46 +++++++
+ src/Legacy/Http/LegacyFrontController.php          |   1 +
+ src/Legacy/templates/orders/detail.php             |  15 +++
+ src/Ordering/Application/Command/CancelOrder.php   |  16 +++
+ .../Application/Handler/CancelOrderHandler.php     |  28 +++++
+ src/Ordering/Domain/Model/Order.php                |  11 ++
+ tests/Acceptance/Legacy/CancelOrderTest.php        | 138 +++++++++++++++++++++
+ tests/Ordering/Domain/OrderRefundTest.php          |  90 ++++++++++++++
+ 10 files changed, 426 insertions(+)

@@ -1,0 +1,4 @@
+ M src/Legacy/templates/orders/detail.php
+ M src/Ordering/Domain/Model/Order.php
+?? tests/Acceptance/Legacy/CancelOrderRefundTest.php
+?? tests/Ordering/Domain/OrderRefundTest.php

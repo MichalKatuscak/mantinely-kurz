@@ -1,0 +1,1 @@
+varianta B: strom 0650b9c3ad466baab07084d031dd711f4ccd51dd, diff proti m12-start = varianty/B.patch (make check vynechán)

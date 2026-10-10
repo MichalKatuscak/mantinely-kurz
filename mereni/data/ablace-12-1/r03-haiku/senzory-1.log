@@ -1,0 +1,514 @@
+=== 2026-10-10T17:24:26+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              363  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:24:34+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/Handler/CancelOrderHandler.php:21:Call to an undefined method App\Ordering\Domain\Repository\OrderRepository::findById(). [identifier=method.notFound]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/Handler/CancelOrderHandler.php:26:Cannot call method cancel() on mixed. [identifier=method.nonObject]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/Handler/CancelOrderHandler.php:27:Parameter #1 $order of method App\Ordering\Domain\Repository\OrderRepository::save() expects App\Ordering\Domain\Model\Order, mixed given. [identifier=argument.type]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              366  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:24:40+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:24:59+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:25:05+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:29:Only booleans are allowed in a negated boolean, array<string, mixed>|false given. [identifier=booleanNot.exprNotBoolean]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:34:Cannot cast mixed to int. [identifier=cast.int]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:40:Cannot cast mixed to int. [identifier=cast.int]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:48:Short ternary operator is not allowed. Use null coalesce operator if applicable or consider using long ternary. [identifier=ternary.shortNotAllowed]
+ -------------------------- ------------------------------------------------------------------------------------------------------------- 
+  Reason                     OrderingApplication                                                                                          
+ -------------------------- ------------------------------------------------------------------------------------------------------------- 
+  DependsOnDisallowedLayer   App\Ordering\Application\EventHandler\RecordRefundHandler must not depend on Doctrine\DBAL\Connection        
+                             You are depending on token that is a part of a layer that you are not allowed to depend on. (Persistence)    
+                             /home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:18  
+ -------------------------- ------------------------------------------------------------------------------------------------------------- 
+
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           1    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              367  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:25:13+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:29:Only booleans are allowed in a negated boolean, array<string, mixed>|false given. [identifier=booleanNot.exprNotBoolean]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:34:Cannot cast mixed to int. [identifier=cast.int]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:40:Cannot cast mixed to int. [identifier=cast.int]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:48:Short ternary operator is not allowed. Use null coalesce operator if applicable or consider using long ternary. [identifier=ternary.shortNotAllowed]
+ -------------------------- ------------------------------------------------------------------------------------------------------------- 
+  Reason                     OrderingApplication                                                                                          
+ -------------------------- ------------------------------------------------------------------------------------------------------------- 
+  DependsOnDisallowedLayer   App\Ordering\Application\EventHandler\RecordRefundHandler must not depend on Doctrine\DBAL\Connection        
+                             You are depending on token that is a part of a layer that you are not allowed to depend on. (Persistence)    
+                             /home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:18  
+ -------------------------- ------------------------------------------------------------------------------------------------------------- 
+
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           1    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              382  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:25:16+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:29:Only booleans are allowed in a negated boolean, array<string, mixed>|false given. [identifier=booleanNot.exprNotBoolean]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:34:Cannot cast mixed to int. [identifier=cast.int]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:40:Cannot cast mixed to int. [identifier=cast.int]
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:48:Short ternary operator is not allowed. Use null coalesce operator if applicable or consider using long ternary. [identifier=ternary.shortNotAllowed]
+ -------------------------- ------------------------------------------------------------------------------------------------------------- 
+  Reason                     OrderingApplication                                                                                          
+ -------------------------- ------------------------------------------------------------------------------------------------------------- 
+  DependsOnDisallowedLayer   App\Ordering\Application\EventHandler\RecordRefundHandler must not depend on Doctrine\DBAL\Connection        
+                             You are depending on token that is a part of a layer that you are not allowed to depend on. (Persistence)    
+                             /home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Application/EventHandler/RecordRefundHandler.php:18  
+ -------------------------- ------------------------------------------------------------------------------------------------------------- 
+
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           1    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              383  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:25:29+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+
+In DefinitionErrorExceptionPass.php line 48:
+                                                                               
+  Cannot autowire service "App\Ordering\Application\EventHandler\RecordRefund  
+  Handler": argument "$refunds" of method "__construct()" references interfac  
+  e "App\Ordering\Domain\Repository\RefundRepository" but no such service exi  
+  sts. Did you create an instantiable class that implements this interface?    
+                                                                               
+
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+?:?:Internal error: Cannot autowire service "App\Ordering\Application\EventHandler\RecordRefundHandler": argument "$refunds" of method "__construct()" references interface "App\Ordering\Domain\Repository\RefundRepository" but no such service exists. Did you create an instantiable class that implements this interface? while analysing file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Domain/Repository/RefundRepository.php
+
+Run PHPStan with -v option and post the stack trace to:
+https://github.com/phpstan/phpstan/issues/new?template=Bug_report.yaml
+
+⚠️  Result is incomplete because of severe errors. ⚠️
+   Fix these errors first and then re-run PHPStan
+   to get all reported errors.
+
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              386  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:25:34+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Ordering/Infrastructure/Repository/DoctrineRefundRepository.php:28:Expression on left side of ?? is not nullable. [identifier=nullCoalesce.expr]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              395  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:25:37+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              395  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:25:45+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              395  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:25:59+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              395  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:26:03+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              395  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:26:08+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              395  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:26:13+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              395  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:26:25+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.nTEfAA6clB/aplikace/src/Legacy/Admin/OrderController.php:78:Do not concatenate values into SQL in OrderController::detailAction(): "SELECT * FROM refunds WHERE order_id = '" . $id . "' ORDER BY created_at DESC" (#c86ebfc9); use $db->quote() or a cast. [identifier=mantinely.sqlConcatenation]
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              395  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T17:26:31+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              395  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:26:43+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              398  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:26:50+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              398  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:27:01+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              398  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:27:10+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              398  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T17:27:15+02:00 make check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.nTEfAA6clB/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              398  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+

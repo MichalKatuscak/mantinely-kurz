@@ -1,0 +1,4 @@
+ M src/Legacy/Admin/order_edit.php
+ M src/Ordering/Application/Handler/CancelOrderHandler.php
+ M src/Ordering/Domain/Model/Order.php
+?? migrations/Version20261010154514.php

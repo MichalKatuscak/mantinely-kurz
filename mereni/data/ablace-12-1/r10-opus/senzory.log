@@ -1,0 +1,288 @@
+=== 2026-10-10T18:11:35+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+=== 2026-10-10T18:11:40+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+=== 2026-10-10T18:12:06+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:63:Access to an undefined property App\Ordering\Domain\Model\Order::$refund. [identifier=property.notFound]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:63:Cannot call method equals() on mixed. [identifier=method.nonObject]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:79:Access to an undefined property App\Ordering\Domain\Model\Order::$refund. [identifier=property.notFound]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:79:Cannot access property $amountInCents on mixed. [identifier=property.nonObject]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:95:Access to an undefined property App\Ordering\Domain\Model\Order::$refund. [identifier=property.notFound]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:95:Cannot access property $amountInCents on mixed. [identifier=property.nonObject]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:109:Cannot cast mixed to int. [identifier=cast.int]
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T18:12:13+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:63:Access to an undefined property App\Ordering\Domain\Model\Order::$refund. [identifier=property.notFound]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:63:Cannot call method equals() on mixed. [identifier=method.nonObject]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:79:Access to an undefined property App\Ordering\Domain\Model\Order::$refund. [identifier=property.notFound]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:79:Cannot access property $amountInCents on mixed. [identifier=property.nonObject]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:95:Access to an undefined property App\Ordering\Domain\Model\Order::$refund. [identifier=property.notFound]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:95:Cannot access property $amountInCents on mixed. [identifier=property.nonObject]
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T18:12:21+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              365  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:12:22+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              366  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:12:24+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/src/Ordering/Domain/Model/Order.php:256:Class App\Ordering\Domain\Event\OrderCancelled constructor invoked with 5 parameters, 4 required. [identifier=arguments.count]
+/home/michal/kopie/tmp.gzpuS0UsIu/aplikace/src/Ordering/Domain/Model/Order.php:256:Parameter #4 $occurredAt of class App\Ordering\Domain\Event\OrderCancelled constructor expects DateTimeImmutable, App\SharedKernel\Domain\Money given. [identifier=argument.type]
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              366  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T18:12:26+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              367  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:12:36+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              367  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:12:48+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              367  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:12:55+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              368  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:12:58+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              370  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:13:11+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              373  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:13:13+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              373  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:13:17+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              373  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:14:00+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              373  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:14:24+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.gzpuS0UsIu/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              373  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+

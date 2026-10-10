@@ -1,0 +1,185 @@
+diff --git a/src/Legacy/Admin/order_edit.php b/src/Legacy/Admin/order_edit.php
+index c51d5f2..ceaa9cb 100644
+--- a/src/Legacy/Admin/order_edit.php
++++ b/src/Legacy/Admin/order_edit.php
+@@ -40,24 +40,32 @@ if (is_post()) {
+             if ($order['status'] == 'cancelled' && !auth_has_role('admin')) {
+                 $errors[] = 'Stornovanou objednávku může obnovit jen admin';
+             } else {
+-                $db->exec("UPDATE orders SET status = '" . $newStatus . "' WHERE id = '" . $id . "'");
+-
+-                // pri potvrzeni doplnit datum, pokud chybi (stare objednavky)
+-                if ($newStatus == 'confirmed' && $order['placed_at'] === null) {
+-                    $db->exec("UPDATE orders SET placed_at = '" . date('Y-m-d H:i:s') . "' WHERE id = '" . $id . "'");
+-                }
++                // storno jde pres command (2026)
++                if ($newStatus == 'cancelled') {
++                    legacy_command(new \App\Ordering\Application\Command\CancelOrder(
++                        \App\Ordering\Domain\ValueObject\OrderId::fromString($id)
++                    ));
++                    audit_log('order', $id, 'status', array('from' => $order['status'], 'to' => $newStatus));
++                    $msg .= 'Objednávka stornována a rezervace byly uvolněny. ';
++                } else {
++                    $db->exec("UPDATE orders SET status = '" . $newStatus . "' WHERE id = '" . $id . "'");
++
++                    // pri potvrzeni doplnit datum, pokud chybi (stare objednavky)
++                    if ($newStatus == 'confirmed' && $order['placed_at'] === null) {
++                        $db->exec("UPDATE orders SET placed_at = '" . date('Y-m-d H:i:s') . "' WHERE id = '" . $id . "'");
++                    }
+ 
+-                audit_log('order', $id, 'status', array('from' => $order['status'], 'to' => $newStatus));
++                    audit_log('order', $id, 'status', array('from' => $order['status'], 'to' => $newStatus));
+ 
+-                // mail zakaznikovi pri odeslani
+-                if ($newStatus == 'shipped') {
+-                    $c = $db->one("SELECT email FROM customers WHERE id = '" . $order['customer_id'] . "'");
+-                    if ($c) {
+-                        send_mail($c['email'], 'Vaše objednávka byla odeslána', "Dobrý den,\n\nvaše objednávka " . $id . " byla právě odeslána.\n");
++                    // mail zakaznikovi pri odeslani
++                    if ($newStatus == 'shipped') {
++                        $c = $db->one("SELECT email FROM customers WHERE id = '" . $order['customer_id'] . "'");
++                        if ($c) {
++                            send_mail($c['email'], 'Vaše objednávka byla odeslána', "Dobrý den,\n\nvaše objednávka " . $id . " byla právě odeslána.\n");
++                        }
+                     }
++                    $msg .= 'Stav změněn na ' . order_state_label($newStatus) . '. ';
+                 }
+-                // TODO: pri 'cancelled' uvolnit rezervace ve skladu (cron to taky nedela)
+-                $msg .= 'Stav změněn na ' . order_state_label($newStatus) . '. ';
+             }
+         }
+     }
+@@ -103,6 +111,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ <?php foreach ($errors as $e) { ?><p class="err"><?php echo h($e); ?></p><?php } ?>
+ 
+ <form method="post">
++<?php csrf_field(); ?>
+ <input type="hidden" name="id" value="<?php echo h($order['id']); ?>">
+ <table class="grid" style="width:auto">
+     <tr><th>Zákazník</th><td><?php echo h(customer_name($order['customer_id'])); ?></td></tr>
+diff --git a/src/Ordering/Application/Command/CancelOrder.php b/src/Ordering/Application/Command/CancelOrder.php
+new file mode 100644
+index 0000000..2fa7072
+--- /dev/null
++++ b/src/Ordering/Application/Command/CancelOrder.php
+@@ -0,0 +1,15 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Command;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++
++final readonly class CancelOrder
++{
++    public function __construct(
++        public OrderId $orderId,
++        public string $reason = '',
++    ) {}
++}
+diff --git a/src/Ordering/Application/Handler/CancelOrderHandler.php b/src/Ordering/Application/Handler/CancelOrderHandler.php
+new file mode 100644
+index 0000000..c936ae8
+--- /dev/null
++++ b/src/Ordering/Application/Handler/CancelOrderHandler.php
+@@ -0,0 +1,24 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Handler;
++
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Domain\Repository\OrderRepository;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++#[AsMessageHandler(bus: 'command.bus')]
++final readonly class CancelOrderHandler
++{
++    public function __construct(
++        private OrderRepository $orders,
++    ) {}
++
++    public function __invoke(CancelOrder $command): void
++    {
++        $order = $this->orders->get($command->orderId);
++        $order->cancel($command->reason, new \DateTimeImmutable());
++        $this->orders->save($order);
++    }
++}
+diff --git a/tests/Acceptance/Legacy/CancelOrderTest.php b/tests/Acceptance/Legacy/CancelOrderTest.php
+new file mode 100644
+index 0000000..ddcdf2b
+--- /dev/null
++++ b/tests/Acceptance/Legacy/CancelOrderTest.php
+@@ -0,0 +1,69 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Tests\Acceptance\Legacy;
++
++use App\Identity\Infrastructure\Security\DemoCustomerProvider;
++use App\Inventory\Domain\Repository\StockItemRepository;
++use App\Ordering\Domain\Model\Order;
++use App\Ordering\Domain\Repository\OrderRepository;
++use App\Ordering\Domain\ValueObject\CustomerId;
++use App\Ordering\Domain\ValueObject\OrderId;
++use App\Ordering\Domain\ValueObject\OrderStatus;
++use App\SharedKernel\Domain\Currency;
++use App\SharedKernel\Domain\Money;
++use App\Tests\Support\Catalog;
++use App\Tests\Support\TestDatabase;
++use Doctrine\DBAL\Connection;
++use Doctrine\ORM\EntityManagerInterface;
++use PHPUnit\Framework\Attributes\Test;
++use Symfony\Bundle\FrameworkBundle\KernelBrowser;
++use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
++
++final class CancelOrderTest extends WebTestCase
++{
++    private KernelBrowser $client;
++
++    protected function setUp(): void
++    {
++        TestDatabase::reset();
++        $GLOBALS['db'] = null;
++        $this->client = self::createClient();
++        $this->client->disableReboot();
++        Catalog::seed(self::getContainer()->get(Connection::class));
++        $this->client->loginUser(
++            self::getContainer()->get(DemoCustomerProvider::class)->loadUserByIdentifier('sprava@example.com'),
++        );
++    }
++
++    #[Test]
++    public function orderCanBeCancelledFromLegacyAdmin(): void
++    {
++        $orders = self::getContainer()->get(OrderRepository::class);
++        $stockItems = self::getContainer()->get(StockItemRepository::class);
++        $keyboard = \App\Ordering\Domain\ValueObject\ProductId::fromString(Catalog::KEYBOARD);
++
++        $order = Order::place(OrderId::generate(), CustomerId::generate());
++        $order->addItem($keyboard, 2, new Money(300_00, Currency::CZK));
++        $order->confirm();
++        $orders->save($order);
++
++        $available = $stockItems->get($keyboard)->available();
++
++        $crawler = $this->client->request('GET', '/admin/legacy/order_edit?id=' . $order->id->value);
++        $form = $crawler->selectButton('Uložit')->form();
++        $form['status'] = 'cancelled';
++        // CSRF token by měl být automaticky extrahován z formuláře
++        $this->client->submit($form);
++
++        self::assertResponseIsSuccessful();
++        self::assertSelectorTextContains('p.msg', 'stornována');
++        self::getContainer()->get(EntityManagerInterface::class)->clear();
++        $cancelled = $orders->get($order->id);
++        self::assertSame(OrderStatus::Cancelled, $cancelled->status);
++
++        $newAvailable = $stockItems->get($keyboard)->available();
++        self::assertSame($available + 2, $newAvailable);
++    }
++}

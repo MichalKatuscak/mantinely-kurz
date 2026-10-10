@@ -1,0 +1,77 @@
+diff --git a/src/Legacy/Admin/orders.php b/src/Legacy/Admin/orders.php
+index b307f16..16fbd7f 100644
+--- a/src/Legacy/Admin/orders.php
++++ b/src/Legacy/Admin/orders.php
+@@ -30,10 +30,19 @@ if ($action == 'storno') {
+     $n = $db->exec("UPDATE orders SET status = 'cancelled' WHERE id IN (" . $idList . ") AND status != 'delivered'");
+     foreach ($before as $b) {
+         if ($b['status'] != 'delivered') {
+-            audit_log('order', $b['id'], 'storno', array('from' => $b['status'], 'bulk' => true));
++            // vraceni polozek do skladu
++            release_stock_reservations($b['id']);
++
++            // vypocet a zaznam vracenych financnich prostredku
++            $refund = calculate_refund_amount($b['id']);
++            audit_log('order', $b['id'], 'storno', array(
++                'from' => $b['status'],
++                'bulk' => true,
++                'refund_amount' => $refund['amount'],
++                'refund_currency' => $refund['currency']
++            ));
+         }
+     }
+-    // FIXME: rezervace ve skladu zustanou viset, viz StockReport::orphanReservations()
+     flash('Stornováno objednávek: ' . $n);
+ } elseif ($action == 'paid') {
+     $n = $db->exec("UPDATE orders SET status = 'paid' WHERE id IN (" . $idList . ") AND status = 'confirmed'");
+@@ -53,3 +62,50 @@ if ($action == 'storno') {
+ 
+ cache_delete('dashboard_stats');
+ redirect(admin_url('orders'));
++
++/**
++ * Vrati polozky zrusene objednavky zpet do skladu (odstrani rezervace).
++ */
++function release_stock_reservations($orderId)
++{
++    global $db;
++    $stock_items = $db->query("SELECT product_id, reservations FROM stock_items");
++
++    foreach ($stock_items as $item) {
++        $reservations = json_decode($item['reservations'] ?? '{}', true) ?: array();
++
++        if (isset($reservations[$orderId])) {
++            unset($reservations[$orderId]);
++            $newReservations = empty($reservations) ? '{}' : json_encode($reservations);
++            $sql = "UPDATE stock_items SET reservations = " . $db->quote($newReservations) . " WHERE product_id = " . $db->quote($item['product_id']);
++            $db->exec($sql);
++        }
++    }
++}
++
++/**
++ * Vypocita celkovy zpusobilej vracenych financnich prostredku na zaklade objednanych polozek.
++ */
++function calculate_refund_amount($orderId)
++{
++    global $db;
++
++    $sql = "SELECT SUM(quantity * unit_price_amount_in_cents) as total_cents, unit_price_currency FROM order_items "
++        . "WHERE order_id = " . $db->quote($orderId) . " "
++        . "GROUP BY unit_price_currency";
++    $result = $db->one($sql);
++
++    if ($result) {
++        return array(
++            'amount' => (int) $result['total_cents'],
++            'currency' => (string) $result['unit_price_currency']
++        );
++    }
++
++    // fallback na oryginalnu valutu objednavky
++    $order = $db->one("SELECT currency FROM orders WHERE id = " . $db->quote($orderId));
++    return array(
++        'amount' => 0,
++        'currency' => $order ? $order['currency'] : 'CZK'
++    );
++}

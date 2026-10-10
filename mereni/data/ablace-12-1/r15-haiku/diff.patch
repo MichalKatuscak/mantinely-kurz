@@ -1,0 +1,305 @@
+diff --git a/src/Legacy/Admin/order_cancel.php b/src/Legacy/Admin/order_cancel.php
+new file mode 100644
+index 0000000..f57d41f
+--- /dev/null
++++ b/src/Legacy/Admin/order_cancel.php
+@@ -0,0 +1,126 @@
++<?php
++/**
++ * Storno objednavky – vraci zbozi na sklad a vraci penize zakaznikovi.
++ *
++ * GET /id=<uuid>
++ *   - zobrazi potvrzovaci dialog
++ *
++ * POST /id=<uuid>&confirm=1
++ *   - provede storno pres CancelOrder command
++ *   - ReleaseReservationsHandler automaticky vrati zbozi
++ *   - zapise do audit logu
++ */
++
++global $db;
++legacy_db();
++auth_require('obchod');
++
++$id = isset($_POST['id']) ? (string) $_POST['id'] : '';
++if ($id == '' && isset($_GET['id'])) {
++    $id = (string) $_GET['id'];
++}
++
++if ($id == '') {
++    flash('Chybí ID objednávky', 'error');
++    redirect(admin_url('orders'));
++    return;
++}
++
++$order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
++if ($order === null) {
++    flash('Objednávka nenalezena', 'error');
++    redirect(admin_url('orders'));
++    return;
++}
++
++// kontrola, ze lze objednavku stornovat
++if ($order['status'] == 'delivered') {
++    flash('Doručenou objednávku nelze stornovat', 'error');
++    redirect(admin_url('order', array('id' => $id)));
++    return;
++}
++
++if ($order['status'] == 'cancelled') {
++    flash('Objednávka je již stornovaná', 'error');
++    redirect(admin_url('order', array('id' => $id)));
++    return;
++}
++
++// je-li GET, zobrazi potvrzovaci stranku
++if (!is_post() || !isset($_POST['confirm'])) {
++    // zobrazit potvrzovaci dialog
++    $items = $db->query("SELECT i.*, p.name FROM order_items i LEFT JOIN products p ON p.id = i.product_id WHERE i.order_id = " . $db->quote($id));
++    $customer = $db->one("SELECT * FROM customers WHERE id = " . $db->quote($order['customer_id']));
++
++    $sum = 0;
++    foreach ($items as $it) {
++        $sum += (int) ($it['quantity'] * $it['unit_price_amount_in_cents']);
++    }
++    $toPay = max(0, $sum - (int) $order['discount_amount_in_cents']);
++
++    include LEGACY_TEMPLATES . '/partials/old_header.php';
++    ?>
++    <h1>Storno objednávky <?php echo h($id); ?></h1>
++
++    <div class="warning">
++        <p><strong>Pozor!</strong> Chystáte se stornovat objednávku. Tato akce:</p>
++        <ul>
++            <li>Vrátí zboží na sklad</li>
++            <li>Vrátí peníze zákazníkovi (<?php echo h(format_price($toPay, $order['currency'])); ?>)</li>
++            <li>Bude zaznamenána v historii</li>
++        </ul>
++    </div>
++
++    <h2>Položky ke vrácení</h2>
++    <table class="grid">
++        <tr><th>Produkt</th><th class="num">Ks</th><th class="num">Cena/ks</th><th class="num">Celkem</th></tr>
++    <?php foreach ($items as $it) { ?>
++        <tr>
++            <td><?php echo h($it['name'] !== null ? $it['name'] : $it['product_id']); ?></td>
++            <td class="num"><?php echo (int) $it['quantity']; ?></td>
++            <td class="num"><?php echo format_price($it['unit_price_amount_in_cents'], $it['unit_price_currency']); ?></td>
++            <td class="num"><?php echo format_price($it['quantity'] * $it['unit_price_amount_in_cents'], $it['unit_price_currency']); ?></td>
++        </tr>
++    <?php } ?>
++    </table>
++
++    <p><strong>Zákazník:</strong>
++    <?php if ($customer) { ?>
++        <?php echo h($customer['name']); ?> &lt;<?php echo h($customer['email']); ?>&gt;
++    <?php } else { ?>
++        <em>(zákazník z nového e-shopu)</em>
++    <?php } ?>
++    </p>
++
++    <form method="post"><?php echo csrf_field(); ?>
++        <input type="hidden" name="id" value="<?php echo h($id); ?>">
++        <input type="hidden" name="confirm" value="1">
++        <p>
++            <input type="submit" value="Potvrdit storno" onclick="return confirm('Opravdu chcete stornovat tuto objednávku?')">
++            <a href="<?php echo h(admin_url('order', array('id' => $id))); ?>">Zrušit</a>
++        </p>
++    </form>
++
++    <?php
++    include LEGACY_TEMPLATES . '/partials/old_footer.php';
++    return;
++}
++
++// POST s confirm=1 – provest storno
++csrf_check();
++
++try {
++    $reason = isset($_POST['reason']) ? (string) $_POST['reason'] : 'Storno z Legacy administrace';
++
++    legacy_command(new \App\Ordering\Application\Command\CancelOrder(
++        \App\Ordering\Domain\ValueObject\OrderId::fromString($id),
++        $reason
++    ));
++
++    flash('Objednávka ' . h($id) . ' byla stornována a zboží vráceno na sklad');
++    cache_delete('dashboard_stats');
++} catch (\Exception $e) {
++    flash('Chyba při storno: ' . $e->getMessage(), 'error');
++}
++
++redirect(admin_url('order', array('id' => $id)));
+diff --git a/src/Legacy/Admin/order_edit.php b/src/Legacy/Admin/order_edit.php
+index e4ad017..6c365a3 100644
+--- a/src/Legacy/Admin/order_edit.php
++++ b/src/Legacy/Admin/order_edit.php
+@@ -40,6 +40,17 @@ if (is_post()) {
+             // obchodaci obcas vraceji stornovane zpet – zakazano (2016, po incidentu)
+             if ($order['status'] == 'cancelled' && !auth_has_role('admin')) {
+                 $errors[] = 'Stornovanou objednávku může obnovit jen admin';
++            } elseif ($newStatus == 'cancelled') {
++                // storno pres CancelOrder command (vrátí zboží na sklad)
++                try {
++                    legacy_command(new \App\Ordering\Application\Command\CancelOrder(
++                        \App\Ordering\Domain\ValueObject\OrderId::fromString($id),
++                        'Storno z order_edit (Legacy admin)'
++                    ));
++                    $msg .= 'Objednávka stornována a zboží vráceno na sklad. ';
++                } catch (\Exception $e) {
++                    $errors[] = 'Chyba při storno: ' . $e->getMessage();
++                }
+             } else {
+                 $db->exec("UPDATE orders SET status = '" . $newStatus . "' WHERE id = '" . $id . "'");
+ 
+@@ -57,7 +68,6 @@ if (is_post()) {
+                         send_mail($c['email'], 'Vaše objednávka byla odeslána', "Dobrý den,\n\nvaše objednávka " . $id . " byla právě odeslána.\n");
+                     }
+                 }
+-                // TODO: pri 'cancelled' uvolnit rezervace ve skladu (cron to taky nedela)
+                 $msg .= 'Stav změněn na ' . order_state_label($newStatus) . '. ';
+             }
+         }
+diff --git a/src/Legacy/Admin/orders.php b/src/Legacy/Admin/orders.php
+index b307f16..49ec66b 100644
+--- a/src/Legacy/Admin/orders.php
++++ b/src/Legacy/Admin/orders.php
+@@ -27,13 +27,21 @@ $idList = ids_to_sql($ids);
+ if ($action == 'storno') {
+     // stornovat lze cokoliv krome dorucenych (2017: i odeslane, kdyz se balik vrati)
+     $before = $db->query("SELECT id, status FROM orders WHERE id IN (" . $idList . ")");
+-    $n = $db->exec("UPDATE orders SET status = 'cancelled' WHERE id IN (" . $idList . ") AND status != 'delivered'");
++    $n = 0;
+     foreach ($before as $b) {
+         if ($b['status'] != 'delivered') {
+-            audit_log('order', $b['id'], 'storno', array('from' => $b['status'], 'bulk' => true));
++            try {
++                legacy_command(new \App\Ordering\Application\Command\CancelOrder(
++                    \App\Ordering\Domain\ValueObject\OrderId::fromString($b['id']),
++                    'Hromadné storno z Legacy administrace'
++                ));
++                $n++;
++            } catch (\Exception $e) {
++                // ignorovat chyby u jednotlivych objednavek, pokracovat dal
++                error_log('Chyba pri storno ' . $b['id'] . ': ' . $e->getMessage());
++            }
+         }
+     }
+-    // FIXME: rezervace ve skladu zustanou viset, viz StockReport::orphanReservations()
+     flash('Stornováno objednávek: ' . $n);
+ } elseif ($action == 'paid') {
+     $n = $db->exec("UPDATE orders SET status = 'paid' WHERE id IN (" . $idList . ") AND status = 'confirmed'");
+diff --git a/src/Legacy/templates/orders/detail.php b/src/Legacy/templates/orders/detail.php
+index baf6a73..b4f7a15 100644
+--- a/src/Legacy/templates/orders/detail.php
++++ b/src/Legacy/templates/orders/detail.php
+@@ -10,6 +10,9 @@
+     <tr><th>Stav</th><td class="state-<?php echo h($order['status']); ?>"><?php echo h(order_state_label($order['status'])); ?></td></tr>
+     <tr><th>Datum objednání</th><td><?php echo format_date($order['placed_at'], true); ?></td></tr>
+     <tr><th>Měna</th><td><?php echo h($order['currency']); ?></td></tr>
++    <?php if ($order['status'] == 'cancelled') { ?>
++        <tr><th style="background:#ffe0e0">Vrácení</th><td style="background:#ffe0e0"><strong>Objednávka stornována</strong><br><small>Zboží vráceno na sklad. Peníze (<?php echo format_price($toPay, $order['currency']); ?>) je třeba vrátit ručně.</small></td></tr>
++    <?php } ?>
+     <tr><th>Zákazník</th><td>
+         <?php if ($customer) { ?>
+             <a href="<?php echo h(admin_url('customer', array('id' => $customer['id']))); ?>"><?php echo h($customer['name']); ?></a>
+@@ -59,6 +62,9 @@
+ <p>
+     <a href="<?php echo h(admin_url('order_edit', array('id' => $order['id']))); ?>">Změnit stav / slevu</a> |
+     <a href="<?php echo h(admin_url('order_notes', array('order' => $order['id']))); ?>">Poznámky (<?php echo count($notes); ?>)</a>
++    <?php if ($order['status'] != 'delivered' && $order['status'] != 'cancelled') { ?>
++        | <a href="<?php echo h(admin_url('order_cancel', array('id' => $order['id']))); ?>" style="color: #cc0000;">Stornovat</a>
++    <?php } ?>
+ </p>
+ 
+ <h2>Poznámky</h2>
+diff --git a/src/Ordering/Application/Command/CancelOrder.php b/src/Ordering/Application/Command/CancelOrder.php
+new file mode 100644
+index 0000000..2fa7072
+--- /dev/null
++++ b/src/Ordering/Application/Command/CancelOrder.php
+@@ -0,0 +1,15 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Command;
++
++use App\Ordering\Domain\ValueObject\OrderId;
++
++final readonly class CancelOrder
++{
++    public function __construct(
++        public OrderId $orderId,
++        public string $reason = '',
++    ) {}
++}
+diff --git a/src/Ordering/Application/Handler/CancelOrderHandler.php b/src/Ordering/Application/Handler/CancelOrderHandler.php
+new file mode 100644
+index 0000000..c936ae8
+--- /dev/null
++++ b/src/Ordering/Application/Handler/CancelOrderHandler.php
+@@ -0,0 +1,24 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Application\Handler;
++
++use App\Ordering\Application\Command\CancelOrder;
++use App\Ordering\Domain\Repository\OrderRepository;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++#[AsMessageHandler(bus: 'command.bus')]
++final readonly class CancelOrderHandler
++{
++    public function __construct(
++        private OrderRepository $orders,
++    ) {}
++
++    public function __invoke(CancelOrder $command): void
++    {
++        $order = $this->orders->get($command->orderId);
++        $order->cancel($command->reason, new \DateTimeImmutable());
++        $this->orders->save($order);
++    }
++}
+diff --git a/src/Ordering/Infrastructure/EventHandler/AddCancellationNoteHandler.php b/src/Ordering/Infrastructure/EventHandler/AddCancellationNoteHandler.php
+new file mode 100644
+index 0000000..79f85c3
+--- /dev/null
++++ b/src/Ordering/Infrastructure/EventHandler/AddCancellationNoteHandler.php
+@@ -0,0 +1,33 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Ordering\Infrastructure\EventHandler;
++
++use App\Ordering\Domain\Event\OrderCancelled;
++use Doctrine\DBAL\Connection;
++use Symfony\Component\Messenger\Attribute\AsMessageHandler;
++
++/**
++ * Přidá automatickou poznámku k objednávce při storno.
++ */
++#[AsMessageHandler(bus: 'event.bus')]
++final readonly class AddCancellationNoteHandler
++{
++    public function __construct(
++        private Connection $db,
++    ) {}
++
++    public function __invoke(OrderCancelled $event): void
++    {
++        $reason = $event->reason !== '' ? $event->reason : 'Objednávka zrušena';
++        $note = 'Storno: ' . $reason . ' (' . $event->occurredAt->format('d.m.Y H:i') . ')';
++
++        $this->db->insert('order_notes', [
++            'order_id' => $event->orderId->value,
++            'author' => 'system',
++            'note' => $note,
++            'created_at' => $event->occurredAt->format('Y-m-d H:i:s'),
++        ]);
++    }
++}

@@ -1,0 +1,12 @@
+ docs/legacy-mapa.md                                |   2 +-
+ migrations/Version20261010153240.php               |  35 +++++
+ src/Legacy/Admin/OrderController.php               |  40 ++++++
+ src/Legacy/Http/LegacyFrontController.php          |   1 +
+ src/Legacy/templates/orders/detail.php             |  15 +++
+ src/Ordering/Application/Command/CancelOrder.php   |  15 +++
+ .../Application/Handler/CancelOrderHandler.php     |  24 ++++
+ src/Ordering/Domain/Model/Order.php                |  15 +++
+ tests/Acceptance/Legacy/CancelOrderTest.php        | 142 +++++++++++++++++++++
+ .../Application/CancelOrderHandlerTest.php         |  88 +++++++++++++
+ tests/Ordering/Domain/OrderRefundTest.php          |  74 +++++++++++
+ 11 files changed, 450 insertions(+), 1 deletion(-)

@@ -1,0 +1,30 @@
+=== 2026-10-10T18:23:59+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              362  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:24:04+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              362  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+

@@ -1,0 +1,111 @@
+=== 2026-10-10T18:19:22+02:00 make --no-print-directory check-changed (exit 2)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.tUflQEdTvR/aplikace/phpstan.neon.
+Instructions for interpreting errors
+---------
+
+Each error has an associated identifier, like `argument.type`
+or `return.missing`.
+
+Each error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>
+This page contains code example, explanation why is this an error
+and instruction how to fix it.
+Before fixing the error, fetch the documentation page for its identifier.
+
+The error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.
+Do not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.
+Do not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.
+Do not add type casts just to silence errors.
+Do not widen parameter or return types just to make the error go away.
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:31:Access to an undefined property App\Ordering\Domain\Model\Order::$refundAmount. [identifier=property.notFound]
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:31:Cannot call method equals() on mixed. [identifier=method.nonObject]
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:38:Access to an undefined property App\Ordering\Domain\Model\Order::$refundAmount. [identifier=property.notFound]
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:38:Cannot call method equals() on mixed. [identifier=method.nonObject]
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:42:Access to an undefined property App\Ordering\Domain\Model\Order::$refundAmount. [identifier=property.notFound]
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:42:Cannot call method equals() on mixed. [identifier=method.nonObject]
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:54:Access to an undefined property App\Ordering\Domain\Model\Order::$refundAmount. [identifier=property.notFound]
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:54:Cannot call method equals() on mixed. [identifier=method.nonObject]
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:65:Access to an undefined property App\Ordering\Domain\Model\Order::$refundAmount. [identifier=property.notFound]
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Domain/OrderRefundTest.php:65:Cannot call method equals() on mixed. [identifier=method.nonObject]
+make: *** [Makefile:66: check-changed] Error 2
+=== 2026-10-10T18:19:28+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.tUflQEdTvR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              371  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:19:29+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.tUflQEdTvR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:19:33+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.tUflQEdTvR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:20:11+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.tUflQEdTvR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+
+=== 2026-10-10T18:20:28+02:00 make --no-print-directory check-changed (exit 0)
+--- stdout
+--- stderr
+Note: Using configuration file /home/michal/kopie/tmp.tUflQEdTvR/aplikace/phpstan.neon.
+
+ -------------------------- 
+  Report                    
+ -------------------- ----- 
+  Violations           0    
+  Skipped violations   0    
+  Uncovered            0    
+  Allowed              372  
+  Warnings             0    
+  Errors               0    
+ -------------------- ----- 
+

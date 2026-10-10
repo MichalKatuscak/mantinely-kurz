@@ -1,0 +1,602 @@
+vendor/bin/phpunit --no-progress
+PHPUnit 13.4.1 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /home/michal/kopie/tmp.tUflQEdTvR/aplikace/phpunit.dist.xml
+
+Time: 00:01.736, Memory: 125.00 MB
+
+There were 14 errors:
+
+1) App\Tests\Acceptance\Legacy\CancelOrderRefundTest::cancelledPaidOrderShowsPaidAmountToRefund
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderRefundTest.php:48
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderRefundTest.php:48
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderRefundTest.php:48
+
+2) App\Tests\Acceptance\Legacy\CancelOrderRefundTest::cancelledUnpaidOrderShowsNothingToRefund
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderRefundTest.php:64
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderRefundTest.php:64
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderRefundTest.php:64
+
+3) App\Tests\Acceptance\Legacy\CancelOrderTest::paidOrderIsCancelledFromOrderDetail
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:46
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:46
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:46
+
+4) App\Tests\Acceptance\Legacy\CancelOrderTest::shippedOrderCannotBeCancelled
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:66
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:66
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:66
+
+5) App\Tests\Acceptance\Legacy\CancelOrderTest::cancelWithoutCsrfTokenIsRejected
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:86
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:86
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:86
+
+6) App\Tests\Acceptance\Legacy\CancelOrderTest::warehouseStaffCannotCancel
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:99
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:99
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:123
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/CancelOrderTest.php:99
+
+7) App\Tests\Acceptance\Legacy\ChangeItemQuantityTest::quantityInConfirmedOrderStaysUnchanged
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/ChangeItemQuantityTest.php:53
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/ChangeItemQuantityTest.php:53
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/ChangeItemQuantityTest.php:53
+
+8) App\Tests\Acceptance\Legacy\ChangeItemQuantityTest::quantityInDraftOrderChangesFromOrderDetail
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/ChangeItemQuantityTest.php:76
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/ChangeItemQuantityTest.php:76
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Acceptance/Legacy/ChangeItemQuantityTest.php:76
+
+9) App\Tests\Inventory\ReleaseReservationsTest::cancelledOrderReleasesItsReservations
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Inventory/ReleaseReservationsTest.php:42
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Inventory/ReleaseReservationsTest.php:42
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Inventory/ReleaseReservationsTest.php:42
+
+10) App\Tests\Inventory\ReserveStockTest::addedItemReservesStockForTheOrder
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Inventory/ReserveStockTest.php:41
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Inventory/ReserveStockTest.php:41
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Inventory/ReserveStockTest.php:41
+
+11) App\Tests\Ordering\Application\CancelOrderHandlerTest::paidOrderIsCancelledAndGoodsReturnToStock
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Application/CancelOrderHandlerTest.php:48
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Application/CancelOrderHandlerTest.php:48
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Application/CancelOrderHandlerTest.php:48
+
+12) App\Tests\Ordering\Application\CancelOrderHandlerTest::shippedOrderStaysShipped
+Doctrine\DBAL\Exception\InvalidFieldNameException: An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/API/SQLite/ExceptionConverter.php:60
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1453
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:1389
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:764
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Application/CancelOrderHandlerTest.php:69
+
+Caused by
+Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:50
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Application/CancelOrderHandlerTest.php:69
+
+Caused by
+PDOException: SQLSTATE[HY000]: General error: 1 table orders has no column named refund_amount_in_cents
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/PDO/Connection.php:45
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Logging/Connection.php:29
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Driver/Middleware/AbstractConnectionMiddleware.php:19
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/doctrine-bridge/Middleware/Debug/Connection.php:39
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/dbal/src/Connection.php:762
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/Persisters/Entity/BasicEntityPersister.php:241
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:1144
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/UnitOfWork.php:426
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/doctrine/orm/src/EntityManager.php:270
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/src/Ordering/Infrastructure/Repository/DoctrineOrderRepository.php:59
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Application/CancelOrderHandlerTest.php:69
+
+13) App\Tests\Ordering\Infrastructure\OrderControllerTest::customerPlacesConfirmsAndPaysOrder
+Symfony\Component\BrowserKit\Exception\InvalidArgumentException: There is no button with "Nová objednávka" as its content, id, value or name.
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/browser-kit/AbstractBrowser.php:315
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Infrastructure/OrderControllerTest.php:39
+
+14) App\Tests\Ordering\Infrastructure\OrderControllerTest::foreignCustomerDoesNotSeeOrder
+Symfony\Component\BrowserKit\Exception\InvalidArgumentException: There is no button with "Nová objednávka" as its content, id, value or name.
+
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/vendor/symfony/browser-kit/AbstractBrowser.php:315
+/home/michal/kopie/tmp.tUflQEdTvR/aplikace/tests/Ordering/Infrastructure/OrderControllerTest.php:59
+
+[37;41mERRORS![0m
+[37;41mTests: 86[0m[37;41m, Assertions: 126[0m[37;41m, Errors: 14[0m[37;41m.[0m
+make: *** [Makefile:15: test] Error 2
+make check exit=2

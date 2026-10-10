@@ -1,0 +1,12 @@
+vendor/bin/phpunit --no-progress
+PHPUnit 13.4.1 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /home/michal/kopie/tmp.GhlXLZkxDC/aplikace/phpunit.dist.xml
+
+PHP Fatal error:  Cannot redeclare function release_stock_reservations() (previously declared in /home/michal/kopie/tmp.GhlXLZkxDC/aplikace/src/Legacy/Admin/orders.php:69) in /home/michal/kopie/tmp.GhlXLZkxDC/aplikace/src/Legacy/Admin/orders.php on line 69
+
+Fatal error: Cannot redeclare function release_stock_reservations() (previously declared in /home/michal/kopie/tmp.GhlXLZkxDC/aplikace/src/Legacy/Admin/orders.php:69) in /home/michal/kopie/tmp.GhlXLZkxDC/aplikace/src/Legacy/Admin/orders.php on line 69
+Fatal error: Premature end of PHP process when running App\Tests\Legacy\AuthRequireTest::salesRoleChangesOrders.
+make: *** [Makefile:15: test] Error 2
+make check exit=2

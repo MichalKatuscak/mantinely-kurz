@@ -1,0 +1,14 @@
+ config/services.yaml                               |  1 +
+ migrations/Version20261010000000.php               | 28 ++++++++++++
+ src/Legacy/Admin/OrderController.php               | 52 +++++++++++++++++++---
+ src/Legacy/Admin/orders.php                        | 15 +++++--
+ src/Legacy/Http/LegacyFrontController.php          |  1 +
+ src/Legacy/templates/orders/cancel.php             | 27 +++++++++++
+ src/Legacy/templates/orders/detail.php             | 20 +++++++++
+ src/Ordering/Application/Command/CancelOrder.php   | 15 +++++++
+ .../EventHandler/RecordRefundHandler.php           | 43 ++++++++++++++++++
+ .../Application/Handler/CancelOrderHandler.php     | 25 +++++++++++
+ src/Ordering/Domain/Model/Refund.php               | 38 ++++++++++++++++
+ .../Domain/Repository/RefundRepository.php         | 16 +++++++
+ .../Repository/DoctrineRefundRepository.php        | 31 +++++++++++++
+ 13 files changed, 303 insertions(+), 9 deletions(-)
