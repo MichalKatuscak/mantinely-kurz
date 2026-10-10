@@ -1,6 +1,6 @@
-# Měření experimentu z lekce 0.2
+# Měření experimentu z lekcí 0.2 a 12.1
 
-Tady je všechno, z čeho vycházejí čísla v lekci 0.2 kurzu Mantinely: zadání, skripty,
+Tady je všechno, z čeho vycházejí čísla v lekcích 0.2 a 12.1 kurzu Mantinely: zadání, skripty,
 kritéria, hodnocení a přepisy všech běhů agenta, beze změny. Můžete si je přečíst,
 zkontrolovat, nebo měření zopakovat se svým modelem.
 
@@ -40,8 +40,8 @@ Počty po modelech jsou v `data/mereni-legacy/VYSLEDKY.md` (9 běhů všech tř�
 a `data/mereni-legacy-opus/VYSLEDKY.md` (Opus, 10 běhů sloučeně). U T4 závisí počet
 na výkladu hraničních případů (Opus 6 až 9 z 10). Průřez to rozebírá.
 
-Ukázkový běh v lekci je `data/mereni-legacy/r3-opus` (nejsilnější model Claude v době
-měření, jeden ze dvou jeho běhů s nejvíc typy chyb: T1, T2 a T4; druhý je
+Ukázkový běh v lekci je `data/mereni-legacy/r3-opus` (nejsilnější ze tří měřených modelů,
+jeden ze dvou jeho běhů s nejvíc typy chyb: T1, T2 a T4; druhý je
 `mereni-legacy-opus/r2-opus`). Jeho výsledek je i tag `m00-end`. Obejití domény (T3)
 lekce ukazuje na běhu `r6-sonnet`. Zhuštěné průběhy mají oba v `PRUBEH.md`.
 
@@ -91,8 +91,10 @@ zveřejněn.
 - Měřil jsem jen Claude Code s modely Claude. Jiné nástroje a modely jsem netestoval.
 - Typy chyb T1 až T4 jsem pojmenoval až po měření, podle toho, co hodnotitelé našli.
   Kritéria v `KRITERIA.md` vznikla před během a hledala čtyři chyby, které jsem čekal.
-  Chyba se slevou se neobjevila vůbec, SQL injection a nevyžádané zásahy hodnotitelé
-  našli navíc. Sloupce v hodnoceních proto neodpovídají T1 až T4 jedna k jedné.
+  Chybná výše vratky po slevě se neobjevila vůbec, SQL injection a nevyžádané zásahy
+  hodnotitelé našli navíc. Jinou chybu se slevou (storno spadne na 500, když je sleva vyšší
+  než položky) měla v kódu polovina běhů Opusu a všechny ji ve zprávě přiznaly
+  (`data/mereni-legacy-opus/VYSLEDKY.md`). Sloupce v hodnoceních proto neodpovídají T1 až T4 jedna k jedné.
 - Hodnotitelé byli modely stejné rodiny jako agent. Průřez proto každý nález ověřil
   znovu přímo v diffu nebo v přepisu, hodnocení mu sloužila jen k orientaci.
 - README výchozího stavu, které většina agentů četla, popisuje slevu a zmiňuje, že na
@@ -148,16 +150,43 @@ na co navázat. Proto pak všech 16 dostalo stejnou druhou zprávu zadavatele. Z
 splnilo 13 z 16 běhů. Haiku ho ve dvou bězích splnil jen částečně a ve třetím vůbec ne,
 všechny tři zprávy přitom tvrdily opak. Prošla i chyba, na kterou mantinely nemířily:
 sleva vyšší než součet položek shodí storno zaplacené objednávky chybou 500. Našlo ji jen
-review v čistém kontextu (v 10 ze 13 běhů). Nová přitom není: v 0.2 ji ukázkový běh napsal
+review v čistém kontextu, a to jen v 10 ze 13 běhů. Nová přitom není a s mantinely byla u Opusu
+v kódu dokonce častěji (bez nich 5 z 10, s nimi 10 z 10): v 0.2 ji ukázkový běh napsal
 do zprávy a z deseti běhů Opusu ji pět nahlásilo a čtyři opravily (oprava `paidAmount()` se
 počítala jako nevyžádaný zásah). Ve 12.1 ji žádný běh neopravil ani nezmínil. Ukázkový běh
-podle pravidla z protokolu je `r1-opus`, jeho výsledek je tag `m12-end`.
+podle pravidla z protokolu je `r1-opus`, jeho výsledek je tag `m12-end`. Typický není: existující
+`cancel()` nechaly beze změny jen tři z deseti běhů Opusu a `r1-opus` je jeden z nich.
+
+### Co měření 12.1 neříká
+
+- Které vrstvě patří výsledek. Mezi 0.2 a 12.1 jsem najednou změnil instrukce, vzor v kódu
+  (akce staré administrace přes příkaz, token a role ve všech akcích), senzory i postup (druhá
+  zpráva zadavatele). Na čtyři typy chyb senzory během běhů zasáhly jen jednou. Co z toho
+  udělala která vrstva, tohle měření nerozliší; to by ukázalo až měření, které vrstvy odebírá
+  jednu po druhé.
+- Jak dopadnou chyby, které jsem předem neznal. Mantinely i zadání reviewera jsem stavěl podle
+  chyb z 0.2 a měřil je na stejném tiketu, pro mantinely je to nejpříznivější případ. Chyba,
+  na kterou nemířily (sleva → 500), prošla.
+- Přímý počet zásahů hooku. Výstup hooku po editaci se do přepisů neukládá, zásah senzoru jde
+  doložit jen nepřímo, z toho, jak agent kód hned opravil.
+- Review našlo všechno, co zapsalo hodnocení, ale ne všechno, co zůstalo: chybu se slevou
+  minulo ve třech ze 13 běhů.
+- Mezi fázemi WSL smazal `/tmp` s kopiemi aplikace. Kopie jsem obnovil ze stejného tagu
+  a diffu první fáze a relace `r1-opus` a `r3-opus` jsem zkrátil zpět na stav po první fázi,
+  než dostaly druhou zprávu znovu (`PROTOKOL-12-1.md`, doplněk ke změně). Neplatný pokus je
+  v `neplatny-pokus-2/` těch běhů.
 
 **Oprava 9. 10. 2026.** První verze tohohle souhrnu uváděla u T4 „4× zastavil hook“ a review
 chyby se slevou „11 z 13“. Hook ve čtyřech bězích zastavil zápis do existujícího
 `OrderTest.php`, kterým agent jen přidával nové testy, a to nevyžádaný zásah není. Review
 u třináctého běhu chybu popsalo jen jako možnou zápornou částku. Data jsou beze změny,
 oprava je i na konci `data/mereni-12-1/VYSLEDKY.md`.
+
+**Oprava 10. 10. 2026.** Souhrn výsledků a review dřív tvrdil, že review našlo všechno, co po
+mantinelech zůstalo. Chybu se slevou ale minulo u `r7-opus` a `r11-sonnet` a u `r13-sonnet` ji
+popsalo jen jako možnou zápornou částku. Doplnil jsem i to, že tahle chyba byla s mantinely
+častější, a oddíl o tom, co měření neříká. Data jsou beze změny, oprava je na konci
+`data/mereni-12-1/VYSLEDKY.md` i `data/mereni-12-1/review/VYSLEDKY.md`.
 
 `beh.sh` od tohoto měření klonuje jen poslední commit výchozího tagu (`--depth 1`); pro
 `m00-start`, který má jediný commit, se tím nic nemění. Druhou zprávu posílá

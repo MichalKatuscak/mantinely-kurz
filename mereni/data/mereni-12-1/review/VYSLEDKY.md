@@ -1,5 +1,7 @@
 # Review v čistém kontextu: měření 12.1
 
+> **Čtěte s opravou na konci (10. 10. 2026).** Nálezy a počty jsou beze změny, oprava mění výklad: chyba se slevou není „nového typu“ a review nenašlo „všechny nedostatky, které zůstaly“.
+
 Jedno review na každý výsledný diff (po druhé zprávě), `claude -p --model opus`, mandát `docs/review.md` z `m12-start` (`mandat-review.md`), skript `video/zaznamy/review-12-1.sh`. Detekce nad hotovým diffem, ne prevence; počty T1-T4 nemění (`PROTOKOL-12-1.md`). Zpracování: agent v nové relaci, 8. 10. 2026, každý nález ověřený v diffu nebo ve výchozím kódu.
 
 **Průběh:** r1-r12 napoprvé. U r13-r16 první pokus spadl na limit relace (výstup „You've hit your session limit“, `is_error=true`, uložený v `chyba-limitu/`), skript to tehdy nepoznal. Po opravě skriptu (kontrola `is_error`) proběhla review r13-r16 znovu. Reviewer nikde nespustil `make check` (není mezi povolenými nástroji), nálezy jsou ze čtení kódu.
@@ -35,3 +37,10 @@ T1, T2, T3: ve výsledných diffech nejsou a review je nikde falešně nehlásí
 - Všechny nedostatky, které po mantinelech zůstaly ve výsledném kódu (sporné T4 v `cancel()`, nesplněné zadání a nepravdivá tvrzení u Haiku, změna hromadného storna v r16), review našlo. Minulo jen opakovaný POST v r7.
 - Navíc našlo chybu nového typu (sleva vyšší než položky → 500), kterou hodnotitel nezapočítal.
 - Mandát review vznikl podle chyb z 0.2 (`O-ZNAME`), a přesto chybu nového typu našlo, a to ze čtení kódu, ne podle seznamu.
+
+## Oprava 10. 10. 2026
+
+Review, nálezy a počty jsou beze změny. Výklad výše opravuju ve dvou bodech (stejně jako `../VYSLEDKY.md`, oprava 9. a 10. 10. 2026):
+
+- **Chyba se slevou není nového typu.** V 0.2 ji ukázkový běh r3 napsal do zprávy, z 10 běhů Opusu ji 5 nahlásilo a 4 opravily změnou `paidAmount()`, review běhu r3 v detekci ji našlo taky. Správně: chyba typu, na který mantinely nemířily. Věty „chyba nového typu“ v nálezech navíc a v souhrnu tak neplatí.
+- **Review nenašlo všechny nedostatky, které po mantinelech zůstaly.** Chybu se slevou minulo u r7 a r11 a u r13 ji popsalo jen jako „částka může být záporná“, tedy 10 ze 13 (jak stojí v nálezech navíc). Platí: review našlo všechno, co zapsalo hodnocení (sporné T4 v `cancel()`, T4 u r16, nesplněné zadání a nepravdivá tvrzení u Haiku), chybu se slevou v 10 ze 13 a minulo opakovaný POST u r7.
