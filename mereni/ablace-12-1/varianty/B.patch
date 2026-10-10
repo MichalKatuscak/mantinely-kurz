@@ -1,0 +1,802 @@
+diff --git a/docs/legacy-mapa.md b/docs/legacy-mapa.md
+index c2f6698..eb48fe1 100644
+--- a/docs/legacy-mapa.md
++++ b/docs/legacy-mapa.md
+@@ -11,13 +11,13 @@ Ověřeno proti kódu na tagu `m12-start`, čísla řádků znovu po přidání
+ - Stejné tržby jinak: dashboard `src/Legacy/Admin/AdminController.php:29`, export pro účetní `src/Legacy/lib/csv.php:61` (`exportRevenueSum()`: i shipped a delivered, sleva odečtená, měny bez převodu).
+ 
+ ## Zápisy do tabulky objednávek
+-- `src/Legacy/Admin/order_edit.php:44`: změna stavu (`UPDATE orders SET status`), řádek 77 mění slevu.
+-- `src/Legacy/Admin/orders.php:30`: hromadné storno (řádky 39 a 45 hromadně zaplaceno a odesláno).
++- `src/Legacy/Admin/order_edit.php:43`: změna stavu (`UPDATE orders SET status`), řádek 76 mění slevu.
++- `src/Legacy/Admin/orders.php:29`: hromadné storno (řádky 38 a 44 hromadně zaplaceno a odesláno).
+ - `src/Legacy/cron.php:33`: rušení nezaplacených potvrzených objednávek starších 14 dní; rezervace ve skladu nechá viset.
+ 
+ Žádný z nich nejde přes agregát `Order`: nevzniká `OrderCancelled` a neplatí přechody `OrderStatus`.
+ 
+ ## Závislosti
+ - Legacy → `src/Legacy/lib/db.php:65` (`legacy_db()`, globální `$db`), používá ho 42 souborů (`global $db`).
+-- Legacy → Ordering: jen příkazy přes `legacy_command()` (`src/Legacy/lib/functions.php:195`), změna množství `src/Legacy/Admin/OrderController.php:141` (`ChangeItemQuantity`). Hlídá Deptrac (vrstva `Legacy`).
++- Legacy → Ordering: jen příkazy přes `legacy_command()` (`src/Legacy/lib/functions.php:195`), změna množství `src/Legacy/Admin/OrderController.php:137` (`ChangeItemQuantity`). Hlídá Deptrac (vrstva `Legacy`).
+ - Ordering, Inventory → Legacy: žádné. Výjimka je protikorupční vrstva `src/Ordering/Infrastructure/Legacy/LegacyProductCatalog.php` (čte tabulku `products`), hlídá ji Deptrac (vrstvy `Legacy` a `LegacyAcl`).
+diff --git a/src/Legacy/Admin/CustomerController.php b/src/Legacy/Admin/CustomerController.php
+index d790bc0..348cd43 100644
+--- a/src/Legacy/Admin/CustomerController.php
++++ b/src/Legacy/Admin/CustomerController.php
+@@ -77,8 +77,6 @@ class CustomerController extends BaseController
+     {
+         global $db;
+         legacy_db();
+-        auth_require('obchod');
+-        csrf_check();
+         $id = post_param('id');
+         if ($id == '') {
+             return $this->redirect(admin_url('customers'));
+@@ -103,8 +101,6 @@ class CustomerController extends BaseController
+     {
+         global $db;
+         legacy_db();
+-        auth_require('obchod');
+-        csrf_check();
+         $id = post_param('id');
+         $db->exec("UPDATE customers SET email = 'anonym-" . substr(md5($id), 0, 8) . "@example.invalid', name = 'Anonymizováno', phone = '', note = '', newsletter = 0 WHERE id = '" . $id . "'");
+         audit_log('customer', $id, 'anonymize');
+diff --git a/src/Legacy/Admin/InvoiceController.php b/src/Legacy/Admin/InvoiceController.php
+index a3b5617..6c9d970 100644
+--- a/src/Legacy/Admin/InvoiceController.php
++++ b/src/Legacy/Admin/InvoiceController.php
+@@ -40,7 +40,6 @@ class InvoiceController extends BaseController
+ 
+     public function issueAction()
+     {
+-        auth_require('ucetni');
+         $orderId = get_param('order');
+         $id = InvoiceHelper::issue($orderId);
+         if ($id === false) {
+diff --git a/src/Legacy/Admin/OrderController.php b/src/Legacy/Admin/OrderController.php
+index 4c8a41f..07dc099 100644
+--- a/src/Legacy/Admin/OrderController.php
++++ b/src/Legacy/Admin/OrderController.php
+@@ -123,10 +123,6 @@ class OrderController extends BaseController
+     {
+         global $db;
+         legacy_db();
+-        auth_require('obchod');
+-        if (is_post()) {
+-            csrf_check();
+-        }
+ 
+         $id = get_param('id');
+         $order = $db->one("SELECT * FROM orders WHERE id = " . $db->quote($id));
+diff --git a/src/Legacy/Admin/ProductController.php b/src/Legacy/Admin/ProductController.php
+index d14e8ca..c068f5a 100644
+--- a/src/Legacy/Admin/ProductController.php
++++ b/src/Legacy/Admin/ProductController.php
+@@ -66,8 +66,6 @@ class ProductController extends BaseController
+     {
+         global $db;
+         legacy_db();
+-        auth_require('obchod');
+-        csrf_check();
+         $ids = post_param('ids', array());
+         $percent = (float) str_replace(',', '.', (string) post_param('percent', '0'));
+         if (!is_array($ids) || count($ids) == 0 || $percent == 0) {
+@@ -87,7 +85,6 @@ class ProductController extends BaseController
+     {
+         global $db;
+         legacy_db();
+-        auth_require('obchod');
+         $id = get_param('id');
+         $db->exec("UPDATE products SET active = 1 - active WHERE id = '" . $id . "'");
+         audit_log('product', $id, 'toggle');
+diff --git a/src/Legacy/Admin/StockController.php b/src/Legacy/Admin/StockController.php
+index 3e32247..ca39744 100644
+--- a/src/Legacy/Admin/StockController.php
++++ b/src/Legacy/Admin/StockController.php
+@@ -71,9 +71,7 @@ class StockController extends BaseController
+      */
+     public function inventoryAction()
+     {
+-        auth_require('sklad');
+         if (is_post()) {
+-            csrf_check();
+             $qty = post_param('qty', array());
+             if (is_array($qty)) {
+                 foreach ($qty as $pid => $q) {
+diff --git a/src/Legacy/Admin/UserController.php b/src/Legacy/Admin/UserController.php
+index 422c8fc..bc14c80 100644
+--- a/src/Legacy/Admin/UserController.php
++++ b/src/Legacy/Admin/UserController.php
+@@ -22,8 +22,6 @@ class UserController extends BaseController
+     {
+         global $db;
+         legacy_db();
+-        auth_require('admin');
+-        csrf_check();
+ 
+         $id = (int) post_param('id', 0);
+         $login = post_param('login');
+@@ -61,8 +59,6 @@ class UserController extends BaseController
+     {
+         global $db;
+         legacy_db();
+-        auth_require('admin');
+-        csrf_check();
+         $id = (int) post_param('id', 0);
+         // nesmi smazat sam sebe
+         $me = auth_user();
+diff --git a/src/Legacy/Admin/customer_edit.php b/src/Legacy/Admin/customer_edit.php
+index 54e6b44..7b70f07 100644
+--- a/src/Legacy/Admin/customer_edit.php
++++ b/src/Legacy/Admin/customer_edit.php
+@@ -24,7 +24,6 @@ if ($id != '') {
+ $chyby = array();
+ 
+ if (is_post()) {
+-    csrf_check();
+     $zakaznik['email'] = strtolower(post_param('email'));
+     $zakaznik['name'] = post_param('name');
+     $zakaznik['phone'] = preg_replace('/\s+/', '', (string) post_param('phone'));
+@@ -77,7 +76,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ ?>
+ <h1><?php echo h($pageTitle); ?></h1>
+ <?php foreach ($chyby as $ch) { ?><p class="err"><?php echo h($ch); ?></p><?php } ?>
+-<form method="post"><?php echo csrf_field(); ?>
++<form method="post">
+ <input type="hidden" name="id" value="<?php echo h($zakaznik['id']); ?>">
+ <table class="grid" style="width:auto">
+     <tr><th>E-mail *</th><td><input type="text" name="email" value="<?php echo h($zakaznik['email']); ?>" size="40"></td></tr>
+diff --git a/src/Legacy/Admin/exchange_rates.php b/src/Legacy/Admin/exchange_rates.php
+index 894de97..1bf0a20 100644
+--- a/src/Legacy/Admin/exchange_rates.php
++++ b/src/Legacy/Admin/exchange_rates.php
+@@ -13,7 +13,6 @@ auth_require('ucetni');
+ $zprava = '';
+ 
+ if (is_post()) {
+-    csrf_check();
+     $kurzy = post_param('rate', array());
+     if (is_array($kurzy)) {
+         foreach ($kurzy as $mena => $kurz) {
+@@ -41,7 +40,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ ?>
+ <h1>Kurzy měn</h1>
+ <?php if ($zprava != '') { ?><p class="msg"><?php echo h($zprava); ?></p><?php } ?>
+-<form method="post"><?php echo csrf_field(); ?>
++<form method="post">
+ <table class="grid" style="width:auto">
+     <tr><th>Měna</th><th>Kurz (Kč za 1 jednotku)</th><th>Změněno</th></tr>
+ <?php foreach ($kurzy as $k) { ?>
+diff --git a/src/Legacy/Admin/newsletter.php b/src/Legacy/Admin/newsletter.php
+index fe1f51b..b22f82b 100644
+--- a/src/Legacy/Admin/newsletter.php
++++ b/src/Legacy/Admin/newsletter.php
+@@ -11,7 +11,6 @@ auth_require('obchod');
+ $zprava = '';
+ 
+ if (is_post()) {
+-    csrf_check();
+     $predmet = post_param('subject');
+     $text = post_param('body');
+     $test = post_param('test');
+@@ -55,7 +54,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ <p>Odběratelů: <strong><?php echo $odberatelu; ?></strong>, ve frontě: <strong><?php echo $fronta; ?></strong>, odesláno celkem: <?php echo $odeslano; ?>
+ <?php if ($fronta > 0) { ?> | <a href="<?php echo h(admin_url('newsletter', array('smazat_frontu' => 1))); ?>" onclick="return confirm('Smazat neodeslané?')">smazat frontu</a><?php } ?></p>
+ 
+-<form method="post"><?php echo csrf_field(); ?>
++<form method="post">
+ <table class="grid" style="width:auto">
+     <tr><th>Předmět</th><td><input type="text" name="subject" size="60"></td></tr>
+     <tr><th>Text</th><td><textarea name="body" rows="12" cols="70">Dobrý den, {jmeno},
+diff --git a/src/Legacy/Admin/order_edit.php b/src/Legacy/Admin/order_edit.php
+index e4ad017..c51d5f2 100644
+--- a/src/Legacy/Admin/order_edit.php
++++ b/src/Legacy/Admin/order_edit.php
+@@ -28,7 +28,6 @@ $errors = array();
+ $msg = '';
+ 
+ if (is_post()) {
+-    csrf_check();
+     $newStatus = post_param('status');
+     $discount = post_param('discount');
+ 
+@@ -103,7 +102,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ <?php if ($msg != '') { ?><p class="msg"><?php echo h($msg); ?></p><?php } ?>
+ <?php foreach ($errors as $e) { ?><p class="err"><?php echo h($e); ?></p><?php } ?>
+ 
+-<form method="post"><?php echo csrf_field(); ?>
++<form method="post">
+ <input type="hidden" name="id" value="<?php echo h($order['id']); ?>">
+ <table class="grid" style="width:auto">
+     <tr><th>Zákazník</th><td><?php echo h(customer_name($order['customer_id'])); ?></td></tr>
+diff --git a/src/Legacy/Admin/order_notes.php b/src/Legacy/Admin/order_notes.php
+index 4200fc5..e4a24f8 100644
+--- a/src/Legacy/Admin/order_notes.php
++++ b/src/Legacy/Admin/order_notes.php
+@@ -20,7 +20,6 @@ if ($objednavka === null) {
+ }
+ 
+ if (is_post()) {
+-    csrf_check();
+     $text = post_param('note');
+     if ($text != '') {
+         $db->exec("INSERT INTO order_notes (order_id, author, note, created_at) VALUES ('" . $orderId . "', '"
+@@ -43,7 +42,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ <h1>Poznámky k objednávce <?php echo h($orderId); ?></h1>
+ <p>Stav: <?php echo h(order_state_label($objednavka['status'])); ?>, zákazník: <?php echo h(customer_name($objednavka['customer_id'])); ?></p>
+ 
+-<form method="post"><?php echo csrf_field(); ?>
++<form method="post">
+     <input type="hidden" name="order" value="<?php echo h($orderId); ?>">
+     <textarea name="note" rows="4" cols="70"></textarea><br>
+     <input type="submit" value="Přidat poznámku">
+@@ -52,7 +51,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ <?php foreach ($poznamky as $p) { ?>
+ <div style="border-bottom:1px solid #ddd;padding:5px 0">
+     <strong><?php echo h($p['author']); ?></strong> – <?php echo format_date($p['created_at'], true); ?>
+-    <form method="post" style="display:inline" onsubmit="return confirm('Smazat poznámku?')"><?php echo csrf_field(); ?>
++    <form method="post" style="display:inline" onsubmit="return confirm('Smazat poznámku?')">
+         <input type="hidden" name="order" value="<?php echo h($orderId); ?>">
+         <input type="hidden" name="delete" value="<?php echo (int) $p['id']; ?>">
+         <input type="submit" value="×">
+diff --git a/src/Legacy/Admin/orders.php b/src/Legacy/Admin/orders.php
+index b307f16..abbf9e1 100644
+--- a/src/Legacy/Admin/orders.php
++++ b/src/Legacy/Admin/orders.php
+@@ -11,7 +11,6 @@
+ global $db;
+ legacy_db();
+ auth_require('obchod');
+-csrf_check();
+ 
+ $ids = isset($_POST['ids']) ? $_POST['ids'] : array();
+ $action = isset($_POST['action']) ? (string) $_POST['action'] : '';
+diff --git a/src/Legacy/Admin/product_edit.php b/src/Legacy/Admin/product_edit.php
+index 615a29d..7450d53 100644
+--- a/src/Legacy/Admin/product_edit.php
++++ b/src/Legacy/Admin/product_edit.php
+@@ -33,7 +33,6 @@ if ($id != '') {
+ $chyby = array();
+ 
+ if (is_post()) {
+-    csrf_check();
+     $produkt['sku'] = strtoupper(post_param('sku'));
+     $produkt['name'] = post_param('name');
+     $produkt['description'] = post_param('description');
+@@ -101,7 +100,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ ?>
+ <h1><?php echo h($pageTitle); ?></h1>
+ <?php foreach ($chyby as $ch) { ?><p class="err"><?php echo h($ch); ?></p><?php } ?>
+-<form method="post"><?php echo csrf_field(); ?>
++<form method="post">
+ <input type="hidden" name="id" value="<?php echo h($produkt['id']); ?>">
+ <table class="grid" style="width:auto">
+     <tr><th>SKU</th><td><input type="text" name="sku" value="<?php echo h($produkt['sku']); ?>"></td></tr>
+diff --git a/src/Legacy/Admin/settings.php b/src/Legacy/Admin/settings.php
+index 145be60..09f515c 100644
+--- a/src/Legacy/Admin/settings.php
++++ b/src/Legacy/Admin/settings.php
+@@ -21,7 +21,6 @@ $znama = array(
+ $zprava = '';
+ 
+ if (is_post()) {
+-    csrf_check();
+     $hodnoty = post_param('settings', array());
+     if (is_array($hodnoty)) {
+         foreach ($hodnoty as $name => $value) {
+@@ -58,7 +57,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ ?>
+ <h1>Nastavení</h1>
+ <?php if ($zprava != '') { ?><p class="msg"><?php echo h($zprava); ?></p><?php } ?>
+-<form method="post"><?php echo csrf_field(); ?>
++<form method="post">
+ <table class="grid" style="width:auto">
+ <?php foreach ($vsechna as $name => $value) { ?>
+     <tr>
+diff --git a/src/Legacy/Admin/suppliers.php b/src/Legacy/Admin/suppliers.php
+index c73cb1f..5f7c668 100644
+--- a/src/Legacy/Admin/suppliers.php
++++ b/src/Legacy/Admin/suppliers.php
+@@ -10,7 +10,6 @@ auth_require('sklad');
+ $zprava = '';
+ 
+ if (is_post()) {
+-    csrf_check();
+     $akce = post_param('akce');
+     if ($akce == 'ulozit') {
+         $sid = (int) post_param('id', 0);
+@@ -51,7 +50,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+     <tr><th>Název</th><th>E-mail</th><th>IČO</th><th class="num">Produktů</th><th></th></tr>
+ <?php foreach ($dodavatele as $d) { ?>
+     <tr>
+-        <form method="post"><?php echo csrf_field(); ?>
++        <form method="post">
+         <td><input type="hidden" name="akce" value="ulozit"><input type="hidden" name="id" value="<?php echo (int) $d['id']; ?>"><input type="text" name="name" value="<?php echo h($d['name']); ?>"></td>
+         <td><input type="text" name="email" value="<?php echo h($d['email']); ?>"></td>
+         <td><input type="text" name="ico" value="<?php echo h($d['ico']); ?>" size="10"></td>
+@@ -61,7 +60,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+     </tr>
+ <?php } ?>
+     <tr>
+-        <form method="post"><?php echo csrf_field(); ?>
++        <form method="post">
+         <td><input type="hidden" name="akce" value="ulozit"><input type="text" name="name" placeholder="nový dodavatel"></td>
+         <td><input type="text" name="email"></td>
+         <td><input type="text" name="ico" size="10"></td>
+@@ -72,7 +71,7 @@ include LEGACY_TEMPLATES . '/partials/old_header.php';
+ </table>
+ 
+ <h2>Import ceníku (rozpracováno)</h2>
+-<form method="post"><?php echo csrf_field(); ?>
++<form method="post">
+     <input type="hidden" name="akce" value="import">
+     <textarea name="csv" rows="6" cols="70" placeholder="sku;název;cena"></textarea><br>
+     <input type="submit" value="Načíst">
+diff --git a/src/Legacy/templates/customers/detail.php b/src/Legacy/templates/customers/detail.php
+index e3d263a..93507e0 100644
+--- a/src/Legacy/templates/customers/detail.php
++++ b/src/Legacy/templates/customers/detail.php
+@@ -15,10 +15,10 @@
+ </table>
+ <p><a href="<?php echo h(admin_url('customer_edit', array('id' => $customer['id']))); ?>">Upravit</a></p>
+ 
+-<form method="post" action="<?php echo h(admin_url('customer_anonymize')); ?>" onsubmit="return confirm('Anonymizovat? Nelze vrátit.')" style="display:inline"><?php echo csrf_field(); ?>
++<form method="post" action="<?php echo h(admin_url('customer_anonymize')); ?>" onsubmit="return confirm('Anonymizovat? Nelze vrátit.')" style="display:inline">
+     <input type="hidden" name="id" value="<?php echo h($customer['id']); ?>"><input type="submit" value="Anonymizovat (GDPR)">
+ </form>
+-<form method="post" action="<?php echo h(admin_url('customer_delete')); ?>" onsubmit="return confirm('Smazat?')" style="display:inline"><?php echo csrf_field(); ?>
++<form method="post" action="<?php echo h(admin_url('customer_delete')); ?>" onsubmit="return confirm('Smazat?')" style="display:inline">
+     <input type="hidden" name="id" value="<?php echo h($customer['id']); ?>"><input type="submit" value="Smazat">
+ </form>
+ 
+diff --git a/src/Legacy/templates/orders/detail.php b/src/Legacy/templates/orders/detail.php
+index baf6a73..15a5c68 100644
+--- a/src/Legacy/templates/orders/detail.php
++++ b/src/Legacy/templates/orders/detail.php
+@@ -38,7 +38,7 @@
+         <td><?php echo h($it['sku']); ?></td>
+         <td class="num">
+         <?php if ($order['status'] == 'draft') { ?>
+-            <form method="post" action="<?php echo h(admin_url('order_item_quantity', array('id' => $order['id']))); ?>"><?php echo csrf_field(); ?>
++            <form method="post" action="<?php echo h(admin_url('order_item_quantity', array('id' => $order['id']))); ?>">
+                 <input type="hidden" name="product" value="<?php echo h($it['product_id']); ?>">
+                 <input type="number" name="quantity" value="<?php echo (int) $it['quantity']; ?>" min="1" style="width:4em">
+                 <input type="submit" value="Změnit">
+diff --git a/src/Legacy/templates/orders/list.php b/src/Legacy/templates/orders/list.php
+index a470057..2b61365 100644
+--- a/src/Legacy/templates/orders/list.php
++++ b/src/Legacy/templates/orders/list.php
+@@ -14,7 +14,7 @@
+     <input type="submit" value="Filtrovat">
+ </form>
+ 
+-<form method="post" action="<?php echo h(admin_url('orders_bulk')); ?>" onsubmit="return confirm('Opravdu stornovat vybrané objednávky?')"><?php echo csrf_field(); ?>
++<form method="post" action="<?php echo h(admin_url('orders_bulk')); ?>" onsubmit="return confirm('Opravdu stornovat vybrané objednávky?')">
+ <table class="grid">
+     <tr>
+         <th><input type="checkbox" onclick="var c=document.querySelectorAll('.chk');for(var i=0;i<c.length;i++)c[i].checked=this.checked"></th>
+diff --git a/src/Legacy/templates/products/list.php b/src/Legacy/templates/products/list.php
+index 3de3e56..a36323b 100644
+--- a/src/Legacy/templates/products/list.php
++++ b/src/Legacy/templates/products/list.php
+@@ -13,7 +13,7 @@
+     <a href="<?php echo h(admin_url('product_edit')); ?>">+ nový produkt</a>
+ </form>
+ 
+-<form method="post" action="<?php echo h(admin_url('products_bulk_price')); ?>"><?php echo csrf_field(); ?>
++<form method="post" action="<?php echo h(admin_url('products_bulk_price')); ?>">
+ <table class="grid">
+     <tr><th></th><th>SKU</th><th>Název</th><th>Dodavatel</th><th class="num">Cena</th><th class="num">Skladem</th><th class="num">Rezervováno</th><th>Aktivní</th><th></th></tr>
+ <?php foreach ($products as $p) { ?>
+diff --git a/src/Legacy/templates/stock/list.php b/src/Legacy/templates/stock/list.php
+index f55ba9d..37f7016 100644
+--- a/src/Legacy/templates/stock/list.php
++++ b/src/Legacy/templates/stock/list.php
+@@ -12,7 +12,7 @@ $inventory = isset($inventory) && $inventory;
+     <a href="<?php echo h(admin_url('stock_inventory')); ?>">Inventura</a>
+ </p>
+ <?php } ?>
+-<form method="post" action="<?php echo h(admin_url('stock_inventory')); ?>"><?php echo csrf_field(); ?>
++<form method="post" action="<?php echo h(admin_url('stock_inventory')); ?>">
+ <table class="grid">
+     <tr><th>SKU</th><th>Produkt</th><th class="num">Skladem</th><th class="num">Rezervováno</th><th class="num">Dostupné</th><?php if ($inventory) { ?><th>Nový stav</th><?php } ?></tr>
+ <?php foreach ($rows as $r) { ?>
+diff --git a/src/Legacy/templates/users/list.php b/src/Legacy/templates/users/list.php
+index aeb883c..4333365 100644
+--- a/src/Legacy/templates/users/list.php
++++ b/src/Legacy/templates/users/list.php
+@@ -13,7 +13,7 @@ foreach ($roles as $r) {
+     <tr><th>Login</th><th>Role</th><th>Poslední přihlášení</th><th></th></tr>
+ <?php foreach ($users as $u) { ?>
+     <tr>
+-        <form method="post" action="<?php echo h(admin_url('user_save')); ?>"><?php echo csrf_field(); ?>
++        <form method="post" action="<?php echo h(admin_url('user_save')); ?>">
+         <td><input type="hidden" name="id" value="<?php echo (int) $u['id']; ?>"><input type="text" name="login" value="<?php echo h($u['login']); ?>"></td>
+         <td><select name="role"><?php echo select_options($roleOptions, $u['role']); ?></select></td>
+         <td><?php echo format_date($u['last_login'], true); ?></td>
+@@ -22,7 +22,7 @@ foreach ($roles as $r) {
+     </tr>
+ <?php } ?>
+     <tr>
+-        <form method="post" action="<?php echo h(admin_url('user_save')); ?>"><?php echo csrf_field(); ?>
++        <form method="post" action="<?php echo h(admin_url('user_save')); ?>">
+         <td><input type="text" name="login" placeholder="nový login"></td>
+         <td><select name="role"><?php echo select_options($roleOptions, 'obchod'); ?></select></td>
+         <td></td>
+diff --git a/tests/Acceptance/Legacy/ChangeItemQuantityTest.php b/tests/Acceptance/Legacy/ChangeItemQuantityTest.php
+index 8eaa43c..3e2fe26 100644
+--- a/tests/Acceptance/Legacy/ChangeItemQuantityTest.php
++++ b/tests/Acceptance/Legacy/ChangeItemQuantityTest.php
+@@ -53,11 +53,10 @@ final class ChangeItemQuantityTest extends WebTestCase
+         $orders->save($order);
+ 
+         // akce: obsluha ve staré administraci změní množství na 3 kusy
+-        $token = $this->client->request('GET', '/admin/legacy/orders')->filter('input[name="_csrf"]')->first()->attr('value');
+         $this->client->request(
+             'POST',
+             '/admin/legacy/order_item_quantity?id='.$order->id->value,
+-            ['product' => Catalog::KEYBOARD, 'quantity' => '3', '_csrf' => $token],
++            ['product' => Catalog::KEYBOARD, 'quantity' => '3'],
+         );
+ 
+         // ověření: chyba, množství i částky beze změny
+diff --git a/tests/Legacy/AuthRequireTest.php b/tests/Legacy/AuthRequireTest.php
+deleted file mode 100644
+index 668f6e4..0000000
+--- a/tests/Legacy/AuthRequireTest.php
++++ /dev/null
+@@ -1,177 +0,0 @@
+-<?php
+-
+-declare(strict_types=1);
+-
+-namespace App\Tests\Legacy;
+-
+-use App\Identity\Infrastructure\Security\DemoCustomerProvider;
+-use App\Tests\Support\Catalog;
+-use App\Tests\Support\TestDatabase;
+-use Doctrine\DBAL\Connection;
+-use PHPUnit\Framework\Attributes\DataProvider;
+-use PHPUnit\Framework\Attributes\Test;
+-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+-
+-/**
+- * Role ve staré administraci: auth_require('<role>') pustí jen uživatele s tou rolí
+- * (admin smí všechno). Roli staré administrace nese role Symfony uživatele
+- * (ROLE_ADMIN, ROLE_OBCHOD, ROLE_SKLAD, ROLE_UCETNI), předává ji LegacyFrontController.
+- */
+-final class AuthRequireTest extends WebTestCase
+-{
+-    private const string ORDER = '0192f0a0-1c3e-7d00-8c00-0000000000bb';
+-
+-    private KernelBrowser $client;
+-
+-    protected function setUp(): void
+-    {
+-        TestDatabase::reset();
+-        unset($GLOBALS['db']);
+-        $this->client = self::createClient();
+-        $this->connection()->insert('orders', [
+-            'id' => self::ORDER,
+-            'status' => 'confirmed',
+-            'placed_at' => '2026-10-01 10:00:00',
+-            'customer_id' => DemoCustomerProvider::ALICE,
+-            'currency' => 'CZK',
+-            'discount_amount_in_cents' => 0,
+-            'discount_currency' => 'CZK',
+-        ]);
+-    }
+-
+-    protected function tearDown(): void
+-    {
+-        unset($GLOBALS['db']);
+-        parent::tearDown();
+-    }
+-
+-    #[Test]
+-    public function warehouseRoleCannotChangeOrders(): void
+-    {
+-        $this->loginAs('sklad@example.com');
+-        $token = $this->tokenFrom('/admin/legacy/orders');
+-
+-        $this->client->request('POST', '/admin/legacy/orders_bulk', [
+-            'ids' => [self::ORDER],
+-            'action' => 'paid',
+-            '_csrf' => $token,
+-        ]);
+-
+-        self::assertResponseStatusCodeSame(403);
+-        self::assertStringContainsString('Nemáte oprávnění', (string) $this->client->getResponse()->getContent());
+-        self::assertSame('confirmed', $this->orderStatus());
+-    }
+-
+-    #[Test]
+-    public function salesRoleChangesOrders(): void
+-    {
+-        $this->loginAs('obchod@example.com');
+-        $token = $this->tokenFrom('/admin/legacy/orders');
+-
+-        $this->client->request('POST', '/admin/legacy/orders_bulk', [
+-            'ids' => [self::ORDER],
+-            'action' => 'paid',
+-            '_csrf' => $token,
+-        ]);
+-
+-        self::assertResponseRedirects('/admin/legacy/orders');
+-        self::assertSame('paid', $this->orderStatus());
+-    }
+-
+-    #[Test]
+-    public function warehouseRoleCannotChangeItemQuantity(): void
+-    {
+-        $this->loginAs('sklad@example.com');
+-        $token = $this->tokenFrom('/admin/legacy/orders');
+-
+-        $this->client->request('POST', '/admin/legacy/order_item_quantity?id='.self::ORDER, [
+-            'product' => Catalog::KEYBOARD,
+-            'quantity' => '3',
+-            '_csrf' => $token,
+-        ]);
+-
+-        self::assertResponseStatusCodeSame(403);
+-        self::assertStringContainsString('Nemáte oprávnění', (string) $this->client->getResponse()->getContent());
+-    }
+-
+-    #[Test]
+-    #[DataProvider('pageAccess')]
+-    public function pageIsOpenOnlyToItsRole(string $email, string $page, int $status): void
+-    {
+-        $this->loginAs($email);
+-
+-        $this->client->request('GET', '/admin/legacy/'.$page);
+-
+-        self::assertResponseStatusCodeSame($status);
+-    }
+-
+-    /** @return iterable<string, array{string, string, int}> */
+-    public static function pageAccess(): iterable
+-    {
+-        yield 'sklad: dodavatelé (sklad)' => ['sklad@example.com', 'suppliers', 200];
+-        yield 'sklad: nastavení (admin)' => ['sklad@example.com', 'settings', 403];
+-        yield 'sklad: newsletter (obchod)' => ['sklad@example.com', 'newsletter', 403];
+-        yield 'sklad: stránka bez role' => ['sklad@example.com', 'order_list', 200];
+-        yield 'obchod: newsletter (obchod)' => ['obchod@example.com', 'newsletter', 200];
+-        yield 'obchod: dodavatelé (sklad)' => ['obchod@example.com', 'suppliers', 403];
+-        yield 'obchod: kurzy měn (účetní)' => ['obchod@example.com', 'exchange_rates', 403];
+-        yield 'sklad: inventura (sklad)' => ['sklad@example.com', 'stock_inventory', 200];
+-        yield 'obchod: inventura (sklad)' => ['obchod@example.com', 'stock_inventory', 403];
+-        yield 'sklad: skrytí produktu (obchod)' => ['sklad@example.com', 'product_toggle', 403];
+-        yield 'obchod: vystavení faktury (účetní)' => ['obchod@example.com', 'invoice_issue', 403];
+-        yield 'admin: nastavení' => ['sprava@example.com', 'settings', 200];
+-        yield 'admin: dodavatelé' => ['sprava@example.com', 'suppliers', 200];
+-        yield 'admin: kurzy měn' => ['sprava@example.com', 'exchange_rates', 200];
+-    }
+-
+-    #[Test]
+-    public function stateChangingControllerActionChecksRole(): void
+-    {
+-        $this->loginAs('sklad@example.com');
+-        $token = $this->tokenFrom('/admin/legacy/orders');
+-
+-        $this->client->request('POST', '/admin/legacy/user_save', ['login' => 'novy', 'role' => 'admin', '_csrf' => $token]);
+-
+-        self::assertResponseStatusCodeSame(403);
+-        self::assertFalse($this->connection()->fetchOne('SELECT id FROM admin_users WHERE login = ?', ['novy']));
+-    }
+-
+-    #[Test]
+-    public function notesAreSignedWithLoggedInUser(): void
+-    {
+-        $this->loginAs('obchod@example.com');
+-        $this->client->request('GET', '/admin/legacy/order_notes?order='.self::ORDER);
+-        $this->client->submitForm('Přidat poznámku', ['note' => 'Zákazník volal']);
+-
+-        self::assertSame(
+-            'obchod@example.com',
+-            $this->connection()->fetchOne('SELECT author FROM order_notes WHERE order_id = ?', [self::ORDER]),
+-        );
+-    }
+-
+-    private function tokenFrom(string $url): string
+-    {
+-        $this->client->request('GET', $url);
+-        $token = $this->client->getCrawler()->filter('input[name="_csrf"]')->first()->attr('value');
+-        self::assertIsString($token);
+-
+-        return $token;
+-    }
+-
+-    private function orderStatus(): mixed
+-    {
+-        return $this->connection()->fetchOne('SELECT status FROM orders WHERE id = ?', [self::ORDER]);
+-    }
+-
+-    private function connection(): Connection
+-    {
+-        return self::getContainer()->get(Connection::class);
+-    }
+-
+-    private function loginAs(string $email): void
+-    {
+-        $user = self::getContainer()->get(DemoCustomerProvider::class)->loadUserByIdentifier($email);
+-        $this->client->loginUser($user);
+-    }
+-}
+diff --git a/tests/Legacy/CsrfTest.php b/tests/Legacy/CsrfTest.php
+deleted file mode 100644
+index 313102f..0000000
+--- a/tests/Legacy/CsrfTest.php
++++ /dev/null
+@@ -1,171 +0,0 @@
+-<?php
+-
+-declare(strict_types=1);
+-
+-namespace App\Tests\Legacy;
+-
+-use App\Identity\Infrastructure\Security\DemoCustomerProvider;
+-use App\Tests\Support\Catalog;
+-use App\Tests\Support\TestDatabase;
+-use Doctrine\DBAL\Connection;
+-use PHPUnit\Framework\Attributes\DataProvider;
+-use PHPUnit\Framework\Attributes\Test;
+-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+-
+-/**
+- * Akce staré administrace, které mění data, přijmou POST jen s tokenem z formuláře
+- * (csrf_field() ve formuláři, csrf_check() v akci). Bez tokenu odpoví 403 a nic nezmění.
+- */
+-final class CsrfTest extends WebTestCase
+-{
+-    private const string ORDER = '0192f0a0-1c3e-7d00-8c00-0000000000aa';
+-
+-    private const string CSRF_MESSAGE = 'Neplatný bezpečnostní token formuláře';
+-
+-    private KernelBrowser $client;
+-
+-    protected function setUp(): void
+-    {
+-        TestDatabase::reset();
+-        unset($GLOBALS['db']);
+-        $this->client = self::createClient();
+-        $this->connection()->insert('orders', [
+-            'id' => self::ORDER,
+-            'status' => 'confirmed',
+-            'placed_at' => '2026-10-01 10:00:00',
+-            'customer_id' => DemoCustomerProvider::ALICE,
+-            'currency' => 'CZK',
+-            'discount_amount_in_cents' => 0,
+-            'discount_currency' => 'CZK',
+-        ]);
+-        $this->loginAs('sprava@example.com');
+-    }
+-
+-    protected function tearDown(): void
+-    {
+-        unset($GLOBALS['db']);
+-        parent::tearDown();
+-    }
+-
+-    #[Test]
+-    public function orderEditWithoutTokenIsRejected(): void
+-    {
+-        $this->client->request('POST', '/admin/legacy/order_edit', ['id' => self::ORDER, 'status' => 'paid']);
+-
+-        self::assertResponseStatusCodeSame(403);
+-        self::assertStringContainsString(self::CSRF_MESSAGE, (string) $this->client->getResponse()->getContent());
+-        self::assertSame('confirmed', $this->orderStatus());
+-    }
+-
+-    #[Test]
+-    public function orderEditWithWrongTokenIsRejected(): void
+-    {
+-        $this->client->request('POST', '/admin/legacy/order_edit', [
+-            'id' => self::ORDER,
+-            'status' => 'paid',
+-            '_csrf' => str_repeat('a', 64),
+-        ]);
+-
+-        self::assertResponseStatusCodeSame(403);
+-        self::assertSame('confirmed', $this->orderStatus());
+-    }
+-
+-    #[Test]
+-    public function orderEditFormCarriesTokenThatIsAccepted(): void
+-    {
+-        $this->client->request('GET', '/admin/legacy/order_edit?id='.self::ORDER);
+-        $this->client->submitForm('Uložit', ['status' => 'paid']);
+-
+-        self::assertResponseIsSuccessful();
+-        self::assertSame('paid', $this->orderStatus());
+-    }
+-
+-    #[Test]
+-    public function bulkActionWithoutTokenIsRejected(): void
+-    {
+-        $this->client->request('POST', '/admin/legacy/orders_bulk', ['ids' => [self::ORDER], 'action' => 'paid']);
+-
+-        self::assertResponseStatusCodeSame(403);
+-        self::assertSame('confirmed', $this->orderStatus());
+-    }
+-
+-    #[Test]
+-    public function bulkFormInOrderListCarriesTokenThatIsAccepted(): void
+-    {
+-        $crawler = $this->client->request('GET', '/admin/legacy/orders');
+-        $token = $crawler->filter('form[action="/admin/legacy/orders_bulk"] input[name="_csrf"]')->attr('value');
+-
+-        $this->client->request('POST', '/admin/legacy/orders_bulk', [
+-            'ids' => [self::ORDER],
+-            'action' => 'paid',
+-            '_csrf' => $token,
+-        ]);
+-
+-        self::assertResponseRedirects('/admin/legacy/orders');
+-        self::assertSame('paid', $this->orderStatus());
+-    }
+-
+-    #[Test]
+-    public function tokenStaysTheSameWithinSession(): void
+-    {
+-        $first = $this->client->request('GET', '/admin/legacy/order_edit?id='.self::ORDER)
+-            ->filter('input[name="_csrf"]')->attr('value');
+-        $second = $this->client->request('GET', '/admin/legacy/order_notes?order='.self::ORDER)
+-            ->filter('input[name="_csrf"]')->attr('value');
+-
+-        self::assertNotNull($first);
+-        self::assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $first);
+-        self::assertSame($first, $second);
+-    }
+-
+-    /**
+-     * @param array<string, mixed> $parameters
+-     */
+-    #[Test]
+-    #[DataProvider('statefulActions')]
+-    public function everyStatefulActionRejectsPostWithoutToken(string $page, array $parameters): void
+-    {
+-        $this->client->request('POST', '/admin/legacy/'.$page, $parameters);
+-
+-        self::assertResponseStatusCodeSame(403);
+-        self::assertStringContainsString(self::CSRF_MESSAGE, (string) $this->client->getResponse()->getContent());
+-    }
+-
+-    /** @return iterable<string, array{string, array<string, mixed>}> */
+-    public static function statefulActions(): iterable
+-    {
+-        yield 'hromadné akce s objednávkami' => ['orders_bulk', ['ids' => [self::ORDER], 'action' => 'paid']];
+-        yield 'úprava objednávky' => ['order_edit', ['id' => self::ORDER, 'status' => 'paid']];
+-        yield 'poznámka k objednávce' => ['order_notes', ['order' => self::ORDER, 'note' => 'poznámka']];
+-        yield 'změna množství položky' => ['order_item_quantity?id='.self::ORDER, ['product' => Catalog::KEYBOARD, 'quantity' => '3']];
+-        yield 'úprava zákazníka' => ['customer_edit', ['email' => 'novy@example.com']];
+-        yield 'smazání zákazníka' => ['customer_delete', ['id' => DemoCustomerProvider::ALICE]];
+-        yield 'anonymizace zákazníka' => ['customer_anonymize', ['id' => DemoCustomerProvider::ALICE]];
+-        yield 'úprava produktu' => ['product_edit', ['name' => 'Produkt', 'price' => '100']];
+-        yield 'hromadná změna cen' => ['products_bulk_price', ['ids' => ['x'], 'percent' => '10']];
+-        yield 'inventura' => ['stock_inventory', ['qty' => ['x' => '1']]];
+-        yield 'uložení uživatele' => ['user_save', ['login' => 'novy', 'role' => 'obchod']];
+-        yield 'smazání uživatele' => ['user_delete', ['id' => '1']];
+-        yield 'nastavení' => ['settings', ['new_name' => 'shop_open', 'new_value' => '0']];
+-        yield 'dodavatelé' => ['suppliers', ['akce' => 'ulozit', 'name' => 'Dodavatel']];
+-        yield 'kurzy měn' => ['exchange_rates', ['rate' => ['EUR' => '30']]];
+-        yield 'newsletter' => ['newsletter', ['subject' => 'Předmět', 'body' => 'Text']];
+-    }
+-
+-    private function orderStatus(): mixed
+-    {
+-        return $this->connection()->fetchOne('SELECT status FROM orders WHERE id = ?', [self::ORDER]);
+-    }
+-
+-    private function connection(): Connection
+-    {
+-        return self::getContainer()->get(Connection::class);
+-    }
+-
+-    private function loginAs(string $email): void
+-    {
+-        $user = self::getContainer()->get(DemoCustomerProvider::class)->loadUserByIdentifier($email);
+-        $this->client->loginUser($user);
+-    }
+-}

@@ -1,0 +1,153 @@
+diff --git a/.claude/rules/legacy.md b/.claude/rules/legacy.md
+deleted file mode 100644
+index b04015d..0000000
+--- a/.claude/rules/legacy.md
++++ /dev/null
+@@ -1,11 +0,0 @@
+----
+-paths:
+-  - "src/Legacy/**"
+----
+-Stav objednávky a skladu jen přes doménu (command), žádné `UPDATE orders` ani SQL na `stock_items`.
+-Hodnota do SQL jen přes `$db->quote()` nebo přetypování (`(int)`, `ids_to_sql()`). Parametr z požadavku (`get_param()`, `post_param()`, `$_POST`) do dotazu nevlepovat.
+-Akce, která mění data: POST formulář s `csrf_field()`; akce hned na začátku volá `auth_require('<role>')` (role `admin`, `obchod`, `sklad`, `ucetni`; admin smí vše) a `csrf_check()`. Odkazy přes GET, které mění data (`product_toggle`, `invoice_issue`), jsou dluh, ne vzor.
+-Kontrola: `make phpstan-legacy` (zápis do `orders`/`stock_items` mimo doménu, hodnota vlepená do SQL); po každé editaci ji spouští `make check-changed`. Baseline `phpstan-legacy-baseline.neon` negenerovat znovu.
+-src/Legacy bez zadání nerefaktorovat.
+-Stará administrace sdílí tabulky `orders` a `order_items` s kontextem Ordering a počítá
+-tržby po svém. Než ji změníte, ověřte dopad na report a export.
+diff --git a/.claude/skills/novy-pripad-uziti/SKILL.md b/.claude/skills/novy-pripad-uziti/SKILL.md
+deleted file mode 100644
+index add3893..0000000
+--- a/.claude/skills/novy-pripad-uziti/SKILL.md
++++ /dev/null
+@@ -1,11 +0,0 @@
+----
+-name: novy-pripad-uziti
+-description: Použij při přidání nového příkazu nebo změně chování objednávky
+----
+-# Nový případ užití v Orderingu
+-
+-1. Command bez přípony v `src/Ordering/Application/Command` (např. `ConfirmOrder`)
+-2. Handler s příponou Handler v `src/Ordering/Application/Handler`, atribut `#[AsMessageHandler(bus: 'command.bus')]`
+-3. Změna stavu jen přes doménovou metodu `Order`, která ověří přechod a zaznamená událost
+-4. Test handleru a test agregátu
+-5. `make check`
+diff --git a/CLAUDE.md b/CLAUDE.md
+deleted file mode 100644
+index cf3aa90..0000000
+--- a/CLAUDE.md
++++ /dev/null
+@@ -1,37 +0,0 @@
+-# Aplikace kurzu Mantinely
+-
+-## Příkazy
+-- Všechny kontroly: `make check`
+-- Konzolové příkazy přes `bin/console`
+-- Stav kontejneru, rout a listenerů zjišťuj přes `bin/console debug:*`; zapojení služeb ověř přes `debug:autowiring` a `debug:container`, nehádej z konfigurace
+-- Migrace jen přes generátor migrací (`bin/console make:migration`), nikdy ruční úpravou schématu
+-- Bez zeptání žádný nový bundle ani balíček
+-- Po každém kroku plánu commit, před commitem `make check`
+-
+-## Kontroly
+-- Po každé změně: `make test-domain` (doménové testy bez jádra, pár sekund)
+-- Po každé editaci spouští hook `make check-changed` (PHPStan na změněné soubory, ve staré administraci `make phpstan-legacy`, k tomu Deptrac). Nahlášenou chybu oprav, baseline negeneruj znovu.
+-- Před commitem: `make check`
+-- Ve fázi implementace testy neměň. Když test odporuje zadání, zastav se a řekni to.
+-- Ve zprávě o hotové práci tvrď jen to, co ověřil test nebo příkaz; co ověřené není, napiš výslovně.
+-
+-## Kód
+-- Kód je po ohraničených kontextech `src/Ordering`, `src/Inventory`, vrstvy Domain / Application / Infrastructure
+-- Ordering a Inventory spolu mluví jen přes doménové události
+-- Stav objednávky a skladu mění jen doména, i ze `src/Legacy` (command, ne SQL)
+-- Každá hodnota v SQL přes `$db->quote()` nebo přetypování (`(int)`), nikdy vlepená proměnná
+-- Akce, která mění data: POST formulář s `csrf_field()`, akce volá `auth_require('<role>')` a `csrf_check()` dřív, než něco zapíše
+-- Události v minulém čase bez přípony `Event`, command na command busu bez přípony `Command`
+-- Částky drž v haléřích jako int (`Money::$amountInCents`), měnu ber z enumu `Currency`
+-- Bez výslovného zadání neměň chování ani signatury existujících metod (hlavně doménových: `Order`, `StockItem`), konfiguraci (`config/`, `*.neon`, `Makefile`) ani existující testy. Když bez toho úkol nejde, zastav se a řekni to.
+-- Malé změny: jen to, co zadání žádá, bez úklidu a přestavby okolního kódu
+-- `src/Legacy` bez zadání nerefaktorovat; mapa staré administrace: @docs/legacy-mapa.md
+-- Snapshoty charakterizačních testů (`tests/Legacy/__snapshots__`) nepřepisuj; když se liší, zastav se a řekni to
+-- Nový případ užití: skill `novy-pripad-uziti`
+-
+-## Slovník
+-| pojem | v kódu |
+-|---|---|
+-| storno | `cancel()`, `OrderCancelled` |
+-| sleva | `discount` |
+-| zaplacená částka | `Order::paidAmount()` |
+diff --git a/docs/legacy-mapa.md b/docs/legacy-mapa.md
+deleted file mode 100644
+index c2f6698..0000000
+--- a/docs/legacy-mapa.md
++++ /dev/null
+@@ -1,23 +0,0 @@
+-# Legacy: mapa
+-
+-Ověřeno proti kódu na tagu `m12-start`, čísla řádků znovu po přidání CSRF a kontroly rolí. Každé tvrzení má `soubor:řádek`.
+-
+-## Report měsíčních tržeb
+-- Vstup: `src/Legacy/Http/LegacyFrontController.php` (stránka `report`) → `src/Legacy/Admin/ReportController.php:15` (`monthlyAction()`), měsíc z `$_GET['month']`, bez validace.
+-- Kontroler jen formátuje: hlavička `src/Legacy/lib/report.php:10` (`report_header()`, dnešní datum na řádku 14), řádky `src/Legacy/lib/report.php:22`.
+-- Výpočet: `src/Legacy/lib/report.php:27` volá `monthlyRevenue()` v `src/Legacy/lib/revenue.php:31`, ta deleguje na `src/Legacy/Report/MonthlyRevenue.php` (do modulu 10 počítala sama).
+-- Počítá jen objednávky ve stavu `paid` (`src/Legacy/lib/revenue.php:22`, `src/Legacy/Report/MonthlyRevenue.php`), odeslané a doručené ne. Storno v dalším měsíci objednávku z reportu zpětně vyřadí (filtr na aktuální stav).
+-- Sleva na objednávku (`orders.discount_amount_in_cents`) se **neodečítá**. Cizí měny přes `exchange_rates`.
+-- Stejné tržby jinak: dashboard `src/Legacy/Admin/AdminController.php:29`, export pro účetní `src/Legacy/lib/csv.php:61` (`exportRevenueSum()`: i shipped a delivered, sleva odečtená, měny bez převodu).
+-
+-## Zápisy do tabulky objednávek
+-- `src/Legacy/Admin/order_edit.php:44`: změna stavu (`UPDATE orders SET status`), řádek 77 mění slevu.
+-- `src/Legacy/Admin/orders.php:30`: hromadné storno (řádky 39 a 45 hromadně zaplaceno a odesláno).
+-- `src/Legacy/cron.php:33`: rušení nezaplacených potvrzených objednávek starších 14 dní; rezervace ve skladu nechá viset.
+-
+-Žádný z nich nejde přes agregát `Order`: nevzniká `OrderCancelled` a neplatí přechody `OrderStatus`.
+-
+-## Závislosti
+-- Legacy → `src/Legacy/lib/db.php:65` (`legacy_db()`, globální `$db`), používá ho 42 souborů (`global $db`).
+-- Legacy → Ordering: jen příkazy přes `legacy_command()` (`src/Legacy/lib/functions.php:195`), změna množství `src/Legacy/Admin/OrderController.php:141` (`ChangeItemQuantity`). Hlídá Deptrac (vrstva `Legacy`).
+-- Ordering, Inventory → Legacy: žádné. Výjimka je protikorupční vrstva `src/Ordering/Infrastructure/Legacy/LegacyProductCatalog.php` (čte tabulku `products`), hlídá ji Deptrac (vrstvy `Legacy` a `LegacyAcl`).
+diff --git a/docs/review.md b/docs/review.md
+deleted file mode 100644
+index 679c573..0000000
+--- a/docs/review.md
++++ /dev/null
+@@ -1,24 +0,0 @@
+-# Zadání pro reviewera v čistém kontextu
+-
+-Spusťte v nové relaci, ne v té, ve které kód vznikl. Reviewer nedostane konverzaci autora.
+-
+-## Co se změnilo
+-`git diff main...HEAD`
+-
+-## Proti čemu měřit
+-Zadání s akceptačními kritérii (soubor plánu v `docs/plany/` nebo popis úlohy v PR).
+-
+-## Pravidla projektu
+-Instrukční soubor projektu `CLAUDE.md` a instrukční soubor dotčeného kontextu (`src/Ordering/CLAUDE.md`).
+-
+-## Mandát
+-Hlas jen chyby ve správnosti a v požadavcích. Styl, pojmenování a „hezčí řešení“ nehlas.
+-U každého nálezu uveď konkrétní soubor a řádek.
+-Zjisti, jestli diff nepočítá něco, co v projektu už je (duplicitní výpočet, druhá cesta ke stejnému stavu).
+-
+-Projdi vždy i tyto otázky (platí pro nový kód i pro starou administraci v `src/Legacy`):
+-- Je každá akce, která něco mění, chráněná proti CSRF a oprávněním s odpovídající rolí? Ověř, že volaná kontrola opravdu něco kontroluje.
+-- Jde každá hodnota do SQL přes `$db->quote()`, přetypování nebo parametr?
+-- Mění diff stav objednávky nebo skladu jinou cestou než přes doménu (`Order`, příkazy, události)?
+-- Mění diff chování, signaturu nebo data existujícího kódu, které zadání nežádalo (doménové metody, konfigurace, existující testy, tabulky)?
+-- Sedí závěrečná zpráva autora s tím, co diff opravdu dělá?
+diff --git a/src/Ordering/CLAUDE.md b/src/Ordering/CLAUDE.md
+deleted file mode 100644
+index 085a104..0000000
+--- a/src/Ordering/CLAUDE.md
++++ /dev/null
+@@ -1,11 +0,0 @@
+-# Ordering
+-
+-Slovník: objednávka (`Order`), položka (`OrderItem`), storno (`cancel()`, `OrderCancelled`).
+-Pozor: rezervace ≠ storno. Rezervace zboží patří Inventory, ne Orderingu.
+-
+-Veřejné pro ostatní kontexty: události v `Domain/Event` a ID (`OrderId`, `ProductId`, `CustomerId`).
+-Stará administrace (`src/Legacy`) smí jen na příkazy v `Application/Command`, ID a výjimky v `Domain/Exception`.
+-Inventory volat nesmíš, reaguje na události Orderingu.
+-Když Deptrac hlásí `… must not depend on … (InventoryDomain)`: neupravuj `deptrac.php`,
+-zaznamenej v `Order` událost a zbytek udělej v handleru událostí v `src/Inventory/Application/EventHandler`.
+-Stav objednávky mění jen doménové metody `Order` s `canTransitionTo()` a `record()`.
